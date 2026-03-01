@@ -1,0 +1,32 @@
+---
+const navLinks = [
+  { href: '/hizmetler', label: 'Hizmetler' },
+  { href: '/vaka-calismalari', label: 'Vaka Çalışmaları' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/hakkimizda', label: 'Hakkımızda' },
+  { href: '/iletisim', label: 'İletişim' }
+];
+---
+<header class="bg-white border-b border-gray-100 py-4 top-0 z-50 sticky">
+  <div class="container mx-auto px-4 flex justify-between items-center">
+    <!-- Logo -->
+    <a href="/" class="text-xl font-bold tracking-tighter text-gray-900">
+      AKA<span class="text-blue-600">Software</span>
+    </a>
+    
+    <!-- Nav -->
+    <nav class="hidden md:flex gap-6">
+      {navLinks.map((link) => (
+        <a href={link.href} class="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    <a href="/iletisim" class="hidden md:inline-flex bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Teklif Al</a>
+    
+    <!-- Mobile Menu Button (Placeholder) -->
+    <button class="md:hidden text-gray-600">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+  </div>
+</header>

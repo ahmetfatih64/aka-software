@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import CardGrid from '../components/CardGrid.astro';
+import CTA from '../components/CTA.astro';
+
+import { getEntry } from 'astro:content';
+const page = await getEntry('pages', 'hizmetler');
+const data = page?.data || { title: "Hizmetlerimiz" };
+---
+<BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
+  <section class="bg-blue-50 py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{data.title}</h1>
+      {data.description && <p class="text-xl text-gray-600">{data.description}</p>}
+    </div>
+  </section>
+
+  <Section>
+    <CardGrid columns={3}>
+      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Özel Yazılım Geliştirme</h3>
+        <p class="text-gray-600 mb-6">İhtiyaçlarınıza özel olarak tasarlanmış, ölçeklenebilir ve güvenli web uygulamaları, mobil uygulamalar ve karmaşık kurumsal sistemler geliştiriyoruz.</p>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li>✓ Modern Web Uygulamaları (Astro, Next.js)</li>
+          <li>✓ Sistem Entegrasyonları (API Geliştirme)</li>
+          <li>✓ Bulut Mimarisi Tasarımı</li>
+        </ul>
+      </div>
+      
+      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Yapay Zeka (AI) Entegrasyonu</h3>
+        <p class="text-gray-600 mb-6">İş süreçlerinizi akıllandırmak için yapay zeka modelleri ve büyük dil modellerini (LLM) mevcut sistemlerinize entegre ediyoruz.</p>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li>✓ LLM Entegrasyonu (OpenAI, Anthropic vb.)</li>
+          <li>✓ Süreç Otomasyonu</li>
+          <li>✓ Veri Analizi ve Öngörü</li>
+        </ul>
+      </div>
+      
+      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Teknoloji Danışmanlığı</h3>
+        <p class="text-gray-600 mb-6">CTO seviyesinde danışmanlık hizmeti sunarak dijital dönüşüm stratejinizi oluşturuyor, doğru teknoloji seçimleri ile sizi yönlendiriyoruz.</p>
+        <ul class="space-y-2 text-sm text-gray-500">
+          <li>✓ Mimari Tasarım ve Değerlendirme</li>
+          <li>✓ Teknik Ekip Kurma ve Liderlik</li>
+          <li>✓ Kod Kalitesi ve Güvenlik Denetimi</li>
+        </ul>
+      </div>
+    </CardGrid>
+  </Section>
+
+  <CTA 
+    title="Projeniz İçin Teknik Çözüm Arıyorsanız Görüşelim" 
+    description="Sizi dinleyelim ve iş hedeflerinize uygun teknoloji yol haritasını birlikte çıkaralım." 
+  />
+</BaseLayout>

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import MarkdownContent from '../components/MarkdownContent.astro';
+
+import { getEntry } from 'astro:content';
+const page = await getEntry('legal', 'kullanim-sartlari');
+
+const data = page?.data || { title: "Kullanım Şartları", description: "Kurallarımız", updatedDate: new Date() };
+const Content = page ? (await page.render()).Content : null;
+---
+<BaseLayout title={data.title} description={data.description}>
+  <section class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4 text-center max-w-3xl">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{data.title}</h1>
+      <p class="text-gray-500">Son Güncelleme: {data.updatedDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    </div>
+  </section>
+
+  <Section>
+    <div class="max-w-3xl mx-auto">
+      {Content ? (
+         <MarkdownContent>
+           <Content />
+         </MarkdownContent>
+      ) : (
+         <MarkdownContent>
+           <p>Lütfen bu web sitesini kullanmadan önce kullanım şartlarımızı dikkatlice okuyunuz.</p>
+           <h2>Web Sitesinin Kullanımı</h2>
+           <p>Bu web sitesinde sunulan materyaller bilgilendirme amaçlıdır. AKA Software, bu dökümanlardaki bilgilerin kesinliği ve eksiksizliği konusunda garanti veremez.</p>
+           <h2>Fikri Mülkiyet</h2>
+           <p>Site üzerindeki tasarım, metinler, grafikler ve ilgili haklar AKA Software'e aittir. İzinsiz kullanılamaz.</p>
+         </MarkdownContent>
+      )}
+    </div>
+  </Section>
+</BaseLayout>

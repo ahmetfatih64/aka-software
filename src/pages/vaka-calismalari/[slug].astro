@@ -1,0 +1,72 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import MarkdownContent from '../../components/MarkdownContent.astro';
+
+export async function getStaticPaths() {
+  const studies = await getCollection('case-studies');
+  return studies.map(study => ({
+    params: { slug: study.slug },
+    props: { study },
+  }));
+}
+
+const { study } = Astro.props;
+const { Content } = await study.render();
+---
+<BaseLayout 
+  title={`${study.data.title} | Vaka Çalışması`} 
+  description={study.data.description} 
+>
+  <section class="bg-gray-900 text-white pt-24 pb-16">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="text-sm font-bold tracking-widest text-blue-400 uppercase mb-4">{study.data.industry}</div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">{study.data.title}</h1>
+      <p class="text-xl text-gray-300">{study.data.description}</p>
+    </div>
+  </section>
+  
+  <Section class="border-b border-gray-100 bg-gray-50">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div>
+        <h3 class="font-bold text-gray-900 mb-2">Sunulan Hizmetler</h3>
+        <div class="flex flex-wrap gap-2">
+          {study.data.services.map((s: string) => (
+             <span class="text-sm bg-white border border-gray-200 px-3 py-1 rounded-full">{s}</span>
+          ))}
+        </div>
+      </div>
+      <div>
+         <h3 class="font-bold text-gray-900 mb-2">Kullanılan Teknolojiler</h3>
+         <div class="flex flex-wrap gap-2">
+          {study.data.tech.map((t: string) => (
+             <span class="text-sm bg-white border border-gray-200 px-3 py-1 rounded-full">{t}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <article class="py-16">
+    <div class="container mx-auto px-4 max-w-3xl">
+       {study.data.highlights && study.data.highlights.length > 0 && (
+         <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-xl mb-12">
+            <h3 class="font-bold text-lg text-gray-900 mb-4">Öne Çıkan Sonuçlar</h3>
+            <ul class="space-y-2">
+              {study.data.highlights.map((h: string) => (
+                 <li class="flex gap-2 text-gray-700">
+                   <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                   <span>{h}</span>
+                 </li>
+              ))}
+            </ul>
+         </div>
+       )}
+       
+       <MarkdownContent>
+         <Content />
+       </MarkdownContent>
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  class?: string;
+  id?: string;
+  bg?: 'white' | 'gray';
+}
+const { title, description, class: className = '', id, bg = 'white' } = Astro.props;
+const bgClass = bg === 'gray' ? 'bg-gray-50' : 'bg-white';
+---
+<section id={id} class={`py-16 md:py-24 ${bgClass} ${className}`}>
+  <div class="container mx-auto px-4">
+    {(title || description) && (
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        {title && <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{title}</h2>}
+        {description && <p class="text-lg text-gray-600">{description}</p>}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import CaseStudyCard from '../../components/CaseStudyCard.astro';
+
+import { getCollection, getEntry } from 'astro:content';
+
+const studies = await getCollection('case-studies', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+const sortedStudies = studies.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+
+const pageData = await getEntry('pages', 'vaka-calismalari') || { 
+  data: { 
+    title: "Vaka Çalışmaları", 
+    description: "Müşterilerimizin dijital dönüşüm yolculuklarına nasıl rehberlik ettik?",
+    seoTitle: "Vaka Çalışmaları | AKA Software",
+    seoDescription: "Yapay zeka ve teknoloji odaklı başarı hikayeleri ve vaka çalışmaları."
+  }
+};
+---
+<BaseLayout title={pageData.data.title} seoTitle={pageData.data.seoTitle} seoDescription={pageData.data.seoDescription}>
+  <section class="bg-blue-600 text-white py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">{pageData.data.title}</h1>
+      {pageData.data.description && <p class="text-xl text-blue-100">{pageData.data.description}</p>}
+    </div>
+  </section>
+
+  <Section>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {sortedStudies.length > 0 ? (
+        sortedStudies.map(study => (
+          <CaseStudyCard study={study} />
+        ))
+      ) : (
+        <div class="col-span-full items-center text-center py-12">
+          <p class="text-gray-500 text-lg">Vaka çalışması yakında eklenecektir.</p>
+        </div>
+      )}
+    </div>
+  </Section>
+</BaseLayout>

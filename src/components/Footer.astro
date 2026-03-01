@@ -1,0 +1,46 @@
+---
+const currentYear = new Date().getFullYear();
+---
+<footer class="bg-gray-900 text-gray-300 py-12 mt-auto">
+  <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div class="md:col-span-1">
+      <a href="/" class="text-xl font-bold tracking-tighter text-white mb-4 block">
+        AKA<span class="text-blue-500">Software</span>
+      </a>
+      <p class="text-sm text-gray-400">
+        AI ve modern yazılım teknolojileriyle işletmenizin dijital dönüşümüne rehberlik ediyoruz.
+      </p>
+    </div>
+    
+    <div>
+      <h3 class="text-white font-semibold mb-4">Hızlı Bağlantılar</h3>
+      <ul class="space-y-2 text-sm">
+        <li><a href="/hizmetler" class="hover:text-blue-400">Hizmetler</a></li>
+        <li><a href="/vaka-calismalari" class="hover:text-blue-400">Vaka Çalışmaları</a></li>
+        <li><a href="/blog" class="hover:text-blue-400">Blog</a></li>
+        <li><a href="/hakkimizda" class="hover:text-blue-400">Hakkımızda</a></li>
+      </ul>
+    </div>
+    
+    <div>
+      <h3 class="text-white font-semibold mb-4">Yasal</h3>
+      <ul class="space-y-2 text-sm">
+        <li><a href="/gizlilik" class="hover:text-blue-400">Gizlilik Politikası</a></li>
+        <li><a href="/kullanim-sartlari" class="hover:text-blue-400">Kullanım Şartları</a></li>
+        <li><a href="/sss" class="hover:text-blue-400">Sıkça Sorulan Sorular (SSS)</a></li>
+      </ul>
+    </div>
+    
+    <div>
+      <h3 class="text-white font-semibold mb-4">İletişim</h3>
+      <address class="text-sm not-italic space-y-2 text-gray-400">
+        <p>Ahmet Fatih Kahya</p>
+        <p><a href="mailto:info@akasoftware.com" class="hover:text-blue-400">info@akasoftware.com</a></p>
+      </address>
+    </div>
+  </div>
+  
+  <div class="container mx-auto px-4 mt-8 pt-8 border-t border-gray-800 text-sm text-center text-gray-500">
+    &copy; {currentYear} AKA Software. Tüm hakları saklıdır.
+  </div>
+</footer>

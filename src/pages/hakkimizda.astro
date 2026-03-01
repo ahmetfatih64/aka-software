@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import MarkdownContent from '../components/MarkdownContent.astro';
+
+import { getEntry } from 'astro:content';
+const page = await getEntry('pages', 'hakkimizda');
+
+// Fallback until content is loaded
+const data = page?.data || { title: "Hakkımızda" };
+const Content = page ? (await page.render()).Content : null;
+---
+<BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
+  <section class="bg-gray-50 py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{data.title}</h1>
+      {data.description && <p class="text-xl text-gray-600">{data.description}</p>}
+    </div>
+  </section>
+
+  <Section>
+    <div class="max-w-4xl mx-auto">
+      {Content ? (
+        <MarkdownContent>
+          <Content />
+        </MarkdownContent>
+      ) : (
+        <MarkdownContent>
+          <h2>Misyonumuz</h2>
+          <p>Yenilikçi teknolojilerle işletmelerin rekabet gücünü artırmak ve dijital dönüşümlerine öncülük etmek.</p>
+          
+          <h2>Kurucumuz</h2>
+          <p><strong>Ahmet Fatih Kahya</strong> tarafından kurulan <strong>AKA Software</strong>, modern yazılım ekosistemi ve yapay zeka alanlarında derin bir uzmanlığa sahiptir. Müşterilerimize sadece bir "yazılım" değil, verimlilik ve ölçeklenebilirlik katan çözümler sunmayı hedefliyoruz.</p>
+          
+          <h2>Neden Bizi Seçmelisiniz?</h2>
+          <ul>
+            <li><strong>Teknoloji Odaklılık:</strong> En güncel ve rüştünü ispatlamış teknoloji yığınlarını kullanıyoruz (Astro, Next.js, Node.js, AI Entegrasyonları).</li>
+            <li><strong>Şeffaflık:</strong> Süreçlerimizin her adımında tamamen şeffaf ilerliyoruz.</li>
+            <li><strong>Kalite ve Performans:</strong> Yazdığımız kodun kalitesi ve kurduğumuz sistemlerin yüksek performansı önceliğimizdir.</li>
+          </ul>
+        </MarkdownContent>
+      )}
+    </div>
+  </Section>
+</BaseLayout>

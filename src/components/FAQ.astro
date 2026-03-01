@@ -1,0 +1,25 @@
+---
+interface QA {
+  q: string;
+  a: string;
+}
+interface Props {
+  items: QA[];
+}
+const { items } = Astro.props;
+---
+<div class="max-w-3xl mx-auto divide-y divide-gray-200">
+  {items.map(item => (
+    <details class="group py-6">
+      <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-xl text-gray-900 group-open:text-blue-600">
+        <span>{item.q}</span>
+        <span class="transition group-open:rotate-180">
+          <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+        </span>
+      </summary>
+      <p class="text-gray-600 mt-4 group-open:animate-fadeIn">
+        {item.a}
+      </p>
+    </details>
+  ))}
+</div>
