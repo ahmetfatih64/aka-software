@@ -6,27 +6,215 @@ const navLinks = [
   { href: '/hakkimizda', label: 'Hakkımızda' },
   { href: '/iletisim', label: 'İletişim' }
 ];
+
+const currentPath = Astro.url.pathname;
 ---
-<header class="bg-white border-b border-gray-100 py-4 top-0 z-50 sticky">
-  <div class="container mx-auto px-4 flex justify-between items-center">
-    <!-- Logo -->
-    <a href="/" class="text-xl font-bold tracking-tighter text-gray-900">
-      AKA<span class="text-blue-600">Software</span>
-    </a>
-    
-    <!-- Nav -->
-    <nav class="hidden md:flex gap-6">
-      {navLinks.map((link) => (
-        <a href={link.href} class="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-          {link.label}
+<header class="fixed inset-x-0 top-0 z-40">
+  <div class="site-container">
+    <div
+      class="mt-3 flex items-center justify-between rounded-2xl border px-4 py-2.5 backdrop-blur-md transition-all duration-200"
+      style="background: rgb(var(--color-card) / 0.85); border-color: rgb(var(--color-border));"
+      data-site-header
+    >
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2.5 text-sm font-semibold tracking-tight" style="color: rgb(var(--color-fg));">
+        <span
+          class="flex h-8 w-8 items-center justify-center rounded-lg text-[0.6rem] font-bold"
+          style="background: rgb(var(--color-fg)); color: rgb(var(--color-bg));"
+        >
+          AKA
+        </span>
+        <span class="hidden sm:inline">AKA Software</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden items-center gap-6 md:flex">
+        {navLinks.map((link) => {
+          const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
+          return (
+            <a
+              href={link.href}
+              class={`nav-link ${isActive ? 'nav-link--active' : ''}`}
+            >
+              {link.label}
+            </a>
+          );
+        })}
+      </nav>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-2">
+        <!-- Theme toggle -->
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
+          style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
+          aria-label="Tema değiştir"
+          data-theme-toggle
+        >
+          <svg class="h-4 w-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41" />
+          </svg>
+          <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+          </svg>
+        </button>
+
+        <!-- Desktop CTA -->
+        <a href="/iletisim" class="btn-primary hidden md:inline-flex h-8 px-4 text-xs">
+          Teklif Al
         </a>
-      ))}
-    </nav>
-    <a href="/iletisim" class="hidden md:inline-flex bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Teklif Al</a>
-    
-    <!-- Mobile Menu Button (Placeholder) -->
-    <button class="md:hidden text-gray-600">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-    </button>
+
+        <!-- Mobile menu toggle -->
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150 md:hidden"
+          style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
+          aria-label="Menüyü aç"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          data-mobile-toggle
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile overlay -->
+  <div
+    id="mobile-nav"
+    class="fixed inset-0 z-30 hidden backdrop-blur-sm md:hidden"
+    style="background: rgba(0,0,0,0.4);"
+    aria-hidden="true"
+    data-mobile-overlay
+  >
+    <div class="site-container flex h-full items-start justify-end pt-16" data-mobile-panel>
+      <div
+        class="w-full max-w-sm rounded-2xl border p-5 shadow-lg"
+        style="background: rgb(var(--color-card)); border-color: rgb(var(--color-border));"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="mb-4 flex items-center justify-between">
+          <span class="text-sm font-semibold" style="color: rgb(var(--color-fg));">Menü</span>
+          <button
+            type="button"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
+            style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
+            aria-label="Menüyü kapat"
+            data-mobile-close
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <nav class="flex flex-col gap-1" data-mobile-nav-links>
+          {navLinks.map((link) => {
+            const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
+            return (
+              <a
+                href={link.href}
+                class="flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150"
+                style={isActive
+                  ? "background: rgb(var(--color-muted)); color: rgb(var(--color-fg));"
+                  : "color: rgb(var(--color-fg-muted));"
+                }
+              >
+                {link.label}
+              </a>
+            );
+          })}
+        </nav>
+
+        <div class="mt-4 pt-4 border-t" style="border-color: rgb(var(--color-border));">
+          <a href="/iletisim" class="btn-primary w-full justify-center text-xs">
+            Teklif Al
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
+
+<script>
+  const docEl = document.documentElement;
+  const THEME_KEY = 'aka-theme';
+
+  function applyTheme(theme: string) {
+    docEl.classList.toggle('dark', theme === 'dark');
+  }
+
+  (function initTheme() {
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+    } catch { /* noop */ }
+  })();
+
+  function toggleTheme() {
+    const next = docEl.classList.contains('dark') ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch { /* noop */ }
+  }
+
+  function setupHeader() {
+    document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+
+    const header = document.querySelector<HTMLElement>('[data-site-header]');
+    if (header) {
+      window.addEventListener('scroll', () => {
+        header.style.boxShadow = scrollY > 10 ? '0 8px 30px rgba(0,0,0,0.06)' : 'none';
+      }, { passive: true });
+    }
+
+    const toggleBtn = document.querySelector<HTMLElement>('[data-mobile-toggle]');
+    const overlay = document.querySelector<HTMLElement>('[data-mobile-overlay]');
+    const closeBtn = document.querySelector<HTMLElement>('[data-mobile-close]');
+    const panel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+    if (!toggleBtn || !overlay || !closeBtn || !panel) return;
+
+    let lastFocused: HTMLElement | null = null;
+
+    function open() {
+      lastFocused = document.activeElement as HTMLElement;
+      overlay!.classList.remove('hidden');
+      toggleBtn!.setAttribute('aria-expanded', 'true');
+      const first = panel!.querySelector<HTMLElement>('a, button');
+      if (first) first.focus();
+      document.addEventListener('keydown', onKey);
+    }
+
+    function close() {
+      overlay!.classList.add('hidden');
+      toggleBtn!.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onKey);
+      if (lastFocused) lastFocused.focus();
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') close();
+      if (e.key === 'Tab') {
+        const focusables = Array.from(panel!.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+        if (!focusables.length) return;
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+
+    toggleBtn.addEventListener('click', () => overlay!.classList.contains('hidden') ? open() : close());
+    overlay.addEventListener('click', (e: Event) => { if (e.target === overlay) close(); });
+    closeBtn.addEventListener('click', close);
+  }
+
+  document.addEventListener('DOMContentLoaded', setupHeader);
+</script>

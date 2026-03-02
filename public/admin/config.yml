@@ -1,0 +1,130 @@
+backend:
+  name: git-gateway
+  branch: main # Branch to update (optional; defaults to master)
+
+# This enables local backend testing (npx decap-server)
+local_backend: true
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "pages"
+    label: "Pages"
+    folder: "src/content/pages"
+    create: false # Pre-defined pages like home, about etc.
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "SEO Title", name: "seoTitle", widget: "string", required: false}
+      - {label: "SEO Description", name: "seoDescription", widget: "string", required: false}
+      - {label: "Slug", name: "slug", widget: "string", required: false}
+      - {label: "Nav Order", name: "navOrder", widget: "number", required: false}
+      - label: "Sections"
+        name: "sections"
+        widget: "object"
+        required: false
+        fields:
+          - label: "Hero"
+            name: "hero"
+            widget: "object"
+            required: false
+            fields:
+              - {label: "Title", name: "title", widget: "string", required: false}
+              - {label: "Description", name: "description", widget: "text", required: false}
+              - {label: "Primary CTA Text", name: "primaryCtaText", widget: "string", required: false}
+              - {label: "Primary CTA Link", name: "primaryCtaLink", widget: "string", required: false}
+              - {label: "Secondary CTA Text", name: "secondaryCtaText", widget: "string", required: false}
+              - {label: "Secondary CTA Link", name: "secondaryCtaLink", widget: "string", required: false}
+          - label: "Services"
+            name: "services"
+            widget: "object"
+            required: false
+            fields:
+              - {label: "Title", name: "title", widget: "string", required: false}
+              - {label: "Description", name: "description", widget: "text", required: false}
+              - label: "Items"
+                name: "items"
+                widget: "list"
+                required: false
+                fields:
+                  - {label: "Title", name: "title", widget: "string"}
+                  - {label: "Description", name: "description", widget: "text"}
+          - label: "Testimonials"
+            name: "testimonials"
+            widget: "object"
+            required: false
+            fields:
+              - {label: "Title", name: "title", widget: "string", required: false}
+              - label: "Items"
+                name: "items"
+                widget: "list"
+                required: false
+                fields:
+                  - {label: "Quote", name: "quote", widget: "text"}
+                  - {label: "Author", name: "author", widget: "string"}
+                  - {label: "Role", name: "role", widget: "string"}
+          - label: "FAQ"
+            name: "faq"
+            widget: "object"
+            required: false
+            fields:
+              - {label: "Title", name: "title", widget: "string", required: false}
+              - label: "Items"
+                name: "items"
+                widget: "list"
+                required: false
+                fields:
+                  - {label: "Question", name: "q", widget: "string"}
+                  - {label: "Answer", name: "a", widget: "text"}
+          - label: "CTA"
+            name: "cta"
+            widget: "object"
+            required: false
+            fields:
+              - {label: "Title", name: "title", widget: "string", required: false}
+              - {label: "Description", name: "description", widget: "text", required: false}
+              - {label: "Button Text", name: "buttonText", widget: "string", required: false}
+              - {label: "Button Link", name: "buttonLink", widget: "string", required: false}
+      - {label: "Body", name: "body", widget: "markdown", required: false}
+
+  - name: "blog"
+    label: "Blog"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Description", name: "description", widget: "string"}
+      - {label: "Publish Date", name: "publishDate", widget: "datetime"}
+      - {label: "Updated Date", name: "updatedDate", widget: "datetime", required: false}
+      - {label: "Tags", name: "tags", widget: "list", required: false, default: []}
+      - {label: "Draft", name: "draft", widget: "boolean", required: false, default: false}
+      - {label: "Body", name: "body", widget: "markdown"}
+
+  - name: "case-studies"
+    label: "Case Studies"
+    folder: "src/content/case-studies"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Description", name: "description", widget: "string"}
+      - {label: "Publish Date", name: "publishDate", widget: "datetime"}
+      - {label: "Industry", name: "industry", widget: "string"}
+      - {label: "Services", name: "services", widget: "list", required: false, default: []}
+      - {label: "Tech", name: "tech", widget: "list", required: false, default: []}
+      - {label: "Highlights", name: "highlights", widget: "list", required: false, default: []}
+      - {label: "Draft", name: "draft", widget: "boolean", required: false, default: false}
+      - {label: "Body", name: "body", widget: "markdown"}
+
+  - name: "legal"
+    label: "Legal"
+    folder: "src/content/legal"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Description", name: "description", widget: "string"}
+      - {label: "Updated Date", name: "updatedDate", widget: "datetime"}
+      - {label: "Body", name: "body", widget: "markdown"}

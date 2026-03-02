@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import CardGrid from '../components/CardGrid.astro';
 import CTA from '../components/CTA.astro';
@@ -9,49 +10,54 @@ const page = await getEntry('pages', 'hizmetler');
 const data = page?.data || { title: "Hizmetlerimiz" };
 ---
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
-  <section class="bg-blue-50 py-16 md:py-24">
-    <div class="container mx-auto px-4 text-center max-w-3xl">
-      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{data.title}</h1>
-      {data.description && <p class="text-xl text-gray-600">{data.description}</p>}
-    </div>
-  </section>
+  <PageHeader title={data.title} description={data.description} />
 
   <Section>
     <CardGrid columns={3}>
-      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Özel Yazılım Geliştirme</h3>
-        <p class="text-gray-600 mb-6">İhtiyaçlarınıza özel olarak tasarlanmış, ölçeklenebilir ve güvenli web uygulamaları, mobil uygulamalar ve karmaşık kurumsal sistemler geliştiriyoruz.</p>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li>✓ Modern Web Uygulamaları (Astro, Next.js)</li>
-          <li>✓ Sistem Entegrasyonları (API Geliştirme)</li>
-          <li>✓ Bulut Mimarisi Tasarımı</li>
+      <div class="card card-hover">
+        <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold"
+          style="background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent));">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="m8 21 4-4 4 4" /></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" style="color: rgb(var(--color-fg));">Özel Yazılım Geliştirme</h3>
+        <p class="text-sm leading-relaxed mb-4" style="color: rgb(var(--color-fg-muted));">İhtiyaçlarınıza özel tasarlanmış, ölçeklenebilir web uygulamaları ve kurumsal sistemler geliştiriyoruz.</p>
+        <ul class="space-y-1.5 text-sm" style="color: rgb(var(--color-fg-faint));">
+          <li>Modern Web Uygulamaları (Astro, Next.js)</li>
+          <li>Sistem Entegrasyonları (API Geliştirme)</li>
+          <li>Bulut Mimarisi Tasarımı</li>
         </ul>
       </div>
-      
-      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Yapay Zeka (AI) Entegrasyonu</h3>
-        <p class="text-gray-600 mb-6">İş süreçlerinizi akıllandırmak için yapay zeka modelleri ve büyük dil modellerini (LLM) mevcut sistemlerinize entegre ediyoruz.</p>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li>✓ LLM Entegrasyonu (OpenAI, Anthropic vb.)</li>
-          <li>✓ Süreç Otomasyonu</li>
-          <li>✓ Veri Analizi ve Öngörü</li>
+
+      <div class="card card-hover">
+        <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4Z" /><circle cx="12" cy="15" r="2" /></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" style="color: rgb(var(--color-fg));">Yapay Zeka (AI) Entegrasyonu</h3>
+        <p class="text-sm leading-relaxed mb-4" style="color: rgb(var(--color-fg-muted));">İş süreçlerinizi akıllandırmak için yapay zeka modelleri ve büyük dil modellerini mevcut sistemlerinize entegre ediyoruz.</p>
+        <ul class="space-y-1.5 text-sm" style="color: rgb(var(--color-fg-faint));">
+          <li>LLM Entegrasyonu (OpenAI, Anthropic vb.)</li>
+          <li>Süreç Otomasyonu</li>
+          <li>Veri Analizi ve Öngörü</li>
         </ul>
       </div>
-      
-      <div class="p-8 border border-gray-100 rounded-xl hover:shadow-lg transition bg-white">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Teknoloji Danışmanlığı</h3>
-        <p class="text-gray-600 mb-6">CTO seviyesinde danışmanlık hizmeti sunarak dijital dönüşüm stratejinizi oluşturuyor, doğru teknoloji seçimleri ile sizi yönlendiriyoruz.</p>
-        <ul class="space-y-2 text-sm text-gray-500">
-          <li>✓ Mimari Tasarım ve Değerlendirme</li>
-          <li>✓ Teknik Ekip Kurma ve Liderlik</li>
-          <li>✓ Kod Kalitesi ve Güvenlik Denetimi</li>
+
+      <div class="card card-hover">
+        <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold bg-violet-500/10 text-violet-600 dark:text-violet-400">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9" /><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838.838-2.872a2 2 0 0 1 .506-.855Z" /></svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" style="color: rgb(var(--color-fg));">Teknoloji Danışmanlığı</h3>
+        <p class="text-sm leading-relaxed mb-4" style="color: rgb(var(--color-fg-muted));">CTO seviyesinde danışmanlık hizmeti sunarak dijital dönüşüm stratejinizi oluşturuyor, doğru teknoloji seçimleri ile sizi yönlendiriyoruz.</p>
+        <ul class="space-y-1.5 text-sm" style="color: rgb(var(--color-fg-faint));">
+          <li>Mimari Tasarım ve Değerlendirme</li>
+          <li>Teknik Ekip Kurma ve Liderlik</li>
+          <li>Kod Kalitesi ve Güvenlik Denetimi</li>
         </ul>
       </div>
     </CardGrid>
   </Section>
 
-  <CTA 
-    title="Projeniz İçin Teknik Çözüm Arıyorsanız Görüşelim" 
-    description="Sizi dinleyelim ve iş hedeflerinize uygun teknoloji yol haritasını birlikte çıkaralım." 
+  <CTA
+    title="Projeniz İçin Teknik Çözüm Arıyorsanız Görüşelim"
+    description="Sizi dinleyelim ve iş hedeflerinize uygun teknoloji yol haritasını birlikte çıkaralım."
   />
 </BaseLayout>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+---
+<section class="pt-32 pb-12 md:pt-40 md:pb-16">
+  <div class="site-container text-center max-w-3xl mx-auto">
+    <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl" style="color: rgb(var(--color-fg));">
+      {title}
+    </h1>
+    {description && (
+      <p class="mt-4 text-base leading-relaxed md:text-lg" style="color: rgb(var(--color-fg-muted));">
+        {description}
+      </p>
+    )}
+  </div>
+</section>

@@ -7,15 +7,19 @@ interface Props {
 const { study } = Astro.props;
 const { title, description, industry, services } = study.data;
 ---
-<a href={`/vaka-calismalari/${study.slug}`} class="group block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-  <div class="p-8">
-    <div class="text-sm font-bold tracking-widest text-blue-600 uppercase mb-2">{industry}</div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">{title}</h3>
-    <p class="text-gray-600 mb-6">{description}</p>
-    <div class="flex flex-wrap gap-2">
-      {services.map((service: string) => (
-        <span class="text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{service}</span>
-      ))}
-    </div>
+<a href={`/vaka-calismalari/${study.slug}`} class="group card card-hover flex flex-col">
+  <div class="text-xs font-medium uppercase tracking-widest mb-2" style="color: rgb(var(--color-accent));">
+    {industry}
+  </div>
+  <h3 class="text-xl font-semibold mb-3 transition-colors duration-150" style="color: rgb(var(--color-fg));">
+    {title}
+  </h3>
+  <p class="text-sm leading-relaxed mb-4 flex-grow" style="color: rgb(var(--color-fg-muted));">
+    {description}
+  </p>
+  <div class="flex flex-wrap gap-2">
+    {services.map((service: string) => (
+      <span class="badge">{service}</span>
+    ))}
   </div>
 </a>

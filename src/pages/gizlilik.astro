@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import MarkdownContent from '../components/MarkdownContent.astro';
 
@@ -10,27 +11,25 @@ const data = page?.data || { title: "Gizlilik Politikası", description: "Bizi y
 const Content = page ? (await page.render()).Content : null;
 ---
 <BaseLayout title={data.title} description={data.description}>
-  <section class="bg-gray-50 py-16">
-    <div class="container mx-auto px-4 text-center max-w-3xl">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{data.title}</h1>
-      <p class="text-gray-500">Son Güncelleme: {data.updatedDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-    </div>
-  </section>
+  <PageHeader title={data.title} />
+  <div class="site-container text-center -mt-8 mb-8">
+    <p class="text-sm" style="color: rgb(var(--color-fg-faint));">
+      Son Güncelleme: {data.updatedDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+    </p>
+  </div>
 
   <Section>
     <div class="max-w-3xl mx-auto">
       {Content ? (
-         <MarkdownContent>
-           <Content />
-         </MarkdownContent>
+        <MarkdownContent><Content /></MarkdownContent>
       ) : (
-         <MarkdownContent>
-           <p>Bu politika, AKA Software'in kullanıcılarına ve müşterilerine ait bilgileri nasıl topladığını, kullandığını ve koruduğunu açıklar.</p>
-           <h2>Bilgilerin Toplanması</h2>
-           <p>Web sitemiz üzerinden doldurduğunuz formlar aracılığıyla isim, iletişim bilgileri ve projeyle ilgili detayları topluyoruz.</p>
-           <h2>Bilgilerin Kullanımı</h2>
-           <p>Topladığımız bilgileri sadece size hizmet sunmak, teklif vermek ve süreç hakkında bilgilendirmek amacıyla kullanıyoruz. Üçüncü taraflarla paylaşmıyoruz.</p>
-         </MarkdownContent>
+        <MarkdownContent>
+          <p>Bu politika, AKA Software'in kullanıcılarına ve müşterilerine ait bilgileri nasıl topladığını, kullandığını ve koruduğunu açıklar.</p>
+          <h2>Bilgilerin Toplanması</h2>
+          <p>Web sitemiz üzerinden doldurduğunuz formlar aracılığıyla isim, iletişim bilgileri ve projeyle ilgili detayları topluyoruz.</p>
+          <h2>Bilgilerin Kullanımı</h2>
+          <p>Topladığımız bilgileri sadece size hizmet sunmak, teklif vermek ve süreç hakkında bilgilendirmek amacıyla kullanıyoruz. Üçüncü taraflarla paylaşmıyoruz.</p>
+        </MarkdownContent>
       )}
     </div>
   </Section>

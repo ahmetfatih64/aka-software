@@ -2,19 +2,21 @@
 interface Props {
   title?: string;
   description?: string;
+  eyebrow?: string;
   class?: string;
   id?: string;
-  bg?: 'white' | 'gray';
+  bg?: 'default' | 'muted';
 }
-const { title, description, class: className = '', id, bg = 'white' } = Astro.props;
-const bgClass = bg === 'gray' ? 'bg-gray-50' : 'bg-white';
+const { title, description, eyebrow, class: className = '', id, bg = 'default' } = Astro.props;
+const bgStyle = bg === 'muted' ? `background: rgb(var(--color-muted) / 0.5);` : '';
 ---
-<section id={id} class={`py-16 md:py-24 ${bgClass} ${className}`}>
-  <div class="container mx-auto px-4">
-    {(title || description) && (
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        {title && <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{title}</h2>}
-        {description && <p class="text-lg text-gray-600">{description}</p>}
+<section id={id} class={`section-block ${className}`} style={bgStyle}>
+  <div class="site-container">
+    {(title || description || eyebrow) && (
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        {eyebrow && <div class="section-eyebrow">{eyebrow}</div>}
+        {title && <h2 class="section-title">{title}</h2>}
+        {description && <p class="section-description mx-auto">{description}</p>}
       </div>
     )}
     <slot />

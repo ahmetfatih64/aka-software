@@ -18,33 +18,35 @@ const metaDesc = seoDescription || description || "Modern ve kurumsal AI & Yazı
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<html lang="tr">
+<html lang="tr" class="scroll-smooth">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-    
+
     <title>{metaTitle}</title>
     <meta name="description" content={metaDesc} />
     <link rel="canonical" href={canonicalURL} />
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDesc} />
     <meta property="og:site_name" content={siteName} />
 
-    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={Astro.url} />
     <meta property="twitter:title" content={metaTitle} />
     <meta property="twitter:description" content={metaDesc} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 	</head>
-	<body class="flex flex-col min-h-screen antialiased text-gray-800 bg-gray-50">
+	<body class="flex min-h-screen flex-col">
     <Header />
-    <main class="flex-grow">
+    <main class="flex-1">
       <slot />
     </main>
     <Footer />

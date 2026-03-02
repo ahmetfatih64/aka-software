@@ -10,9 +10,8 @@ import CTA from '../components/CTA.astro';
 import { getEntry } from 'astro:content';
 const homeEntry = await getEntry('pages', 'home');
 
-// Fallbacks if home.md doesn't exist yet
 const data = homeEntry?.data || {
-  title: "Astro",
+  title: "AKA Software",
   seoTitle: "AI ve Modern Yazılım Danışmanlığı | AKA Software",
   seoDescription: "AKA Software ile işletmenizi geleceğe taşıyın.",
   sections: {
@@ -28,46 +27,23 @@ const data = homeEntry?.data || {
       title: "Neler Yapıyoruz?",
       description: "İhtiyacınıza özel uçtan uca yazılım ve teknoloji danışmanlığı",
       items: [
-        {
-          title: "AI & LLM Entegrasyonu",
-          description: "İş süreçlerinize özel yapay zeka modelleri ve dil modelleri (LLM) entegrasyonu."
-        },
-        {
-          title: "Modern Web Uygulamaları",
-          description: "Astro, Next.js ve React gibi modern teknolojilerle yüksek performanslı web çözümleri."
-        },
-        {
-          title: "Teknoloji Danışmanlığı",
-          description: "Mimari tasarım, altyapı modernizasyonu ve teknik ekip liderliği (CTO as a Service)."
-        }
+        { title: "AI & LLM Entegrasyonu", description: "İş süreçlerinize özel yapay zeka modelleri ve dil modelleri (LLM) entegrasyonu." },
+        { title: "Modern Web Uygulamaları", description: "Astro, Next.js ve React gibi modern teknolojilerle yüksek performanslı web çözümleri." },
+        { title: "Teknoloji Danışmanlığı", description: "Mimari tasarım, altyapı modernizasyonu ve teknik ekip liderliği (CTO as a Service)." }
       ]
     },
     testimonials: {
       title: "Müşterilerimiz Neler Diyor?",
       items: [
-        {
-          quote: "AKA Software sayesinde süreçlerimizi %40 hızlandırdık. Harika bir iş çıkardılar.",
-          author: "Ürün Lideri (NDA)",
-          role: "E-Ticaret Platformu"
-        },
-        {
-          quote: "Yapay zeka entegrasyonumuzu pürüzsüz bir şekilde canlıya aldılar.",
-          author: "Teknoloji Yöneticisi (NDA)",
-          role: "Finans Teknolojileri"
-        }
+        { quote: "AKA Software sayesinde süreçlerimizi %40 hızlandırdık. Harika bir iş çıkardılar.", author: "Ürün Lideri (NDA)", role: "E-Ticaret Platformu" },
+        { quote: "Yapay zeka entegrasyonumuzu pürüzsüz bir şekilde canlıya aldılar.", author: "Teknoloji Yöneticisi (NDA)", role: "Finans Teknolojileri" }
       ]
     },
     faq: {
       title: "Sıkça Sorulan Sorular",
       items: [
-        {
-          q: "Projelerinizde hangi teknolojileri kullanıyorsunuz?",
-          a: "Ağırlıklı olarak modern JavaScript ekosistemi (Astro, Next.js, React, Node.js, TypeScript), Python tabanlı AI/ML araçları ve bulut servislerini tercih ediyoruz."
-        },
-        {
-          q: "Proje süreci nasıl işliyor?",
-          a: "Öncelikle ihtiyaçlarınızı analiz eden ücretsiz bir keşif görüşmesi yapıyoruz. Ardından detaylı bir teklif, planlama, geliştirme ve teslim aşamalarıyla ilerliyoruz."
-        }
+        { q: "Projelerinizde hangi teknolojileri kullanıyorsunuz?", a: "Ağırlıklı olarak modern JavaScript ekosistemi (Astro, Next.js, React, Node.js, TypeScript), Python tabanlı AI/ML araçları ve bulut servislerini tercih ediyoruz." },
+        { q: "Proje süreci nasıl işliyor?", a: "Öncelikle ihtiyaçlarınızı analiz eden ücretsiz bir keşif görüşmesi yapıyoruz. Ardından detaylı bir teklif, planlama, geliştirme ve teslim aşamalarıyla ilerliyoruz." }
       ]
     },
     cta: {
@@ -80,13 +56,20 @@ const data = homeEntry?.data || {
 };
 
 const { hero, services, testimonials, faq, cta } = data.sections || {};
+
+const processSteps = [
+  { step: "01", title: "Keşif Görüşmesi", description: "İhtiyaçlarınızı anlamak için ücretsiz bir ön görüşme yapıyoruz." },
+  { step: "02", title: "Planlama & Teklif", description: "Teknik mimari, zaman çizelgesi ve detaylı teklif hazırlıyoruz." },
+  { step: "03", title: "Geliştirme", description: "Agile süreçlerle iteratif geliştirme ve haftalık ilerleme paylaşımları." },
+  { step: "04", title: "Teslim & Destek", description: "Canlıya alma, dokümantasyon ve sürekli destek süreci." }
+];
 ---
 
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
-  
+
   {hero && (
-    <Hero 
-      title={hero.title} 
+    <Hero
+      title={hero.title}
       description={hero.description}
       primaryCtaText={hero.primaryCtaText}
       primaryCtaLink={hero.primaryCtaLink}
@@ -96,36 +79,52 @@ const { hero, services, testimonials, faq, cta } = data.sections || {};
   )}
 
   {services && (
-    <Section title={services.title} description={services.description}>
+    <Section title={services.title} description={services.description} eyebrow="Hizmetler">
       <CardGrid columns={3}>
         {services.items.map((service: any) => (
-          <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
-            <h3 class="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-            <p class="text-gray-600">{service.description}</p>
+          <div class="card card-hover">
+            <h3 class="text-lg font-semibold mb-2" style="color: rgb(var(--color-fg));">{service.title}</h3>
+            <p class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">{service.description}</p>
           </div>
         ))}
       </CardGrid>
     </Section>
   )}
 
+  <Section title="Nasıl Çalışıyoruz?" description="Her projeyi dört net adımda hayata geçiriyoruz." eyebrow="Süreç" bg="muted">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {processSteps.map((item) => (
+        <div class="text-center sm:text-left">
+          <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold"
+            style="background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent));"
+          >
+            {item.step}
+          </div>
+          <h3 class="text-base font-semibold mb-1" style="color: rgb(var(--color-fg));">{item.title}</h3>
+          <p class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">{item.description}</p>
+        </div>
+      ))}
+    </div>
+  </Section>
+
   {testimonials && (
-    <Section title={testimonials.title} bg="gray">
+    <Section title={testimonials.title} eyebrow="Referanslar">
       <TestimonialList testimonials={testimonials.items} />
     </Section>
   )}
 
   {faq && (
-    <Section title={faq.title}>
+    <Section title={faq.title} eyebrow="SSS" bg="muted">
       <FAQ items={faq.items} />
     </Section>
   )}
 
   {cta && (
-    <CTA 
-      title={cta.title} 
-      description={cta.description} 
-      buttonText={cta.buttonText} 
-      buttonLink={cta.buttonLink} 
+    <CTA
+      title={cta.title}
+      description={cta.description}
+      buttonText={cta.buttonText}
+      buttonLink={cta.buttonLink}
     />
   )}
 

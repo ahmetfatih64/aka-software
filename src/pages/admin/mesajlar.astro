@@ -1,0 +1,33 @@
+---
+import { db, ContactMessages } from 'astro:db';
+
+const messages = await db.select().from(ContactMessages);
+---
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelen Mesajlar (Admin)</title>
+    <!-- Basic styling for verification -->
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; background: #f9fafb; color: #111827; }
+        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .email { color: #6b7280; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <h1>Veritabanına Kaydenilen Mesajlar</h1>
+    <p>Astro DB Seed Testi: Aşağıdaki mesajlar `db/seed.ts` dosyasından okunmaktadır.</p>
+    
+    <div>
+        {messages.map((m) => (
+            <div class="card">
+                <h3>{m.name} <span class="email">&lt;{m.email}&gt;</span></h3>
+                <p>{m.message}</p>
+            </div>
+        ))}
+    </div>
+</body>
+</html>

@@ -6,8 +6,6 @@ const { items } = Astro.props;
 ---
 <div class="flex flex-wrap gap-2">
   {items.map(item => (
-    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-      {item}
-    </span>
+    <span class="badge">{item}</span>
   ))}
 </div>

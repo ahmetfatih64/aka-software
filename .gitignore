@@ -8,6 +8,7 @@ dist/
 node_modules/
 
 # logs
+astro_err.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
