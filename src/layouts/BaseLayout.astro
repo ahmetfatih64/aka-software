@@ -14,16 +14,17 @@ const { title, description, seoTitle, seoDescription } = Astro.props;
 
 const siteName = "AKA Software";
 const metaTitle = seoTitle || `${title} | ${siteName}`;
-const metaDesc = seoDescription || description || "Modern ve kurumsal AI & Yazılım Danışmanlık hizmetleri.";
+const metaDesc = seoDescription || description || "Modern ve kurumsal AI Yazilim Danismanlik hizmetleri.";
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/ana_logo.png', Astro.site);
 ---
 
 <html lang="tr" class="scroll-smooth">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/ana_logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
 
     <title>{metaTitle}</title>
     <meta name="description" content={metaDesc} />
@@ -34,21 +35,307 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDesc} />
     <meta property="og:site_name" content={siteName} />
+    <meta property="og:image" content={ogImage} />
 
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={Astro.url} />
     <meta property="twitter:title" content={metaTitle} />
     <meta property="twitter:description" content={metaDesc} />
+    <meta property="twitter:image" content={ogImage} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-	</head>
-	<body class="flex min-h-screen flex-col">
+
+    <script is:inline>
+      (function() {
+        try {
+          var stored = localStorage.getItem('aka-theme');
+          var prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = stored || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-screen flex-col">
+
+    <!-- Circuit board canvas background -->
+    <canvas id="circuit-bg" aria-hidden="true"></canvas>
+
     <Header />
-    <main class="flex-1">
+    <main class="flex-1" style="position: relative; z-index: 2;">
       <slot />
     </main>
-    <Footer />
-	</body>
+    <div style="position: relative; z-index: 2;"><Footer /></div>
+
+    <script is:inline>
+    /* ═══════════════════════════════════════════════════════════
+       AKA Software — Circuit Board Background Animation
+       Canvas-based: nodes, L-shaped PCB traces, neon signal,
+       bloom glow, pulse sparks at nodes. ~60fps via rAF.
+    ═══════════════════════════════════════════════════════════ */
+    (function () {
+      'use strict';
+
+      /* ── Node positions (percentages of W × H) ──────────────
+         Three clusters: Chip (left), Brain (center), Server (right)
+         + bridge nodes + bottom arc path                        */
+      var ND = [
+        /* Chip cluster  0-4  */ [.10,.38],[.16,.28],[.22,.36],[.18,.52],[.12,.62],
+        /* Left bridge   5-7  */ [.30,.22],[.33,.48],[.28,.70],
+        /* Brain cluster 8-12 */ [.46,.26],[.53,.20],[.57,.38],[.48,.52],[.55,.63],
+        /* Right bridge  13-15*/ [.67,.28],[.70,.50],[.63,.72],
+        /* Server cluster16-20*/ [.79,.28],[.87,.40],[.81,.54],[.88,.64],[.76,.70],
+        /* Bottom arc    21-22*/ [.40,.78],[.63,.82]
+      ];
+
+      /* ── Edge definitions [nodeA, nodeB] ────────────────────
+         Alternate even/odd indices use H-first vs V-first routing
+         to create natural PCB right-angle turns               */
+      var ED = [
+        /* Chip internal    */ [0,1],[1,2],[2,3],[3,4],[0,4],[1,3],
+        /* Chip → bridge    */ [1,5],[2,6],[4,7],
+        /* Bridge left      */ [5,6],[6,7],
+        /* Bridge → brain   */ [5,8],[5,9],[6,10],[6,11],[7,12],
+        /* Brain internal   */ [8,9],[9,10],[8,10],[10,11],[11,12],[10,12],
+        /* Brain → bridge R */ [9,13],[10,13],[10,14],[11,14],[12,15],
+        /* Bridge right     */ [13,14],[14,15],
+        /* Bridge → server  */ [13,16],[13,17],[14,17],[14,18],[15,19],[15,20],
+        /* Server internal  */ [16,17],[17,18],[18,19],[18,20],[19,20],
+        /* Bottom arc       */ [7,21],[21,22],[22,15],[11,21],[12,22]
+      ];
+
+      /* ── Canvas setup ───────────────────────────────────────*/
+      var canvas = document.getElementById('circuit-bg');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var W, H, dpr;
+      var nodes = [], edges = [], eMap = {};
+      var sig = null;       /* traveling signal                 */
+      var pulses = [];      /* node spark pulses                */
+
+      function resize() {
+        dpr = window.devicePixelRatio || 1;
+        W   = window.innerWidth;
+        H   = window.innerHeight;
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width  = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        buildGraph();
+      }
+
+      /* ── Build graph from definitions ──────────────────────*/
+      function buildGraph() {
+        nodes = ND.map(function(p) {
+          return { x: p[0]*W, y: p[1]*H, adj: [] };
+        });
+        eMap = {};
+        edges = ED.map(function(e, i) {
+          var a = e[0], b = e[1];
+          nodes[a].adj.push(b);
+          nodes[b].adj.push(a);
+          /* Alternate routing: even → horizontal-first, odd → vertical-first */
+          var hv  = (i % 2 === 0);
+          var mid = hv
+            ? { x: nodes[b].x, y: nodes[a].y }
+            : { x: nodes[a].x, y: nodes[b].y };
+          var edge = { a:a, b:b, mid:mid };
+          eMap[a*100+b] = edge;
+          eMap[b*100+a] = edge;
+          return edge;
+        });
+        /* Deduplicate adjacency lists */
+        nodes.forEach(function(n) {
+          n.adj = n.adj.filter(function(v,i,arr){ return arr.indexOf(v)===i; });
+        });
+      }
+
+      /* ── Signal: position along L-shaped edge ───────────── */
+      function posOnEdge(from, to, t) {
+        var n1   = nodes[from], n2 = nodes[to];
+        var edge = eMap[from*100+to];
+        if (!edge) return { x:n1.x, y:n1.y };
+        var c = edge.mid;
+        if (t <= .5) {
+          var s = t*2;
+          return { x: n1.x+(c.x-n1.x)*s, y: n1.y+(c.y-n1.y)*s };
+        } else {
+          var s = (t-.5)*2;
+          return { x: c.x+(n2.x-c.x)*s, y: c.y+(n2.y-c.y)*s };
+        }
+      }
+
+      /* ── Launch signal from a node ──────────────────────── */
+      function launchFrom(from, prevTrail) {
+        var adj  = nodes[from].adj;
+        var to   = adj[Math.floor(Math.random()*adj.length)];
+        sig = {
+          from:from, to:to, t:0, speed:.011,
+          trail: prevTrail || [], maxTrail:55
+        };
+      }
+
+      /* ── Update signal position ─────────────────────────── */
+      function updateSignal() {
+        if (!sig) { launchFrom(0); return; }
+        sig.t += sig.speed;
+        var pos = posOnEdge(sig.from, sig.to, Math.min(sig.t,1));
+        sig.trail.push({x:pos.x, y:pos.y});
+        if (sig.trail.length > sig.maxTrail) sig.trail.shift();
+
+        if (sig.t >= 1) {
+          /* Spark pulse at destination */
+          var d = nodes[sig.to];
+          pulses.push({x:d.x, y:d.y, t:0, maxR:22});
+          /* Next hop — prefer forward (not back) */
+          var prev = sig.from, curr = sig.to;
+          var fwd  = nodes[curr].adj.filter(function(n){ return n!==prev; });
+          var next = fwd.length ? fwd[Math.floor(Math.random()*fwd.length)] : prev;
+          sig = { from:curr, to:next, t:0, speed:sig.speed,
+                  trail:sig.trail.slice(-8), maxTrail:sig.maxTrail };
+        }
+      }
+
+      /* ── Glow helpers ───────────────────────────────────── */
+      function glow(col, blur) { ctx.shadowColor=col; ctx.shadowBlur=blur; }
+      function noGlow()        { ctx.shadowBlur=0; }
+
+      /* ── Dark mode flag ─────────────────────────────────── */
+      function dark() { return document.documentElement.classList.contains('dark'); }
+
+      /* ── Draw static circuit board ──────────────────────── */
+      function drawCircuit() {
+        var d  = dark();
+        var r  = d?212:30, g=d?168:50, b=d?70:100;
+        var lA = d?.09:.07;     /* edge line alpha         */
+        var nA = d?.22:.13;     /* node stroke alpha       */
+        var fA = d?.05:.03;     /* node fill alpha         */
+        var vA = d?.14:.08;     /* via (corner dot) alpha  */
+
+        /* PCB trace lines */
+        ctx.lineWidth   = 1.3;
+        ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+lA+')';
+        noGlow();
+        edges.forEach(function(e) {
+          var n1=nodes[e.a], n2=nodes[e.b], m=e.mid;
+          ctx.beginPath();
+          ctx.moveTo(n1.x,n1.y);
+          ctx.lineTo(m.x,m.y);
+          ctx.lineTo(n2.x,n2.y);
+          ctx.stroke();
+        });
+
+        /* Corner vias — small squares at L-joints */
+        ctx.fillStyle = 'rgba('+r+','+g+','+b+','+vA+')';
+        edges.forEach(function(e) {
+          ctx.fillRect(e.mid.x-2.5, e.mid.y-2.5, 5, 5);
+        });
+
+        /* Nodes — larger circles for hub clusters */
+        nodes.forEach(function(n, i) {
+          var isHub = (i<5)||(i>=8&&i<=12)||(i>=16&&i<=20);
+          var rad   = isHub ? 6 : 4;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, rad, 0, Math.PI*2);
+          ctx.fillStyle   = 'rgba('+r+','+g+','+b+','+fA+')';
+          ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+nA+')';
+          ctx.lineWidth   = 1.5;
+          noGlow();
+          ctx.fill();
+          ctx.stroke();
+        });
+      }
+
+      /* ── Draw node spark pulses ──────────────────────────── */
+      function drawPulses() {
+        pulses = pulses.filter(function(p){ return p.t<1; });
+        pulses.forEach(function(p) {
+          p.t += .026;
+          var rad   = p.maxR * p.t;
+          var alpha = (1-p.t)*.6;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, rad, 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(255,210,60,'+alpha+')';
+          ctx.lineWidth   = 1.6;
+          glow('rgba(255,200,50,.5)', 12);
+          ctx.stroke();
+        });
+        noGlow();
+      }
+
+      /* ── Draw traveling neon signal ─────────────────────── */
+      function drawSignal() {
+        if (!sig) return;
+        var pos = posOnEdge(sig.from, sig.to, Math.min(sig.t,1));
+
+        /* Trail — fading dots behind the signal */
+        sig.trail.forEach(function(pt, i) {
+          var frac  = i / sig.trail.length;
+          var alpha = frac * .5;
+          var rad   = 1.5 + frac*2.5;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, rad, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(255,195,45,'+alpha+')';
+          glow('rgba(255,185,30,.35)', 7*frac);
+          ctx.fill();
+        });
+
+        /* ── Multi-layer bloom effect ── */
+        /* Layer 1: wide soft aura */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 18, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,170,15,.07)';
+        glow('rgba(255,200,50,.5)', 40);
+        ctx.fill();
+
+        /* Layer 2: mid glow ring */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 9, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,210,55,.38)';
+        glow('rgba(255,215,60,.75)', 20);
+        ctx.fill();
+
+        /* Layer 3: bright inner sphere */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 4.5, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,240,160,.92)';
+        glow('rgba(255,240,150,1)', 14);
+        ctx.fill();
+
+        /* Layer 4: white-hot core */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 2, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,1)';
+        glow('rgba(255,255,255,.9)', 8);
+        ctx.fill();
+
+        noGlow();
+      }
+
+      /* ── Main animation loop ─────────────────────────────── */
+      function frame() {
+        ctx.clearRect(0, 0, W, H);
+        drawCircuit();
+        updateSignal();
+        drawPulses();
+        drawSignal();
+        requestAnimationFrame(frame);
+      }
+
+      /* ── Init & event listeners ──────────────────────────── */
+      window.addEventListener('resize', function() {
+        resize();
+        if (sig) sig.trail = [];
+        pulses = [];
+      });
+
+      resize();
+      launchFrom(Math.floor(Math.random() * ND.length));
+      frame();
+    }());
+    </script>
+  </body>
 </html>

@@ -6,25 +6,27 @@ const navLinks = [
   { href: '/hakkimizda', label: 'Hakkımızda' },
   { href: '/iletisim', label: 'İletişim' }
 ];
-
 const currentPath = Astro.url.pathname;
 ---
 <header class="fixed inset-x-0 top-0 z-40">
   <div class="site-container">
     <div
-      class="mt-3 flex items-center justify-between rounded-2xl border px-4 py-2.5 backdrop-blur-md transition-all duration-200"
-      style="background: rgb(var(--color-card) / 0.85); border-color: rgb(var(--color-border));"
+      class="mt-3 flex items-center justify-between rounded-2xl border px-4 py-2 backdrop-blur-xl transition-all duration-200"
+      style="background-image: linear-gradient(rgba(6,6,10,0.86), rgba(6,6,10,0.86)), url('/arkaplan.png'); background-size: cover; background-position: center 35%; border-color: rgba(212,168,70,0.28);"
       data-site-header
     >
       <!-- Logo -->
-      <a href="/" class="flex items-center gap-2.5 text-sm font-semibold tracking-tight" style="color: rgb(var(--color-fg));">
-        <span
-          class="flex h-8 w-8 items-center justify-center rounded-lg text-[0.6rem] font-bold"
-          style="background: rgb(var(--color-fg)); color: rgb(var(--color-bg));"
-        >
-          AKA
-        </span>
-        <span class="hidden sm:inline">AKA Software</span>
+      <a href="/" aria-label="AKA Software Ana Sayfa" class="flex items-center" style="opacity:1; transition: opacity 150ms;">
+        <img
+          src="/ana_logo.png"
+          alt="AKA Software"
+          height="44"
+          width="154"
+          class="h-11 w-auto object-contain"
+          style="max-width: 200px;"
+          loading="eager"
+          decoding="async"
+        />
       </a>
 
       <!-- Desktop nav -->
@@ -32,10 +34,7 @@ const currentPath = Astro.url.pathname;
         {navLinks.map((link) => {
           const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
           return (
-            <a
-              href={link.href}
-              class={`nav-link ${isActive ? 'nav-link--active' : ''}`}
-            >
+            <a href={link.href} class={`nav-link ${isActive ? 'nav-link--active' : ''}`}>
               {link.label}
             </a>
           );
@@ -48,21 +47,21 @@ const currentPath = Astro.url.pathname;
         <button
           type="button"
           class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
-          style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
-          aria-label="Tema değiştir"
+          style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
+          aria-label="Tema degistir"
           data-theme-toggle
         >
           <svg class="h-4 w-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41" />
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/>
           </svg>
           <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
           </svg>
         </button>
 
         <!-- Desktop CTA -->
-        <a href="/iletisim" class="btn-primary hidden md:inline-flex h-8 px-4 text-xs">
+        <a href="/iletisim" class="btn-primary hidden md:inline-flex" style="height:2rem; padding: 0 1rem; font-size: 0.75rem;">
           Teklif Al
         </a>
 
@@ -70,14 +69,14 @@ const currentPath = Astro.url.pathname;
         <button
           type="button"
           class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150 md:hidden"
-          style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
-          aria-label="Menüyü aç"
+          style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
+          aria-label="Menuyu ac"
           aria-expanded="false"
           aria-controls="mobile-nav"
           data-mobile-toggle
         >
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-            <path d="M4 6h16M4 12h16M4 18h16" />
+            <path d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
       </div>
@@ -88,33 +87,41 @@ const currentPath = Astro.url.pathname;
   <div
     id="mobile-nav"
     class="fixed inset-0 z-30 hidden backdrop-blur-sm md:hidden"
-    style="background: rgba(0,0,0,0.4);"
+    style="background: rgba(0,0,0,0.45);"
     aria-hidden="true"
     data-mobile-overlay
   >
     <div class="site-container flex h-full items-start justify-end pt-16" data-mobile-panel>
       <div
-        class="w-full max-w-sm rounded-2xl border p-5 shadow-lg"
-        style="background: rgb(var(--color-card)); border-color: rgb(var(--color-border));"
+        class="w-full max-w-sm rounded-2xl border p-5 shadow-xl"
+        style="background-image: linear-gradient(rgba(6,6,10,0.92), rgba(6,6,10,0.92)), url('/arkaplan.png'); background-size: cover; background-position: center; border-color: rgba(212,168,70,0.28);"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="mobile-nav-title"
       >
         <div class="mb-4 flex items-center justify-between">
-          <span class="text-sm font-semibold" style="color: rgb(var(--color-fg));">Menü</span>
+          <img
+            src="/ana_logo.png"
+            alt="AKA Software"
+            height="36"
+            width="126"
+            class="h-9 w-auto object-contain"
+            style="max-width: 160px;"
+          />
           <button
             type="button"
             class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
-            style="border-color: rgb(var(--color-border)); color: rgb(var(--color-fg-muted));"
-            aria-label="Menüyü kapat"
+            style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
+            aria-label="Menuyu kapat"
             data-mobile-close
           >
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6 6 18" />
+              <path d="M6 6l12 12M18 6 6 18"/>
             </svg>
           </button>
         </div>
 
-        <nav class="flex flex-col gap-1" data-mobile-nav-links>
+        <nav class="flex flex-col gap-1" id="mobile-nav-title" data-mobile-nav-links>
           {navLinks.map((link) => {
             const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
             return (
@@ -122,9 +129,8 @@ const currentPath = Astro.url.pathname;
                 href={link.href}
                 class="flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150"
                 style={isActive
-                  ? "background: rgb(var(--color-muted)); color: rgb(var(--color-fg));"
-                  : "color: rgb(var(--color-fg-muted));"
-                }
+                  ? "background: rgba(212,168,70,0.12); color: rgba(255,255,255,0.95);"
+                  : "color: rgba(255,255,255,0.58);"}
               >
                 {link.label}
               </a>
@@ -132,8 +138,8 @@ const currentPath = Astro.url.pathname;
           })}
         </nav>
 
-        <div class="mt-4 pt-4 border-t" style="border-color: rgb(var(--color-border));">
-          <a href="/iletisim" class="btn-primary w-full justify-center text-xs">
+        <div class="mt-4 pt-4 border-t" style="border-color: rgba(255,255,255,0.1);">
+          <a href="/iletisim" class="btn-primary w-full justify-center" style="font-size: 0.8125rem;">
             Teklif Al
           </a>
         </div>
@@ -172,14 +178,16 @@ const currentPath = Astro.url.pathname;
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     if (header) {
       window.addEventListener('scroll', () => {
-        header.style.boxShadow = scrollY > 10 ? '0 8px 30px rgba(0,0,0,0.06)' : 'none';
+        header.style.boxShadow = window.scrollY > 10
+          ? '0 8px 40px rgba(0,0,0,0.55)'
+          : 'none';
       }, { passive: true });
     }
 
     const toggleBtn = document.querySelector<HTMLElement>('[data-mobile-toggle]');
-    const overlay = document.querySelector<HTMLElement>('[data-mobile-overlay]');
-    const closeBtn = document.querySelector<HTMLElement>('[data-mobile-close]');
-    const panel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+    const overlay   = document.querySelector<HTMLElement>('[data-mobile-overlay]');
+    const closeBtn  = document.querySelector<HTMLElement>('[data-mobile-close]');
+    const panel     = document.querySelector<HTMLElement>('[data-mobile-panel]');
     if (!toggleBtn || !overlay || !closeBtn || !panel) return;
 
     let lastFocused: HTMLElement | null = null;
@@ -188,8 +196,7 @@ const currentPath = Astro.url.pathname;
       lastFocused = document.activeElement as HTMLElement;
       overlay!.classList.remove('hidden');
       toggleBtn!.setAttribute('aria-expanded', 'true');
-      const first = panel!.querySelector<HTMLElement>('a, button');
-      if (first) first.focus();
+      panel!.querySelector<HTMLElement>('a, button')?.focus();
       document.addEventListener('keydown', onKey);
     }
 
@@ -197,21 +204,25 @@ const currentPath = Astro.url.pathname;
       overlay!.classList.add('hidden');
       toggleBtn!.setAttribute('aria-expanded', 'false');
       document.removeEventListener('keydown', onKey);
-      if (lastFocused) lastFocused.focus();
+      lastFocused?.focus();
     }
 
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') { close(); return; }
       if (e.key === 'Tab') {
-        const focusables = Array.from(panel!.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
-        if (!focusables.length) return;
-        const first = focusables[0], last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        const els = Array.from(
+          panel!.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
+        );
+        if (!els.length) return;
+        const first = els[0], last = els[els.length - 1];
+        if (e.shiftKey && document.activeElement === first)      { e.preventDefault(); last.focus(); }
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     }
 
-    toggleBtn.addEventListener('click', () => overlay!.classList.contains('hidden') ? open() : close());
+    toggleBtn.addEventListener('click', () =>
+      overlay!.classList.contains('hidden') ? open() : close()
+    );
     overlay.addEventListener('click', (e: Event) => { if (e.target === overlay) close(); });
     closeBtn.addEventListener('click', close);
   }

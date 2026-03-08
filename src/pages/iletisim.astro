@@ -12,15 +12,14 @@ const data = page?.data || { title: "İletişim" };
 
   <Section>
     <div class="max-w-4xl mx-auto grid grid-cols-1 gap-10 md:grid-cols-2">
-      <!-- Contact Info -->
       <div>
         <h2 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-fg));">Bize Ulaşın</h2>
-        <p class="text-sm leading-relaxed mb-8" style="color: rgb(var(--color-fg-muted));">
+        <p class="text-sm leading-relaxed mb-8 max-w-prose" style="color: rgb(var(--color-fg-muted));">
           Projeleriniz, danışmanlık talepleriniz veya herhangi bir sorunuz için aşağıdaki e-posta adresinden ulaşabilirsiniz.
         </p>
 
         <div class="flex items-start gap-4">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent));">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgb(var(--color-accent) / 0.12); color: rgb(var(--color-accent));">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
@@ -35,31 +34,39 @@ const data = page?.data || { title: "İletişim" };
         </div>
       </div>
 
-      <!-- Contact Form -->
       <div class="card">
         <h3 class="text-lg font-semibold mb-6" style="color: rgb(var(--color-fg));">Mesaj Gönderin</h3>
         <form class="space-y-5" data-netlify="true" name="contact">
           <div>
             <label for="name" class="block text-sm font-medium mb-2" style="color: rgb(var(--color-fg));">Adınız Soyadınız</label>
             <input
-              type="text" id="name" name="name" required
-              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none"
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2"
               style="background: rgb(var(--color-bg)); border-color: rgb(var(--color-border)); color: rgb(var(--color-fg));"
             />
           </div>
           <div>
             <label for="email" class="block text-sm font-medium mb-2" style="color: rgb(var(--color-fg));">E-posta Adresiniz</label>
             <input
-              type="email" id="email" name="email" required
-              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none"
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2"
               style="background: rgb(var(--color-bg)); border-color: rgb(var(--color-border)); color: rgb(var(--color-fg));"
             />
           </div>
           <div>
             <label for="message" class="block text-sm font-medium mb-2" style="color: rgb(var(--color-fg));">Mesajınız</label>
             <textarea
-              id="message" name="message" rows="4" required
-              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none resize-y"
+              id="message"
+              name="message"
+              rows="4"
+              required
+              class="w-full rounded-xl border px-4 py-3 text-sm transition-colors duration-150 outline-none resize-y focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2"
               style="background: rgb(var(--color-bg)); border-color: rgb(var(--color-border)); color: rgb(var(--color-fg));"
             ></textarea>
           </div>

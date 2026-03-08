@@ -1,6 +1,10 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -12,12 +16,12 @@ export default {
       borderRadius: {
         xl: '0.75rem',
         '2xl': '1rem',
-        '3xl': '1.5rem',
+        '3xl': '1.25rem',
       },
       boxShadow: {
         sm: '0 1px 3px rgba(0,0,0,0.04)',
         md: '0 8px 30px rgba(0,0,0,0.06)',
-        lg: '0 20px 50px rgba(0,0,0,0.10)',
+        lg: '0 20px 50px rgba(0,0,0,0.08)',
       },
       keyframes: {
         'fade-in-up': {
@@ -38,9 +42,14 @@ export default {
         'accordion-open': 'accordion-open 200ms ease-out',
         'accordion-close': 'accordion-close 200ms ease-out',
       },
+      colors: {
+        accent: {
+          DEFAULT: 'rgb(var(--color-accent))',
+          fg: 'rgb(var(--color-accent-fg))',
+          muted: 'rgb(var(--color-accent) / 0.12)',
+        },
+      },
     },
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [require('@tailwindcss/typography')],
 };

@@ -4,11 +4,13 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import db from '@astrojs/db';
+import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://akasoftware.com',
   output: 'server',
+  adapter: node({ mode: 'standalone' }),
   vite: {
     plugins: [tailwindcss()]
   },

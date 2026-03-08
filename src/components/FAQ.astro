@@ -10,14 +10,13 @@ const { items } = Astro.props;
 ---
 <div class="mx-auto max-w-3xl space-y-3">
   {items.map(item => (
-    <details class="group card p-0 overflow-hidden">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium transition-colors duration-150"
+    <details class="group card p-0 overflow-hidden rounded-xl">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-card))]"
         style="color: rgb(var(--color-fg));"
       >
         <span>{item.q}</span>
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-open:rotate-180"
-          style="color: rgb(var(--color-fg-faint));"
-        >
+        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-open:rotate-180" style="color: rgb(var(--color-fg-faint));">
           <svg fill="none" height="16" width="16" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
           </svg>

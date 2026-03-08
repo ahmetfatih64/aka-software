@@ -7,14 +7,17 @@ interface Props {
 const { post } = Astro.props;
 const { title, description, publishDate, tags } = post.data;
 ---
-<a href={`/blog/${post.slug}`} class="group card card-hover flex flex-col">
+<a
+  href={`/blog/${post.slug}`}
+  class="group card card-hover flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2"
+>
   <div class="flex-grow flex flex-col">
     <div class="flex gap-2 mb-4 flex-wrap">
       {tags.map((tag: string) => (
         <span class="badge">{tag}</span>
       ))}
     </div>
-    <h3 class="text-lg font-semibold mb-2 transition-colors duration-150" style="color: rgb(var(--color-fg));">
+    <h3 class="text-lg font-semibold mb-2 transition-colors duration-150 group-hover:text-[rgb(var(--color-accent))]" style="color: rgb(var(--color-fg));">
       {title}
     </h3>
     <p class="text-sm leading-relaxed mb-4 flex-grow" style="color: rgb(var(--color-fg-muted));">

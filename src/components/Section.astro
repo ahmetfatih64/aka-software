@@ -8,7 +8,9 @@ interface Props {
   bg?: 'default' | 'muted';
 }
 const { title, description, eyebrow, class: className = '', id, bg = 'default' } = Astro.props;
-const bgStyle = bg === 'muted' ? `background: rgb(var(--color-muted) / 0.5);` : '';
+const bgStyle = bg === 'muted'
+  ? 'background: linear-gradient(180deg, rgb(var(--color-muted) / 0.55) 0%, rgb(var(--color-muted) / 0.3) 100%);'
+  : '';
 ---
 <section id={id} class={`section-block ${className}`} style={bgStyle}>
   <div class="site-container">
