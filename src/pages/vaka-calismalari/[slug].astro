@@ -1,18 +1,17 @@
 ---
-import { getCollection } from 'astro:content';
+// SSR dynamic route — fetch at request time, not via getStaticPaths()
+import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Section from '../../components/Section.astro';
 import MarkdownContent from '../../components/MarkdownContent.astro';
 
-export async function getStaticPaths() {
-  const studies = await getCollection('case-studies');
-  return studies.map(study => ({
-    params: { slug: study.slug },
-    props: { study },
-  }));
+const { slug } = Astro.params;
+const study = await getEntry('case-studies', slug!);
+
+if (!study) {
+  return Astro.redirect('/404');
 }
 
-const { study } = Astro.props;
 const { Content } = await study.render();
 ---
 <BaseLayout 

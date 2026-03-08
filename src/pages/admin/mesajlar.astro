@@ -1,7 +1,20 @@
 ---
 import { db, ContactMessages } from 'astro:db';
 
-const messages = await db.select().from(ContactMessages);
+// ── Authorization ─────────────────────────────────────────────────────────
+// Protect this page with a secret token set in the server environment.
+// Set ADMIN_SECRET in your .env (local) or server environment variables.
+// Access: /admin/mesajlar?token=<ADMIN_SECRET>
+const adminSecret = import.meta.env.ADMIN_SECRET;
+const token       = Astro.url.searchParams.get('token');
+
+const authorized = adminSecret && token === adminSecret;
+if (!authorized) {
+  return new Response('Yetkisiz erişim.', { status: 401 });
+}
+// ─────────────────────────────────────────────────────────────────────────
+
+const messages = await db.select().from(ContactMessages).orderBy();
 ---
 
 <!DOCTYPE html>
@@ -10,24 +23,36 @@ const messages = await db.select().from(ContactMessages);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gelen Mesajlar (Admin)</title>
-    <!-- Basic styling for verification -->
     <style>
-        body { font-family: system-ui, sans-serif; padding: 2rem; background: #f9fafb; color: #111827; }
-        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-        .email { color: #6b7280; font-size: 0.875rem; }
+        body { font-family: system-ui, sans-serif; padding: 2rem; background: #0f0f0f; color: #e5e5e5; }
+        h1   { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+        p    { color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem; }
+        .card { background: #1a1a1a; border: 1px solid #2a2a2a; padding: 1.25rem 1.5rem; border-radius: 8px; margin-bottom: 0.75rem; }
+        .name  { font-weight: 600; }
+        .email { color: #a17418; font-size: 0.875rem; margin-left: 0.5rem; }
+        .msg   { color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.6; }
+        .date  { color: #4b5563; font-size: 0.75rem; margin-top: 0.5rem; }
+        .empty { color: #4b5563; font-style: italic; }
     </style>
 </head>
 <body>
-    <h1>Veritabanına Kaydenilen Mesajlar</h1>
-    <p>Astro DB Seed Testi: Aşağıdaki mesajlar `db/seed.ts` dosyasından okunmaktadır.</p>
-    
-    <div>
-        {messages.map((m) => (
-            <div class="card">
-                <h3>{m.name} <span class="email">&lt;{m.email}&gt;</span></h3>
-                <p>{m.message}</p>
-            </div>
-        ))}
-    </div>
+    <h1>Gelen Mesajlar</h1>
+    <p>{messages.length} mesaj bulundu.</p>
+
+    {messages.length === 0
+      ? <p class="empty">Henüz mesaj yok.</p>
+      : messages.map((m) => (
+          <div class="card">
+              <div>
+                <span class="name">{m.name}</span>
+                <span class="email">{m.email}</span>
+              </div>
+              <p class="msg">{m.message}</p>
+              {m.createdAt && (
+                <p class="date">{new Date(m.createdAt).toLocaleString('tr-TR')}</p>
+              )}
+          </div>
+        ))
+    }
 </body>
 </html>

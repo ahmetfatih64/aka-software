@@ -49,7 +49,7 @@ const data = page?.data || { title: "İletişim" };
 
         <h3 class="contact-form-heading">Mesaj Gönderin</h3>
 
-        <form class="contact-form" data-netlify="true" name="contact">
+        <form class="contact-form" id="contact-form" novalidate>
 
           <div class="form-row">
             <label for="name" class="form-label">Adınız Soyadınız</label>
@@ -89,14 +89,24 @@ const data = page?.data || { title: "İletişim" };
             ></textarea>
           </div>
 
-          <button type="submit" class="btn-primary contact-submit">
-            Gönder
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2.2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+          <button type="submit" class="btn-primary contact-submit" id="contact-submit">
+            <span class="contact-submit-label">
+              Gönder
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
           </button>
+
+          <!-- Feedback messages -->
+          <p class="form-feedback form-success" id="form-success" aria-live="polite" hidden>
+            Mesajınız alındı. En kısa sürede geri dönüş yapacağız.
+          </p>
+          <p class="form-feedback form-error" id="form-error" aria-live="polite" hidden>
+            Bir hata oluştu. Lütfen tekrar deneyin.
+          </p>
 
         </form>
       </div>
@@ -248,4 +258,67 @@ const data = page?.data || { title: "İletişim" };
     font-size      : 0.9375rem;
     margin-top     : 0.25rem;
   }
+  .contact-submit[disabled] { opacity: 0.7; cursor: not-allowed; }
+  .contact-submit-label { display: inline-flex; align-items: center; gap: 0.4375rem; }
+
+  /* ════ Feedback messages ══════════════════════════════════════ */
+  .form-feedback {
+    font-size  : 0.875rem;
+    font-weight: 500;
+    padding    : 0.75rem 1rem;
+    border-radius: 0.625rem;
+    margin-top : 0.25rem;
+  }
+  .form-success {
+    color      : rgba(74, 222, 128, 0.90);
+    background : rgba(74, 222, 128, 0.07);
+    border     : 1px solid rgba(74, 222, 128, 0.20);
+  }
+  .form-error {
+    color      : rgba(248, 113, 113, 0.90);
+    background : rgba(248, 113, 113, 0.07);
+    border     : 1px solid rgba(248, 113, 113, 0.20);
+  }
 </style>
+
+<script is:inline>
+  (function () {
+    var form   = document.getElementById('contact-form');
+    var btn    = document.getElementById('contact-submit');
+    var ok     = document.getElementById('form-success');
+    var err    = document.getElementById('form-error');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Reset feedback
+      ok.hidden  = true;
+      err.hidden = true;
+      btn.disabled = true;
+      btn.querySelector('.contact-submit-label').textContent = 'Gönderiliyor…';
+
+      try {
+        var fd  = new FormData(form);
+        var res = await fetch('/api/contact', { method: 'POST', body: fd });
+        var json = await res.json();
+
+        if (res.ok && json.success) {
+          form.reset();
+          ok.hidden  = false;
+        } else {
+          err.textContent = json.error || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+          err.hidden = false;
+        }
+      } catch (_) {
+        err.textContent = 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.';
+        err.hidden = false;
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.contact-submit-label').innerHTML =
+          'Gönder <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      }
+    });
+  }());
+</script>

@@ -1,17 +1,18 @@
 ---
-import { getCollection } from 'astro:content';
+// SSR dynamic route — getStaticPaths() is NOT used in output:'server' mode.
+// Posts are fetched at request time using Astro.params.slug.
+import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MarkdownContent from '../../components/MarkdownContent.astro';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+const { slug } = Astro.params;
+const post = await getEntry('blog', slug!);
+
+// Return 404 for unknown slugs
+if (!post) {
+  return Astro.redirect('/404');
 }
 
-const { post } = Astro.props;
 const { Content } = await post.render();
 ---
 <BaseLayout
