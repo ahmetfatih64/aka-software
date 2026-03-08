@@ -1,71 +1,313 @@
 ---
 const currentYear = new Date().getFullYear();
 ---
-<footer
-  class="mt-auto"
-  style="
-    background-image: linear-gradient(rgba(5,5,9,0.82), rgba(5,5,9,0.82)), url('/arkaplan.png');
-    background-size: cover;
-    background-position: center center;
-    border-top: 1px solid rgba(212,168,70,0.28);
-  "
->
-  <div class="site-container py-12">
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
 
-      <!-- Brand -->
-      <div class="md:col-span-1">
-        <a href="/" class="inline-block" aria-label="AKA Software Ana Sayfa">
-          <img
-            src="/ana_logo.png"
-            alt="AKA Software"
-            height="52"
-            width="182"
-            class="w-auto object-contain"
-            style="height: 52px; max-width: 220px;"
-            loading="lazy"
-            decoding="async"
-          />
-        </a>
-        <p class="mt-4 text-sm leading-relaxed" style="color: rgba(255,255,255,0.42);">
-          AI ve modern yazilim teknolojileriyle isletmenizin dijital donusumune rehberlik ediyoruz.
-        </p>
+<footer class="site-footer mt-auto">
+
+  <!-- Top gradient separator — connects to page content above -->
+  <div class="footer-fade-in" aria-hidden="true"></div>
+
+  <!-- Main footer body -->
+  <div class="footer-body">
+    <div class="site-container">
+
+      <!-- ═══ Top rule with gold bloom ════════════════════════ -->
+      <div class="footer-rule" aria-hidden="true"></div>
+
+      <!-- ═══ Main grid ════════════════════════════════════════ -->
+      <div class="footer-grid">
+
+        <!-- Brand column -->
+        <div class="footer-brand">
+          <a href="/" class="footer-logo-link" aria-label="AKA Software Ana Sayfa">
+            <img
+              src="/ana_logo.png"
+              alt="AKA Software"
+              height="48"
+              width="168"
+              class="w-auto object-contain"
+              style="height: 48px; max-width: 210px;"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+          <p class="footer-tagline">
+            AI ve modern yazılım teknolojileriyle işletmenizin dijital dönüşümüne rehberlik ediyoruz.
+          </p>
+
+          <!-- Gold accent line under tagline -->
+          <div class="footer-brand-line" aria-hidden="true"></div>
+        </div>
+
+        <!-- Nav columns wrapper -->
+        <div class="footer-nav-cols">
+
+          <!-- Hizmetler -->
+          <div class="footer-nav-col">
+            <h3 class="footer-nav-heading">Hizmetler</h3>
+            <ul class="footer-nav-list">
+              <li><a href="/hizmetler"        class="footer-nav-link">Hizmetler</a></li>
+              <li><a href="/vaka-calismalari" class="footer-nav-link">Vaka Çalışmaları</a></li>
+              <li><a href="/blog"             class="footer-nav-link">Blog</a></li>
+              <li><a href="/hakkimizda"       class="footer-nav-link">Hakkımızda</a></li>
+            </ul>
+          </div>
+
+          <!-- Yasal -->
+          <div class="footer-nav-col">
+            <h3 class="footer-nav-heading">Yasal</h3>
+            <ul class="footer-nav-list">
+              <li><a href="/gizlilik"          class="footer-nav-link">Gizlilik Politikası</a></li>
+              <li><a href="/kullanim-sartlari" class="footer-nav-link">Kullanım Şartları</a></li>
+              <li><a href="/sss"               class="footer-nav-link">SSS</a></li>
+            </ul>
+          </div>
+
+          <!-- İletişim -->
+          <div class="footer-nav-col">
+            <h3 class="footer-nav-heading">İletişim</h3>
+            <address class="footer-address">
+              <span class="footer-address-name">Ahmet Fatih Kahya</span>
+              <a href="mailto:info@akasoftware.com" class="footer-email">
+                info@akasoftware.com
+              </a>
+            </address>
+          </div>
+
+        </div><!-- /footer-nav-cols -->
+
+      </div><!-- /footer-grid -->
+
+      <!-- ═══ Bottom bar ════════════════════════════════════════ -->
+      <div class="footer-bottom-rule" aria-hidden="true"></div>
+      <div class="footer-bottom">
+        <span class="footer-copyright">
+          &copy; {currentYear} AKA Software. Tüm hakları saklıdır.
+        </span>
+        <span class="footer-bottom-tag">AI ve Yazılım Danışmanlığı</span>
       </div>
 
-      <!-- Links -->
-      <div>
-        <h3 class="text-sm font-semibold mb-4" style="color: rgba(255,255,255,0.82);">Hizmetler</h3>
-        <ul class="space-y-2 text-sm">
-          <li><a href="/hizmetler" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Hizmetler</a></li>
-          <li><a href="/vaka-calismalari" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Vaka Calismalari</a></li>
-          <li><a href="/blog" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Blog</a></li>
-          <li><a href="/hakkimizda" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Hakkimizda</a></li>
-        </ul>
-      </div>
-
-      <!-- Legal -->
-      <div>
-        <h3 class="text-sm font-semibold mb-4" style="color: rgba(255,255,255,0.82);">Yasal</h3>
-        <ul class="space-y-2 text-sm">
-          <li><a href="/gizlilik" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Gizlilik Politikasi</a></li>
-          <li><a href="/kullanim-sartlari" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">Kullanim Sartlari</a></li>
-          <li><a href="/sss" class="transition-colors duration-150 hover:underline" style="color: rgba(255,255,255,0.48);">SSS</a></li>
-        </ul>
-      </div>
-
-      <!-- Contact -->
-      <div>
-        <h3 class="text-sm font-semibold mb-4" style="color: rgba(255,255,255,0.82);">Iletisim</h3>
-        <address class="text-sm not-italic space-y-2" style="color: rgba(255,255,255,0.48);">
-          <p>Ahmet Fatih Kahya</p>
-          <p><a href="mailto:info@akasoftware.com" class="hover:underline" style="color: rgb(212,168,70);">info@akasoftware.com</a></p>
-        </address>
-      </div>
-    </div>
-
-    <div class="mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style="border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.3);">
-      <span>&copy; {currentYear} AKA Software. Tum haklari saklidir.</span>
-      <span>AI ve Yazilim Danismanligi</span>
     </div>
   </div>
+
 </footer>
+
+<style>
+  /* ════ Footer wrapper ═══════════════════════════════════════ */
+  .site-footer {
+    position: relative;
+  }
+
+  /* Gradient fade connecting page body to footer — smooth transition */
+  .footer-fade-in {
+    height    : 5rem;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(14, 11, 10, 0.55)
+    );
+    pointer-events: none;
+  }
+
+  /* Footer body — dark obsidian surface */
+  .footer-body {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%,
+        rgba(161, 116, 24, 0.06) 0%, transparent 65%),
+      rgba(12, 10, 9, 0.98);
+    border-top: 1px solid rgba(161, 116, 24, 0.20);
+    padding-top   : 3rem;
+    padding-bottom: 2rem;
+  }
+  @media (min-width: 768px) {
+    .footer-body { padding-top: 4rem; padding-bottom: 2.5rem; }
+  }
+
+  /* ════ Top rule ═════════════════════════════════════════════ */
+  .footer-rule {
+    height    : 1px;
+    margin-bottom: 3rem;
+    background: linear-gradient(
+      to right,
+      transparent        0%,
+      rgba(161,116,24,0.28) 20%,
+      rgba(217,161,40,0.38) 50%,
+      rgba(161,116,24,0.28) 80%,
+      transparent       100%
+    );
+  }
+
+  /* ════ Main grid ════════════════════════════════════════════ */
+  .footer-grid {
+    display              : grid;
+    grid-template-columns: 1fr;
+    gap                  : 2.5rem;
+  }
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr 2fr;
+      gap                  : 4rem;
+      align-items          : start;
+    }
+  }
+
+  /* ════ Brand column ═════════════════════════════════════════ */
+  .footer-brand {
+    display       : flex;
+    flex-direction: column;
+    gap           : 1rem;
+  }
+
+  .footer-logo-link {
+    display   : inline-block;
+    transition: filter 200ms ease;
+  }
+  .footer-logo-link:hover {
+    filter: drop-shadow(0 0 8px rgba(217, 161, 40, 0.28));
+  }
+  .footer-logo-link:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.80);
+    outline-offset: 3px;
+    border-radius : 4px;
+  }
+
+  .footer-tagline {
+    font-size  : 0.875rem;
+    line-height: 1.68;
+    color      : rgba(255, 255, 255, 0.38);
+    max-width  : 28ch;
+  }
+
+  /* Short gold accent line under tagline */
+  .footer-brand-line {
+    width     : 2rem;
+    height    : 1.5px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to right,
+      rgba(217, 161, 40, 0.60),
+      rgba(161, 116, 24, 0.30)
+    );
+  }
+
+  /* ════ Nav columns ══════════════════════════════════════════ */
+  .footer-nav-cols {
+    display              : grid;
+    grid-template-columns: 1fr 1fr;
+    gap                  : 2rem;
+  }
+  @media (min-width: 640px) {
+    .footer-nav-cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .footer-nav-col {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0.75rem;
+  }
+
+  /* Column heading */
+  .footer-nav-heading {
+    font-size     : 0.6875rem;
+    font-weight   : 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color         : rgba(255, 255, 255, 0.55);
+    margin-bottom : 0.125rem;
+  }
+
+  /* Nav links list */
+  .footer-nav-list {
+    list-style: none;
+    padding   : 0;
+    margin    : 0;
+    display   : flex;
+    flex-direction: column;
+    gap       : 0.5rem;
+  }
+
+  .footer-nav-link {
+    font-size     : 0.875rem;
+    color         : rgba(255, 255, 255, 0.40);
+    text-decoration: none;
+    transition    :
+      color        160ms ease,
+      padding-left 160ms ease;
+    display       : inline-block;
+  }
+  .footer-nav-link:hover {
+    color       : rgba(255, 255, 255, 0.80);
+    padding-left: 0.25rem;
+  }
+  .footer-nav-link:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.70);
+    outline-offset: 2px;
+    border-radius : 3px;
+  }
+
+  /* ════ Address / Contact ════════════════════════════════════ */
+  .footer-address {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0.5rem;
+    font-style    : normal;
+  }
+
+  .footer-address-name {
+    font-size  : 0.875rem;
+    color      : rgba(255, 255, 255, 0.40);
+  }
+
+  .footer-email {
+    font-size     : 0.875rem;
+    font-weight   : 500;
+    color         : rgba(217, 161, 40, 0.80);
+    text-decoration: none;
+    transition    : color 160ms ease;
+  }
+  .footer-email:hover { color: rgba(245, 214, 92, 0.90); }
+  .footer-email:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.70);
+    outline-offset: 2px;
+    border-radius : 3px;
+  }
+
+  /* ════ Bottom bar ════════════════════════════════════════════ */
+  .footer-bottom-rule {
+    height     : 1px;
+    margin-top : 3rem;
+    margin-bottom: 1.25rem;
+    background : linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.07) 30%,
+      rgba(255, 255, 255, 0.07) 70%,
+      transparent
+    );
+  }
+
+  .footer-bottom {
+    display        : flex;
+    flex-direction : column;
+    align-items    : center;
+    justify-content: space-between;
+    gap            : 0.5rem;
+    font-size      : 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .footer-bottom {
+      flex-direction: row;
+    }
+  }
+
+  .footer-copyright {
+    color: rgba(255, 255, 255, 0.22);
+  }
+
+  .footer-bottom-tag {
+    color         : rgba(255, 255, 255, 0.18);
+    letter-spacing: 0.04em;
+  }
+</style>

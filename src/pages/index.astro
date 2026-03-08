@@ -50,15 +50,23 @@ const data = homeEntry?.data || {
 const { hero, services, faq, cta } = data.sections || {};
 
 const processSteps = [
-  { step: "01", title: "Keşif Görüşmesi", description: "İhtiyaçlarınızı anlamak için ücretsiz bir ön görüşme yapıyoruz." },
+  { step: "01", title: "Keşif Görüşmesi",  description: "İhtiyaçlarınızı anlamak için ücretsiz bir ön görüşme yapıyoruz." },
   { step: "02", title: "Planlama & Teklif", description: "Teknik mimari, zaman çizelgesi ve detaylı teklif hazırlıyoruz." },
-  { step: "03", title: "Geliştirme", description: "Agile süreçlerle iteratif geliştirme ve haftalık ilerleme paylaşımları." },
-  { step: "04", title: "Teslim & Destek", description: "Canlıya alma, dokümantasyon ve sürekli destek süreci." }
+  { step: "03", title: "Geliştirme",        description: "Agile süreçlerle iteratif geliştirme ve haftalık ilerleme paylaşımları." },
+  { step: "04", title: "Teslim & Destek",  description: "Canlıya alma, dokümantasyon ve sürekli destek süreci." },
 ];
+
+/* SVG icons for service cards */
+const svcIcons: Record<string, string> = {
+  AI: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M12 16a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z"/><path d="M4.93 4.93a2 2 0 0 1 2.83 0l1.41 1.41a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0L4.93 7.76a2 2 0 0 1 0-2.83z"/><path d="M14.83 14.83a2 2 0 0 1 2.83 0l1.41 1.41a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-1.41-1.41a2 2 0 0 1 0-2.83z"/><path d="M2 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/><path d="M16 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>`,
+  WB: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h2M11 8h6"/><path d="M7 12h4M15 12h2"/></svg>`,
+  CTO: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,
+};
 ---
 
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
 
+  <!-- ═══ Hero ═══════════════════════════════════════════════════ -->
   {hero && (
     <Hero
       title={hero.title}
@@ -70,53 +78,80 @@ const processSteps = [
     />
   )}
 
+  <!-- ═══ Services ════════════════════════════════════════════════ -->
   {services && (
     <Section title={services.title} description={services.description} eyebrow="Hizmetler">
       <CardGrid columns={3}>
-        {services.items.map((service: any) => (
-          <div class="card card-hover flex flex-col gap-4">
-            <div
-              class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-xs font-bold"
-              style="background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent)); border: 1px solid rgb(var(--color-accent) / 0.2);"
-            >
-              {service.icon || service.title.charAt(0)}
+        {services.items.map((service: any, i: number) => (
+          <div class="svc-card card card-hover reveal-scale" style={`transition-delay: ${i * 90}ms`}>
+
+            <!-- Top-edge accent line -->
+            <div class="svc-accent-line" aria-hidden="true"></div>
+
+            <!-- Icon -->
+            <div class="svc-icon" set:html={svcIcons[service.icon] ?? service.icon}></div>
+
+            <!-- Content -->
+            <div class="svc-body">
+              <h3 class="svc-title">{service.title}</h3>
+              <p class="svc-desc">{service.description}</p>
             </div>
-            <div class="flex flex-col gap-2">
-              <h3 class="text-base font-semibold" style="color: rgb(var(--color-fg));">{service.title}</h3>
-              <p class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">{service.description}</p>
-            </div>
-            <a href="/hizmetler" class="mt-auto text-sm font-medium inline-flex items-center gap-1 hover:gap-2 transition-all duration-150" style="color: rgb(var(--color-accent));">
-              Detay <span aria-hidden="true">→</span>
+
+            <!-- Detail link -->
+            <a href="/hizmetler" class="svc-link" aria-label={`${service.title} hakkında detay`}>
+              <span>Detay</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
             </a>
+
           </div>
         ))}
       </CardGrid>
     </Section>
   )}
 
-  <Section title="Nasıl Çalışıyoruz?" description="Her projeyi dört net adımda hayata geçiriyoruz." eyebrow="Süreç" bg="muted">
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {processSteps.map((item) => (
-        <div class="text-center sm:text-left">
-          <div
-            class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold"
-            style="background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent)); border: 1px solid rgb(var(--color-accent) / 0.25); box-shadow: 0 2px 10px rgb(var(--color-accent) / 0.12);"
-          >
-            {item.step}
-          </div>
-          <h3 class="text-base font-semibold mb-1" style="color: rgb(var(--color-fg));">{item.title}</h3>
-          <p class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">{item.description}</p>
+  <!-- ═══ Process ══════════════════════════════════════════════════ -->
+  <Section
+    title="Nasıl Çalışıyoruz?"
+    description="Her projeyi dört net adımda hayata geçiriyoruz."
+    eyebrow="Süreç"
+    bg="muted"
+  >
+    <div class="proc-grid">
+      {processSteps.map((item, idx) => (
+        <div class="proc-step reveal" style={`transition-delay: ${idx * 70}ms`}>
+
+          <!-- Large faded background number -->
+          <span class="proc-bg-num" aria-hidden="true">{item.step}</span>
+
+          <!-- Numbered badge -->
+          <div class="proc-badge">{item.step}</div>
+
+          <!-- Connector line (hidden on last, hidden on mobile) -->
+          {idx < processSteps.length - 1 && (
+            <div class="proc-connector" aria-hidden="true"></div>
+          )}
+
+          <!-- Content -->
+          <h3 class="proc-title">{item.title}</h3>
+          <p class="proc-desc">{item.description}</p>
+
         </div>
       ))}
     </div>
   </Section>
 
+  <!-- ═══ FAQ ════════════════════════════════════════════════════ -->
   {faq && (
-    <Section title={faq.title} eyebrow="SSS" bg="muted">
+    <Section title={faq.title} eyebrow="SSS">
       <FAQ items={faq.items} />
     </Section>
   )}
 
+  <!-- ═══ CTA ════════════════════════════════════════════════════ -->
   {cta && (
     <CTA
       title={cta.title}
@@ -127,3 +162,213 @@ const processSteps = [
   )}
 
 </BaseLayout>
+
+<style>
+  /* ════════════════════════════════════════════════════════════
+     SERVICE CARDS
+  ════════════════════════════════════════════════════════════ */
+
+  .svc-card {
+    display       : flex;
+    flex-direction: column;
+    gap           : 1.25rem;
+    padding       : 1.5rem;
+    /* override card's top background-image with richer gradient */
+    background-image:
+      linear-gradient(
+        135deg,
+        rgb(var(--color-accent) / 0.04) 0%,
+        transparent 45%
+      );
+  }
+
+  /* Horizontal gold gradient line across top */
+  .svc-accent-line {
+    position  : absolute;
+    top       : 0;
+    left      : 1.5rem;
+    right     : 1.5rem;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgb(var(--color-accent) / 0.45) 30%,
+      rgb(var(--color-accent) / 0.55) 50%,
+      rgb(var(--color-accent) / 0.45) 70%,
+      transparent
+    );
+  }
+
+  /* Icon wrapper */
+  .svc-icon {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 2.75rem;
+    height         : 2.75rem;
+    border-radius  : 0.75rem;
+    flex-shrink    : 0;
+    background     : rgb(var(--color-accent) / 0.10);
+    color          : rgb(var(--color-accent));
+    border         : 1px solid rgb(var(--color-accent) / 0.22);
+    box-shadow     : 0 0 14px rgb(var(--color-glow) / 0.14);
+  }
+
+  /* Content block */
+  .svc-body { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+  .svc-title {
+    font-size     : 1.0625rem;   /* slight bump — more presence in the card */
+    font-weight   : 700;
+    letter-spacing: -0.016em;
+    line-height   : 1.28;
+    color         : rgb(var(--color-fg));
+  }
+  .svc-desc {
+    font-size  : 0.875rem;
+    line-height: 1.72;           /* more breathing room */
+    color      : rgb(var(--color-fg-muted));
+  }
+
+  /* Detail link */
+  .svc-link {
+    display    : inline-flex;
+    align-items: center;
+    gap        : 0.375rem;
+    font-size  : 0.8125rem;
+    font-weight: 600;
+    color      : rgb(var(--color-accent));
+    text-decoration: none;
+    margin-top : auto;
+    width      : fit-content;
+    transition :
+      color   160ms ease,
+      opacity 160ms ease;
+  }
+  /* Arrow slides right on hover — gap is not smoothly animatable */
+  .svc-link svg {
+    flex-shrink: 0;
+    transition : transform 200ms var(--ease-spring);
+  }
+  .svc-link:hover svg  { transform: translateX(3px); }
+  .svc-link:hover      { opacity: 0.85; }
+  .svc-link:focus-visible {
+    outline       : 2px solid rgb(var(--color-ring));
+    outline-offset: 3px;
+    border-radius : 4px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     PROCESS STEPS
+  ════════════════════════════════════════════════════════════ */
+
+  .proc-grid {
+    display              : grid;
+    grid-template-columns: 1fr;
+    gap                  : 1rem;
+  }
+  @media (min-width: 640px) {
+    .proc-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  }
+  @media (min-width: 1024px) {
+    .proc-grid { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  }
+
+  /* Step card */
+  .proc-step {
+    position     : relative;
+    padding      : 1.5rem;
+    border-radius: 1rem;
+    border       : 1px solid rgb(var(--color-border));
+    background   : rgb(var(--color-card));
+    overflow     : hidden;
+    transition   :
+      border-color 220ms ease,
+      box-shadow   220ms ease,
+      transform    220ms cubic-bezier(0.22, 1, 0.36, 1);
+    /* Top edge gold line */
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--color-accent) / 0.05) 0px,
+      transparent 1px
+    );
+  }
+  .proc-step:hover {
+    border-color: rgb(var(--color-accent) / 0.28);
+    box-shadow  :
+      0 0 18px rgb(var(--color-glow) / 0.10),
+      0 8px 28px rgba(0,0,0,0.16);
+    transform   : translateY(-2px);
+  }
+
+  /* Large faded background number — decorative */
+  .proc-bg-num {
+    position     : absolute;
+    bottom       : -0.625rem;
+    right        : 0.75rem;
+    font-size    : 5.5rem;
+    font-weight  : 900;
+    line-height  : 1;
+    letter-spacing: -0.04em;
+    color        : rgb(var(--color-accent) / 0.055);
+    user-select  : none;
+    pointer-events: none;
+  }
+
+  /* Numbered badge */
+  .proc-badge {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 2rem;
+    height         : 2rem;
+    border-radius  : 0.5rem;
+    background     : rgb(var(--color-accent) / 0.10);
+    color          : rgb(var(--color-accent));
+    border         : 1px solid rgb(var(--color-accent) / 0.24);
+    font-size      : 0.6875rem;
+    font-weight    : 700;
+    letter-spacing : 0.02em;
+    margin-bottom  : 1rem;
+    position       : relative;
+    z-index        : 1;
+  }
+
+  /* Horizontal connector between step cards (desktop only) */
+  .proc-connector {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .proc-connector {
+      display  : block;
+      position : absolute;
+      top      : 2.375rem; /* vertically aligns with badge center */
+      right    : -0.625rem;
+      width    : 1.25rem;
+      height   : 1px;
+      background: linear-gradient(
+        to right,
+        rgb(var(--color-accent) / 0.28),
+        rgb(var(--color-border))
+      );
+      z-index: 10;
+    }
+  }
+
+  /* Step content */
+  .proc-title {
+    font-size     : 1rem;        /* bump up one step — title needs more weight in the step */
+    font-weight   : 700;
+    letter-spacing: -0.016em;
+    color         : rgb(var(--color-fg));
+    margin-bottom : 0.5rem;      /* slightly more gap before description */
+    position      : relative;
+    z-index       : 1;
+  }
+  .proc-desc {
+    font-size  : 0.875rem;
+    line-height: 1.72;           /* from 1.68 — better legibility in narrow step columns */
+    color      : rgb(var(--color-fg-muted));
+    position   : relative;
+    z-index    : 1;
+  }
+</style>

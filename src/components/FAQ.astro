@@ -8,25 +8,161 @@ interface Props {
 }
 const { items } = Astro.props;
 ---
-<div class="mx-auto max-w-3xl space-y-3">
+
+<div class="faq-list">
   {items.map(item => (
-    <details class="group card p-0 overflow-hidden rounded-xl">
-      <summary
-        class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-card))]"
-        style="color: rgb(var(--color-fg));"
-      >
-        <span>{item.q}</span>
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-open:rotate-180" style="color: rgb(var(--color-fg-faint));">
-          <svg fill="none" height="16" width="16" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+    <details class="faq-item reveal">
+      <summary class="faq-summary" tabindex="0">
+        <span class="faq-q">{item.q}</span>
+        <span class="faq-chevron" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.75"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
           </svg>
         </span>
       </summary>
-      <div class="px-6 pb-5">
-        <p class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">
-          {item.a}
-        </p>
+      <div class="faq-body">
+        <div class="faq-inner">
+          <p class="faq-answer">{item.a}</p>
+        </div>
       </div>
     </details>
   ))}
 </div>
+
+<style>
+  /* ─── List container ─── */
+  .faq-list {
+    max-width: 48rem;
+    margin   : 0 auto;
+    display  : flex;
+    flex-direction: column;
+    gap      : 0.625rem;
+  }
+
+  /* ─── Individual item ─── */
+  .faq-item {
+    position     : relative;
+    border-radius: 0.875rem;
+    border       : 1px solid rgb(var(--color-border));
+    background   : rgb(var(--color-card));
+    overflow     : hidden;
+    transition   :
+      border-color 200ms ease,
+      box-shadow   200ms ease;
+    /* Top-edge subtle gold highlight */
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--color-accent) / 0.04) 0px,
+      transparent 1px
+    );
+  }
+  .faq-item[open] {
+    border-color: rgb(var(--color-accent) / 0.30);
+    box-shadow  :
+      0 0 0 1px rgb(var(--color-accent) / 0.10),
+      0 4px 20px rgb(var(--color-glow) / 0.10),
+      0 8px 32px rgba(0,0,0,0.14);
+  }
+  /* Left accent bar when open */
+  .faq-item[open]::before {
+    content : '';
+    position: absolute;
+    left    : 0;
+    top     : 0.875rem;
+    bottom  : 0.875rem;
+    width   : 2px;
+    border-radius: 0 2px 2px 0;
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--color-accent-bright) / 0.70),
+      rgb(var(--color-accent)        / 0.50)
+    );
+  }
+
+  /* ─── Summary (clickable row) ─── */
+  .faq-summary {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    gap            : 1rem;
+    padding        : 1.25rem 1.375rem;
+    cursor         : pointer;
+    list-style     : none;
+    /* Remove default marker */
+  }
+  .faq-summary::-webkit-details-marker { display: none; }
+  .faq-summary::marker                 { display: none; }
+
+  .faq-summary:focus-visible {
+    outline       : 2px solid rgb(var(--color-ring));
+    outline-offset: -2px;
+    border-radius : 0.875rem;
+  }
+
+  /* Question text */
+  .faq-q {
+    font-size     : 0.9375rem;
+    font-weight   : 600;
+    line-height   : 1.45;
+    letter-spacing: -0.012em;
+    color         : rgb(var(--color-fg));
+    flex          : 1;
+    transition    : color 160ms ease;
+  }
+  .faq-item[open] .faq-q {
+    color: rgb(var(--color-fg));
+  }
+
+  /* Chevron icon */
+  .faq-chevron {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 1.75rem;
+    height         : 1.75rem;
+    border-radius  : 0.5rem;
+    flex-shrink    : 0;
+    border         : 1px solid rgb(var(--color-border));
+    color          : rgb(var(--color-fg-faint));
+    background     : rgb(var(--color-muted));
+    transition     :
+      transform    220ms cubic-bezier(0.22, 1, 0.36, 1),
+      color        160ms ease,
+      border-color 160ms ease,
+      background   160ms ease;
+  }
+  .faq-item[open] .faq-chevron {
+    transform   : rotate(180deg);
+    color       : rgb(var(--color-accent));
+    border-color: rgb(var(--color-accent) / 0.28);
+    background  : rgb(var(--color-accent) / 0.09);
+  }
+
+  /* ─── Answer body with smooth open animation ─── */
+  .faq-body {
+    /* grid-template-rows trick for smooth height animation */
+    display              : grid;
+    grid-template-rows   : 0fr;
+    transition           : grid-template-rows 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  details[open] .faq-body {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-inner {
+    overflow: hidden;
+  }
+
+  .faq-answer {
+    padding     : 0 1.375rem 1.375rem;
+    font-size   : 0.9375rem;
+    line-height : 1.76;
+    color       : rgb(var(--color-fg-muted));
+    border-top  : 1px solid rgb(var(--color-border-subtle));
+    padding-top : 1rem;
+    margin-top  : 0;
+    max-width   : 68ch;   /* prevents ultra-wide lines on large screens */
+  }
+</style>

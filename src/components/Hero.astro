@@ -9,73 +9,739 @@ interface Props {
 }
 const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, secondaryCtaLink } = Astro.props;
 ---
-<section class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
 
-  <!-- Background: gold radial glow — crystal facet texture comes from body -->
-  <div
-    class="absolute inset-0 -z-10 pointer-events-none"
-    aria-hidden="true"
-    style="background: radial-gradient(ellipse at 50% -5%, rgb(var(--color-accent) / 0.11) 0%, transparent 58%);"
-  ></div>
+<section class="hero-section">
 
-  <div class="site-container relative z-10">
-    <div class="mx-auto max-w-3xl text-center" style="display: flex; flex-direction: column; gap: 1.75rem; align-items: center;">
-
-      <!-- Eyebrow pill -->
-      <div>
-        <span
-          class="inline-flex items-center gap-2 rounded-full border text-xs font-medium"
-          style="
-            padding: 0.375rem 1rem;
-            border-color: rgb(var(--color-accent) / 0.35);
-            background: rgb(var(--color-accent) / 0.07);
-            color: rgb(var(--color-accent));
-          "
-        >
-          <span class="h-1.5 w-1.5 rounded-full" style="background: rgb(var(--color-accent)); flex-shrink: 0;"></span>
-          AI destekli yazılım danışmanlığı
-        </span>
-      </div>
-
-      <!-- Headline -->
-      <h1
-        class="text-4xl font-semibold sm:text-5xl md:text-[3.5rem]"
-        style="color: rgb(var(--color-fg)); letter-spacing: -0.03em; line-height: 1.06;"
-      >
-        {title}
-      </h1>
-
-      <!-- Description -->
-      <p class="max-w-2xl text-base leading-relaxed md:text-lg" style="color: rgb(var(--color-fg-muted));">
-        {description}
-      </p>
-
-      <!-- CTAs -->
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-        {primaryCtaText && primaryCtaLink && (
-          <a href={primaryCtaLink} class="btn-primary" style="padding: 0.875rem 2rem; font-size: 0.9375rem;">
-            {primaryCtaText}
-          </a>
-        )}
-        {secondaryCtaText && secondaryCtaLink && (
-          <a href={secondaryCtaLink} class="btn-secondary" style="padding: 0.875rem 2rem; font-size: 0.9375rem;">
-            {secondaryCtaText}
-          </a>
-        )}
-      </div>
-
-      <!-- Trust signals -->
-      <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs" style="color: rgb(var(--color-fg-faint));">
-        <div class="flex items-center gap-2">
-          <span class="flex h-6 min-w-[1.5rem] px-1.5 items-center justify-center rounded-md text-[0.6rem] font-semibold" style="background: rgb(var(--color-accent) / 0.12); color: rgb(var(--color-accent));">24s</span>
-          Ortalama ilk dönüş
-        </div>
-        <span class="h-3.5 w-px" style="background: rgb(var(--color-border));"></span>
-        <div class="flex items-center gap-2">
-          <span class="flex h-6 min-w-[1.5rem] px-1.5 items-center justify-center rounded-md text-[0.6rem] font-semibold" style="background: rgb(var(--color-accent) / 0.12); color: rgb(var(--color-accent));">NDA</span>
-          Gizlilik odaklı
-        </div>
-      </div>
-    </div>
+  <!-- ─── Background gradient layers (above canvas, transparent) ─── -->
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hbg-bloom-top"></div>
+    <div class="hbg-bloom-right"></div>
+    <div class="hbg-bloom-left"></div>
+    <div class="hbg-vignette"></div>
+    <div class="hbg-scan"></div>
+    <div class="hbg-horizon"></div>
   </div>
+
+  <div class="site-container hero-container">
+    <div class="hero-grid">
+
+      <!-- ════ TEXT COLUMN ════════════════════════════════════════ -->
+      <div class="hero-text">
+
+        <!-- Eyebrow -->
+        <div class="hero-eyebrow-wrap hero-entrance" style="animation-delay:100ms">
+          <span class="hero-eyebrow">
+            <span class="hero-eyebrow-pulse" aria-hidden="true"></span>
+            AI destekli yazılım danışmanlığı
+          </span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="hero-headline hero-entrance" style="animation-delay:260ms">
+          {title}
+        </h1>
+
+        <!-- Description -->
+        <p class="hero-desc hero-entrance" style="animation-delay:420ms">
+          {description}
+        </p>
+
+        <!-- CTAs -->
+        <div class="hero-ctas hero-entrance" style="animation-delay:560ms">
+          {primaryCtaText && primaryCtaLink && (
+            <a href={primaryCtaLink} class="btn-primary hero-btn-primary">
+              {primaryCtaText}
+              <!-- Arrow icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          )}
+          {secondaryCtaText && secondaryCtaLink && (
+            <a href={secondaryCtaLink} class="btn-secondary hero-btn-secondary">
+              {secondaryCtaText}
+            </a>
+          )}
+        </div>
+
+        <!-- Trust signals -->
+        <div class="hero-trust hero-entrance" style="animation-delay:700ms" role="list">
+          <div class="hero-trust-item" role="listitem">
+            <span class="hero-trust-badge">24s</span>
+            <span class="hero-trust-label">Ortalama ilk dönüş</span>
+          </div>
+          <span class="hero-trust-sep" aria-hidden="true"></span>
+          <div class="hero-trust-item" role="listitem">
+            <span class="hero-trust-badge">NDA</span>
+            <span class="hero-trust-label">Gizlilik odaklı</span>
+          </div>
+        </div>
+
+      </div><!-- /hero-text -->
+
+      <!-- ════ DECORATIVE COLUMN ═══════════════════════════════════ -->
+      <div class="hero-deco hero-entrance" style="animation-delay:350ms" aria-hidden="true">
+
+        <!-- Ambient glow orb behind cards -->
+        <div class="hdeco-glow"></div>
+
+        <!-- ── Float card 1 — Uptime metric (top-right) ── -->
+        <div class="hcard hcard-f1">
+          <div class="hcard-metric-value">98<span class="hcard-metric-unit">%</span></div>
+          <div class="hcard-metric-label">Uptime SLA</div>
+          <div class="hcard-metric-bar">
+            <div class="hcard-metric-fill" style="width:98%"></div>
+          </div>
+        </div>
+
+        <!-- ── Main status card ── -->
+        <div class="hcard hcard-main">
+
+          <!-- Card header -->
+          <div class="hcard-header">
+            <div class="hcard-header-left">
+              <span class="hcard-status-dot"></span>
+              <span class="hcard-title">Sistem Mimarisi</span>
+            </div>
+            <span class="hcard-badge">Aktif</span>
+          </div>
+
+          <!-- Separator -->
+          <div class="hcard-sep"></div>
+
+          <!-- Progress rows -->
+          <div class="hcard-rows">
+            <div class="hcard-row">
+              <span class="hcard-row-label">AI Pipeline</span>
+              <div class="hcard-bar-track">
+                <div class="hcard-bar-fill" style="width:82%"></div>
+              </div>
+              <span class="hcard-row-pct">82%</span>
+            </div>
+            <div class="hcard-row">
+              <span class="hcard-row-label">API Katmanı</span>
+              <div class="hcard-bar-track">
+                <div class="hcard-bar-fill" style="width:94%"></div>
+              </div>
+              <span class="hcard-row-pct">94%</span>
+            </div>
+            <div class="hcard-row">
+              <span class="hcard-row-label">Veri Akışı</span>
+              <div class="hcard-bar-track">
+                <div class="hcard-bar-fill" style="width:71%"></div>
+              </div>
+              <span class="hcard-row-pct">71%</span>
+            </div>
+          </div>
+
+          <!-- Separator -->
+          <div class="hcard-sep"></div>
+
+          <!-- Card footer -->
+          <div class="hcard-footer">
+            <span class="hcard-footer-dot"></span>
+            <span class="hcard-footer-text">Tüm sistemler sağlıklı</span>
+            <span class="hcard-footer-version">v3.2</span>
+          </div>
+
+        </div><!-- /hcard-main -->
+
+        <!-- ── Float card 2 — Tech stack (bottom-left) ── -->
+        <div class="hcard hcard-f2">
+          <div class="hcard-chips">
+            <span class="hcard-chip">GPT-4o</span>
+            <span class="hcard-chip">Node.js</span>
+            <span class="hcard-chip">React</span>
+            <span class="hcard-chip">Python</span>
+          </div>
+          <div class="hcard-stack-label">Teknoloji Stack</div>
+        </div>
+
+      </div><!-- /hero-deco -->
+
+    </div><!-- /hero-grid -->
+  </div><!-- /container -->
+
 </section>
+
+<style>
+  /* ════════════════════════════════════════════════════════════
+     HERO SECTION
+  ════════════════════════════════════════════════════════════ */
+
+  /* ─── Hero entrance animations (CSS-only, above the fold) ─── */
+  .hero-entrance {
+    animation: k-up 640ms var(--ease-expo) both;
+  }
+  /* Deco column fades in (no translateY — it has its own float) */
+  .hero-deco.hero-entrance {
+    animation: k-fade 900ms var(--ease-expo) both;
+  }
+
+  .hero-section {
+    position  : relative;
+    overflow  : hidden;
+    padding-top   : 7.5rem;
+    padding-bottom: 5rem;
+  }
+  @media (min-width: 768px)  { .hero-section { padding-top: 9.5rem; padding-bottom: 6.5rem; } }
+  @media (min-width: 1024px) { .hero-section { padding-top: 11rem;  padding-bottom: 8rem; min-height: 88vh; } }
+
+  .hero-container {
+    position: relative;
+    z-index : 10;
+    display : flex;
+    align-items: center;
+  }
+
+  /* ── Grid ── */
+  .hero-grid {
+    display              : grid;
+    grid-template-columns: 1fr;
+    gap                  : 4rem;
+    align-items          : center;
+    width                : 100%;
+  }
+  @media (min-width: 768px) {
+    .hero-grid {
+      grid-template-columns: 1fr 1fr;
+      gap                  : 3.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap                  : 5rem;
+    }
+  }
+
+  /* ════ Background layers ═════════════════════════════════ */
+  .hero-bg {
+    position      : absolute;
+    inset         : 0;
+    z-index       : 1;   /* above canvas (z:0), below content (z:10) */
+    pointer-events: none;
+  }
+  .hbg-bloom-top {
+    position  : absolute;
+    inset     : 0;
+    background: radial-gradient(
+      ellipse 105% 65% at 38% -6%,
+      rgba(217, 161, 40, 0.15) 0%,
+      rgba(161, 116, 24, 0.06) 45%,
+      transparent 62%
+    );
+  }
+  .hbg-bloom-right {
+    position  : absolute;
+    top       : 5%;
+    right     : -8%;
+    width     : 62%;
+    aspect-ratio: 1;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(161, 116, 24, 0.10) 0%,
+      transparent 60%
+    );
+  }
+  .hbg-bloom-left {
+    position  : absolute;
+    bottom    : -5%;
+    left      : -12%;
+    width     : 50%;
+    aspect-ratio: 1;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(161, 116, 24, 0.06) 0%,
+      transparent 58%
+    );
+  }
+  /* Corner + edge vignette — frames the scene, adds cinematic depth */
+  .hbg-vignette {
+    position  : absolute;
+    inset     : 0;
+    background:
+      /* Side walls — darken far left and right */
+      linear-gradient(
+        to right,
+        rgba(17, 14, 13, 0.22) 0%,
+        transparent 22%,
+        transparent 78%,
+        rgba(17, 14, 13, 0.18) 100%
+      ),
+      /* Bottom fade — grounds the section */
+      linear-gradient(
+        to top,
+        rgba(17, 14, 13, 0.24) 0%,
+        transparent 35%
+      );
+  }
+
+  /* Micro-texture scan lines — editorial tech aesthetic, barely perceptible */
+  .hbg-scan {
+    position  : absolute;
+    inset     : 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent                    0px,
+      transparent                    2px,
+      rgba(217, 161, 40, 0.008)      2px,
+      rgba(217, 161, 40, 0.008)      3px
+    );
+    /* Mask: fade toward center so text stays clean, texture only at edges */
+    mask-image: radial-gradient(
+      ellipse 95% 90% at 50% 50%,
+      transparent 30%,
+      black       70%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 95% 90% at 50% 50%,
+      transparent 30%,
+      black       70%
+    );
+  }
+
+  /* Horizon line — thin gold gradient rule at hero section bottom edge */
+  .hbg-horizon {
+    position  : absolute;
+    bottom    : 0;
+    left      : 0;
+    right     : 0;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent                   0%,
+      rgba(217, 161, 40, 0.14)     18%,
+      rgba(217, 161, 40, 0.30)     50%,
+      rgba(217, 161, 40, 0.14)     82%,
+      transparent                 100%
+    );
+  }
+
+  /* ════ Text column ═══════════════════════════════════════ */
+  .hero-text {
+    display      : flex;
+    flex-direction: column;
+    gap          : 1.75rem;
+    align-items  : center;  /* mobile: centered */
+    text-align   : center;
+  }
+  @media (min-width: 768px) {
+    .hero-text {
+      align-items: flex-start;
+      text-align : left;
+    }
+  }
+
+  /* Eyebrow */
+  .hero-eyebrow-wrap { display: inline-flex; }
+  .hero-eyebrow {
+    display     : inline-flex;
+    align-items : center;
+    gap         : 0.5rem;
+    padding     : 0.3125rem 0.875rem;
+    border-radius: 9999px;
+    font-size   : 0.6875rem;
+    font-weight : 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color       : rgb(var(--color-accent));
+    background  : rgb(var(--color-accent) / 0.09);
+    border      : 1px solid rgb(var(--color-accent) / 0.26);
+  }
+  /* Pulsing dot inside eyebrow */
+  .hero-eyebrow-pulse {
+    width        : 6px;
+    height       : 6px;
+    border-radius: 9999px;
+    background   : rgb(var(--color-accent));
+    flex-shrink  : 0;
+    animation    : hero-pulse-ring 2.6s ease-in-out infinite;
+  }
+
+  /* Headline */
+  .hero-headline {
+    font-size     : 2.5rem;
+    font-weight   : 800;
+    letter-spacing: -0.036em;
+    line-height   : 1.07;
+    color         : rgb(var(--color-fg));
+    max-width     : 16ch;
+    /* Enable optical kerning for display sizes */
+    font-kerning  : normal;
+    text-wrap     : balance;  /* even line breaks on modern browsers */
+  }
+  @media (min-width: 640px)  {
+    .hero-headline { font-size: 3rem; letter-spacing: -0.038em; line-height: 1.05; }
+  }
+  @media (min-width: 768px)  {
+    .hero-headline { font-size: 3.375rem; max-width: none; letter-spacing: -0.040em; }
+  }
+  @media (min-width: 1024px) {
+    .hero-headline { font-size: 3.875rem; line-height: 1.03; letter-spacing: -0.042em; }
+  }
+
+  /* Description */
+  .hero-desc {
+    max-width  : 44ch;   /* tighter — Türkçe cümleler daha uzun, kısa satır okunabilirliği artırır */
+    font-size  : 1rem;
+    line-height: 1.76;
+    color      : rgb(var(--color-fg-muted));
+  }
+  @media (min-width: 768px)  { .hero-desc { font-size: 1.0625rem; max-width: 46ch; } }
+  @media (min-width: 1024px) { .hero-desc { font-size: 1.0625rem; max-width: 42ch; } }
+
+  /* CTAs */
+  .hero-ctas {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0.75rem;
+    align-items   : center;
+    width         : 100%;
+  }
+  @media (min-width: 480px) {
+    .hero-ctas {
+      flex-direction: row;
+      justify-content: center;
+      width: auto;
+    }
+  }
+  @media (min-width: 768px) {
+    .hero-ctas { justify-content: flex-start; }
+  }
+
+  .hero-btn-primary {
+    padding    : 0.875rem 1.875rem;
+    font-size  : 0.9375rem;
+    font-weight: 700;
+  }
+  .hero-btn-secondary {
+    padding  : 0.875rem 1.875rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Trust signals */
+  .hero-trust {
+    display    : flex;
+    align-items: center;
+    gap        : 0.875rem;
+    flex-wrap  : wrap;
+    justify-content: center;
+  }
+  @media (min-width: 768px) { .hero-trust { justify-content: flex-start; } }
+
+  .hero-trust-item {
+    display    : flex;
+    align-items: center;
+    gap        : 0.5rem;
+    font-size  : 0.8125rem;
+    color      : rgb(var(--color-fg-faint));
+  }
+  .hero-trust-badge {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    height         : 1.5rem;
+    padding        : 0 0.5rem;
+    border-radius  : 0.375rem;
+    font-size      : 0.625rem;
+    font-weight    : 700;
+    letter-spacing : 0.05em;
+    background     : rgb(var(--color-accent) / 0.11);
+    color          : rgb(var(--color-accent));
+    border         : 1px solid rgb(var(--color-accent) / 0.24);
+  }
+  .hero-trust-label { color: rgb(var(--color-fg-faint)); }
+  .hero-trust-sep {
+    width        : 1px;
+    height       : 14px;
+    background   : rgb(var(--color-border));
+    flex-shrink  : 0;
+  }
+
+  /* ════ Decorative column ════════════════════════════════ */
+  .hero-deco {
+    display : none;
+    position: relative;
+    height  : 380px;
+  }
+  @media (min-width: 768px)  { .hero-deco { display: block; height: 360px; } }
+  @media (min-width: 1024px) { .hero-deco { height: 420px; } }
+
+  /* Ambient glow orb */
+  .hdeco-glow {
+    position     : absolute;
+    top          : 10%;
+    left         : 5%;
+    right        : 5%;
+    bottom       : 10%;
+    background   : radial-gradient(
+      ellipse at 55% 45%,
+      rgba(217, 161, 40, 0.13) 0%,
+      rgba(161, 116, 24, 0.06) 45%,
+      transparent 70%
+    );
+    filter       : blur(20px);
+    animation    : hero-glow-breathe 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* ════ Cards — shared base ══════════════════════════════ */
+  .hcard {
+    position     : absolute;
+    background   : rgb(var(--color-card));
+    border       : 1px solid rgb(var(--color-border));
+    border-radius: 1rem;
+    padding      : 1.125rem;
+    box-shadow   :
+      0 1px 0 rgba(255,255,255,0.04) inset,
+      0 0 0 1px rgb(var(--color-accent) / 0.08),
+      0 4px  12px rgba(0,0,0,0.12),
+      0 16px 48px rgba(0,0,0,0.16);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    /* Top-edge gold line */
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--color-accent) / 0.06) 0px,
+      transparent 1px
+    );
+  }
+
+  /* ── Main card — center-anchored, floats slowly ── */
+  .hcard-main {
+    top    : 50%;
+    left   : 50%;
+    width  : 76%;
+    max-width: 300px;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    animation: hero-float-a 9s ease-in-out infinite;
+  }
+
+  /* ── Float card 1 — uptime metric, top-right ── */
+  .hcard-f1 {
+    top    : 0;
+    right  : 0;
+    width  : 38%;
+    max-width: 140px;
+    z-index: 3;
+    padding: 1rem;
+    animation: hero-float-b 11s ease-in-out infinite;
+  }
+
+  /* ── Float card 2 — tech chips, bottom-left ── */
+  .hcard-f2 {
+    bottom : 0;
+    left   : 0;
+    width  : 52%;
+    max-width: 190px;
+    z-index: 3;
+    padding: 0.875rem;
+    animation: hero-float-a 10s ease-in-out infinite 1.2s;
+  }
+
+  /* ════ Main card internals ══════════════════════════════ */
+  .hcard-header {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    margin-bottom  : 0.75rem;
+  }
+  .hcard-header-left {
+    display    : flex;
+    align-items: center;
+    gap        : 0.5rem;
+  }
+  /* Pulsing status dot */
+  .hcard-status-dot {
+    width        : 7px;
+    height       : 7px;
+    border-radius: 9999px;
+    background   : rgb(var(--color-accent));
+    flex-shrink  : 0;
+    animation    : hero-pulse-ring 2.4s ease-in-out infinite 0.4s;
+  }
+  .hcard-title {
+    font-size  : 0.75rem;
+    font-weight: 600;
+    color      : rgb(var(--color-fg));
+    white-space: nowrap;
+  }
+  .hcard-badge {
+    font-size    : 0.5625rem;
+    font-weight  : 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding      : 0.1875rem 0.4375rem;
+    border-radius: 9999px;
+    background   : rgb(var(--color-accent) / 0.12);
+    color        : rgb(var(--color-accent));
+    border       : 1px solid rgb(var(--color-accent) / 0.25);
+  }
+
+  .hcard-sep {
+    height        : 1px;
+    margin        : 0.75rem 0;
+    background    : linear-gradient(
+      to right,
+      transparent,
+      rgb(var(--color-border)) 25%,
+      rgb(var(--color-accent) / 0.20) 50%,
+      rgb(var(--color-border)) 75%,
+      transparent
+    );
+  }
+
+  /* Progress rows */
+  .hcard-rows     { display: flex; flex-direction: column; gap: 0.5rem; }
+  .hcard-row      { display: flex; align-items: center; gap: 0.5rem; }
+  .hcard-row-label {
+    font-size : 0.6875rem;
+    font-weight: 500;
+    color     : rgb(var(--color-fg-muted));
+    width     : 5.5rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .hcard-bar-track {
+    flex         : 1;
+    height       : 4px;
+    border-radius: 9999px;
+    background   : rgb(var(--color-muted));
+    overflow     : hidden;
+  }
+  .hcard-bar-fill {
+    height       : 100%;
+    border-radius: inherit;
+    background   : linear-gradient(
+      90deg,
+      rgba(161,116,24,0.75)  0%,
+      rgba(217,161,40,0.90) 60%,
+      rgba(245,214,92,0.80) 100%
+    );
+  }
+  .hcard-row-pct {
+    font-size  : 0.625rem;
+    font-weight: 600;
+    color      : rgb(var(--color-accent));
+    width      : 2rem;
+    text-align : right;
+    flex-shrink: 0;
+  }
+
+  /* Card footer */
+  .hcard-footer {
+    display    : flex;
+    align-items: center;
+    gap        : 0.4375rem;
+  }
+  .hcard-footer-dot {
+    width        : 5px;
+    height       : 5px;
+    border-radius: 9999px;
+    background   : rgba(74, 222, 128, 0.85); /* subtle green — "healthy" */
+    flex-shrink  : 0;
+  }
+  .hcard-footer-text {
+    font-size  : 0.6875rem;
+    color      : rgb(var(--color-fg-muted));
+    flex       : 1;
+  }
+  .hcard-footer-version {
+    font-size   : 0.5625rem;
+    font-weight : 600;
+    color       : rgb(var(--color-fg-faint));
+    font-family : ui-monospace, monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* ════ Metric card (f1) internals ═══════════════════════ */
+  .hcard-metric-value {
+    font-size     : 2rem;
+    font-weight   : 800;
+    letter-spacing: -0.04em;
+    line-height   : 1;
+    color         : rgb(var(--color-accent));
+  }
+  .hcard-metric-unit {
+    font-size  : 1.25rem;
+    font-weight: 700;
+  }
+  .hcard-metric-label {
+    font-size  : 0.6875rem;
+    color      : rgb(var(--color-fg-muted));
+    margin-top : 0.25rem;
+    font-weight: 500;
+  }
+  .hcard-metric-bar {
+    margin-top   : 0.625rem;
+    height       : 3px;
+    border-radius: 9999px;
+    background   : rgb(var(--color-muted));
+    overflow     : hidden;
+  }
+  .hcard-metric-fill {
+    height       : 100%;
+    border-radius: inherit;
+    background   : linear-gradient(90deg, rgba(161,116,24,0.8), rgba(245,214,92,0.9));
+  }
+
+  /* ════ Tech chip card (f2) internals ════════════════════ */
+  .hcard-chips {
+    display  : flex;
+    flex-wrap: wrap;
+    gap      : 0.3125rem;
+  }
+  .hcard-chip {
+    display        : inline-flex;
+    align-items    : center;
+    padding        : 0.1875rem 0.5rem;
+    border-radius  : 0.375rem;
+    font-size      : 0.625rem;
+    font-weight    : 600;
+    letter-spacing : 0.02em;
+    background     : rgb(var(--color-accent) / 0.10);
+    color          : rgb(var(--color-accent));
+    border         : 1px solid rgb(var(--color-accent) / 0.22);
+    white-space    : nowrap;
+  }
+  .hcard-stack-label {
+    margin-top : 0.5rem;
+    font-size  : 0.625rem;
+    font-weight: 500;
+    color      : rgb(var(--color-fg-faint));
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ════ Animations ════════════════════════════════════════ */
+  @keyframes hero-float-a {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0px);  }
+    50%       { transform: translate(-50%, -50%) translateY(-9px); }
+  }
+  /* For non-centered cards */
+  .hcard-f1 { animation-name: hero-float-b-abs; }
+  .hcard-f2 { animation-name: hero-float-a-abs; }
+
+  @keyframes hero-float-a-abs {
+    0%, 100% { transform: translateY(0px);  }
+    50%       { transform: translateY(-8px); }
+  }
+  @keyframes hero-float-b-abs {
+    0%, 100% { transform: translateY(-4px); }
+    50%       { transform: translateY(4px);  }
+  }
+
+  @keyframes hero-glow-breathe {
+    0%, 100% { opacity: 0.7; transform: scale(1);    }
+    50%       { opacity: 1.0; transform: scale(1.05); }
+  }
+
+  @keyframes hero-pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0   rgb(var(--color-accent) / 0.50); }
+    50%       { box-shadow: 0 0 0 4px rgb(var(--color-accent) / 0.00); }
+  }
+</style>

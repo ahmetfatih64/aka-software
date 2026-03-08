@@ -6,70 +6,318 @@ interface Props {
   buttonLink?: string;
 }
 const {
-  title = "Projeleriniz için AI destekli çözümler",
+  title       = "Projeleriniz için AI destekli çözümler",
   description = "İşletmenizi bir adım öteye taşımak için uzman ekibimizle tanışın.",
-  buttonText = "Ücretsiz Keşif Görüşmesi",
-  buttonLink = "/iletisim"
+  buttonText  = "Ücretsiz Keşif Görüşmesi",
+  buttonLink  = "/iletisim"
 } = Astro.props;
 ---
-<section class="section-block">
-  <div class="site-container">
-    <div
-      class="relative overflow-hidden rounded-2xl px-6 py-12 text-center sm:px-10 md:px-16 md:py-16"
-      style="background: rgb(var(--color-accent)); box-shadow: 0 20px 60px rgba(0,0,0,0.12);"
-    >
-      <!-- Decorative dot grid overlay -->
-      <div
-        aria-hidden="true"
-        style="
-          position: absolute; inset: 0;
-          background-image: radial-gradient(rgb(0 0 0 / 0.12) 1px, transparent 1px);
-          background-size: 20px 20px;
-          pointer-events: none;
-        "
-      ></div>
-      <!-- Bottom dark fade -->
-      <div
-        aria-hidden="true"
-        style="
-          position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
-          background: linear-gradient(to top, rgb(0 0 0 / 0.08), transparent);
-          pointer-events: none;
-        "
-      ></div>
 
-      <div class="relative mx-auto max-w-2xl" style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-        <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl" style="color: rgb(var(--color-accent-fg));">
-          {title}
-        </h2>
-        <p class="text-sm leading-relaxed md:text-base" style="color: rgb(var(--color-accent-fg) / 0.8);">
-          {description}
+<section class="cta-section section-block">
+  <div class="site-container">
+    <div class="cta-panel">
+
+      <!-- ═══ Decorative background layers ═══════════════════════ -->
+
+      <!-- Deep ambient glow from center -->
+      <div class="cta-layer cta-center-glow" aria-hidden="true"></div>
+
+      <!-- Top-left and top-right ambient corner glows -->
+      <div class="cta-layer cta-corner-glow-tl" aria-hidden="true"></div>
+      <div class="cta-layer cta-corner-glow-br" aria-hidden="true"></div>
+
+      <!-- Fine dot-grid texture -->
+      <div class="cta-layer cta-dot-grid" aria-hidden="true"></div>
+
+      <!-- Horizontal precision rules (editorial frame lines) -->
+      <div class="cta-layer cta-rule-top"    aria-hidden="true"></div>
+      <div class="cta-layer cta-rule-bottom" aria-hidden="true"></div>
+
+      <!-- L-shaped corner precision marks -->
+      <div class="cta-corner-mark cta-cm-tl" aria-hidden="true"></div>
+      <div class="cta-corner-mark cta-cm-tr" aria-hidden="true"></div>
+      <div class="cta-corner-mark cta-cm-bl" aria-hidden="true"></div>
+      <div class="cta-corner-mark cta-cm-br" aria-hidden="true"></div>
+
+      <!-- ═══ Content ══════════════════════════════════════════════ -->
+      <div class="cta-content reveal">
+
+        <!-- Eyebrow label -->
+        <p class="cta-eyebrow" aria-hidden="true">
+          <span class="cta-eyebrow-dot"></span>
+          Birlikte İnşa Edelim
         </p>
-        <div>
-          <a
-            href={buttonLink}
-            style="
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              gap: 0.5rem;
-              border-radius: 0.75rem;
-              padding: 0.875rem 2rem;
-              font-size: 0.9375rem;
-              font-weight: 500;
-              text-decoration: none;
-              transition: transform 200ms ease-out, box-shadow 200ms ease-out;
-              background: rgb(var(--color-accent-fg));
-              color: rgb(var(--color-accent));
-              box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-            "
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.25)'"
-            onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.2)'"
-          >
+
+        <!-- Headline -->
+        <h2 class="cta-title">{title}</h2>
+
+        <!-- Supporting copy -->
+        <p class="cta-desc">{description}</p>
+
+        <!-- Divider before button -->
+        <div class="cta-divider" aria-hidden="true"></div>
+
+        <!-- CTA action -->
+        <div class="cta-action">
+          <a href={buttonLink} class="cta-btn btn-primary">
             {buttonText}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
           </a>
         </div>
-      </div>
-    </div>
+
+      </div><!-- /cta-content -->
+
+    </div><!-- /cta-panel -->
   </div>
 </section>
+
+<style>
+  /* ════ Section ══════════════════════════════════════════════ */
+  .cta-section {
+    /* Darken the surrounding area so panel reads as a showcase frame */
+    background: transparent;
+  }
+
+  /* ════ Panel ════════════════════════════════════════════════ */
+  .cta-panel {
+    position     : relative;
+    overflow     : hidden;
+    border-radius: 1.5rem;
+    padding      : 5rem 1.5rem;
+    text-align   : center;
+
+    /* Deep obsidian surface */
+    background   : rgba(14, 11, 10, 0.97);
+    border       : 1px solid rgba(161, 116, 24, 0.26);
+
+    /* Layered shadow: subtle outer glow + deep drop shadow */
+    box-shadow   :
+      0 0 0 1px rgba(217, 161, 40, 0.06) inset,
+      0 0 80px rgba(217, 161, 40, 0.07),
+      0 2px  0   rgba(217, 161, 40, 0.10) inset, /* top inner edge */
+      0 40px 100px rgba(0, 0, 0, 0.55);
+  }
+  @media (min-width: 640px) { .cta-panel { padding: 5.5rem 3rem; } }
+  @media (min-width: 768px) { .cta-panel { padding: 6.5rem 5rem; } }
+  @media (min-width: 1024px){ .cta-panel { padding: 7rem  7rem; } }
+
+  /* ════ Decorative layers ════════════════════════════════════ */
+  .cta-layer {
+    position      : absolute;
+    inset         : 0;
+    pointer-events: none;
+  }
+
+  /* Central radial gold halo — breathing animation */
+  .cta-center-glow {
+    background: radial-gradient(
+      ellipse 70% 65% at 50% 50%,
+      rgba(217, 161, 40, 0.10) 0%,
+      rgba(161, 116, 24, 0.04) 45%,
+      transparent 70%
+    );
+    animation: cta-glow-breathe 5.5s ease-in-out infinite;
+  }
+
+  /* Top-left ambient leak */
+  .cta-corner-glow-tl {
+    background: radial-gradient(
+      ellipse 50% 45% at -5% -5%,
+      rgba(161, 116, 24, 0.10) 0%,
+      transparent 65%
+    );
+  }
+
+  /* Bottom-right ambient leak */
+  .cta-corner-glow-br {
+    background: radial-gradient(
+      ellipse 45% 40% at 105% 105%,
+      rgba(161, 116, 24, 0.08) 0%,
+      transparent 65%
+    );
+  }
+
+  /* Dot-grid texture */
+  .cta-dot-grid {
+    background-image: radial-gradient(
+      rgba(217, 161, 40, 0.055) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    /* Fade toward edges — keeps center clean for readability */
+    mask-image: radial-gradient(
+      ellipse 80% 80% at 50% 50%,
+      transparent 20%,
+      black 55%,
+      black 80%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 80% 80% at 50% 50%,
+      transparent 20%,
+      black 55%,
+      black 80%,
+      transparent 100%
+    );
+  }
+
+  /* Horizontal precision rule lines (editorial frame) */
+  .cta-rule-top,
+  .cta-rule-bottom {
+    inset     : auto;
+    left      : 10%;
+    right     : 10%;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent        0%,
+      rgba(161,116,24,0.30) 20%,
+      rgba(217,161,40,0.40) 50%,
+      rgba(161,116,24,0.30) 80%,
+      transparent       100%
+    );
+  }
+  .cta-rule-top    { top: 2.25rem; }
+  .cta-rule-bottom { bottom: 2.25rem; }
+
+  /* ════ Corner precision marks ═══════════════════════════════
+     L-shaped marks at all 4 corners, like technical diagram accents
+  ═══════════════════════════════════════════════════════════ */
+  .cta-corner-mark {
+    position: absolute;
+    width   : 14px;
+    height  : 14px;
+  }
+  .cta-corner-mark::before,
+  .cta-corner-mark::after {
+    content   : '';
+    position  : absolute;
+    background: rgba(217, 161, 40, 0.42);
+  }
+  /* Horizontal arm */
+  .cta-corner-mark::before { height: 1px; width: 100%; top: 0; left: 0; }
+  /* Vertical arm */
+  .cta-corner-mark::after  { width: 1px; height: 100%; top: 0; left: 0; }
+
+  /* Top-left */
+  .cta-cm-tl { top: 1.25rem; left: 1.25rem; }
+  /* Top-right */
+  .cta-cm-tr {
+    top: 1.25rem; right: 1.25rem;
+    transform: scaleX(-1);
+  }
+  /* Bottom-left */
+  .cta-cm-bl {
+    bottom: 1.25rem; left: 1.25rem;
+    transform: scaleY(-1);
+  }
+  /* Bottom-right */
+  .cta-cm-br {
+    bottom: 1.25rem; right: 1.25rem;
+    transform: scale(-1);
+  }
+
+  /* ════ Content ══════════════════════════════════════════════ */
+  .cta-content {
+    position      : relative;
+    z-index       : 2;
+    max-width     : 44rem;
+    margin        : 0 auto;
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+    gap           : 1.5rem;
+  }
+
+  /* Eyebrow */
+  .cta-eyebrow {
+    display       : inline-flex;
+    align-items   : center;
+    gap           : 0.4375rem;
+    font-size     : 0.6875rem;
+    font-weight   : 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color         : rgba(217, 161, 40, 0.70);
+    margin-bottom : -0.25rem;
+  }
+  .cta-eyebrow-dot {
+    width        : 4px;
+    height       : 4px;
+    border-radius: 9999px;
+    background   : rgba(217, 161, 40, 0.70);
+    flex-shrink  : 0;
+  }
+
+  /* Title — editorial display scale */
+  .cta-title {
+    font-size     : 2rem;
+    font-weight   : 800;
+    letter-spacing: -0.038em;
+    line-height   : 1.07;
+    color         : rgba(242, 236, 224, 1); /* warm white */
+    max-width     : 20ch;
+    text-wrap     : balance;
+  }
+  @media (min-width: 640px)  { .cta-title { font-size: 2.5rem;  letter-spacing: -0.040em; } }
+  @media (min-width: 768px)  { .cta-title { font-size: 3rem;    letter-spacing: -0.042em; line-height: 1.05; } }
+  @media (min-width: 1024px) { .cta-title { font-size: 3.375rem; } }
+
+  /* Description */
+  .cta-desc {
+    font-size  : 1rem;
+    line-height: 1.76;
+    color      : rgba(178, 164, 144, 0.90); /* warm muted */
+    max-width  : 38ch;   /* tighter — clear focal line lengths */
+  }
+
+  /* Thin gold divider before button */
+  .cta-divider {
+    width     : 3rem;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(217, 161, 40, 0.50),
+      transparent
+    );
+    margin    : 0.25rem 0;
+  }
+
+  /* CTA button wrapper */
+  .cta-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Override btn-primary sizing for CTA context */
+  .cta-btn {
+    padding    : 1rem 2.25rem;
+    font-size  : 1rem;
+    font-weight: 700;
+    /* Stronger glow override for this context */
+    box-shadow :
+      0 1px 0 0 rgba(255,255,255,0.30) inset,
+      0 6px 24px rgba(217,161,40,0.38),
+      0 16px 48px rgba(217,161,40,0.18),
+      0 2px  8px  rgba(0,0,0,0.40) !important;
+  }
+  .cta-btn:hover {
+    box-shadow :
+      0 1px 0 0 rgba(255,255,255,0.36) inset,
+      0 10px 36px rgba(217,161,40,0.50),
+      0 20px 60px rgba(217,161,40,0.22),
+      0 4px  12px rgba(0,0,0,0.44) !important;
+  }
+
+  /* ════ Animation ════════════════════════════════════════════ */
+  @keyframes cta-glow-breathe {
+    0%, 100% { opacity: 0.65; transform: scale(1);    }
+    50%       { opacity: 1.00; transform: scale(1.06); }
+  }
+</style>

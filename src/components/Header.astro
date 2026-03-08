@@ -1,22 +1,25 @@
 ---
 const navLinks = [
-  { href: '/hizmetler', label: 'Hizmetler' },
-  { href: '/vaka-calismalari', label: 'Vaka Çalışmaları' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/hakkimizda', label: 'Hakkımızda' },
-  { href: '/iletisim', label: 'İletişim' }
+  { href: '/hizmetler',        label: 'Hizmetler'         },
+  { href: '/vaka-calismalari', label: 'Vaka Çalışmaları'  },
+  { href: '/blog',             label: 'Blog'              },
+  { href: '/hakkimizda',       label: 'Hakkımızda'        },
+  { href: '/iletisim',         label: 'İletişim'          },
 ];
 const currentPath = Astro.url.pathname;
 ---
+
 <header class="fixed inset-x-0 top-0 z-40">
   <div class="site-container">
+
+    <!-- ─── Main pill ─────────────────────────────────── -->
     <div
-      class="mt-3 flex items-center justify-between rounded-2xl border px-4 py-2 backdrop-blur-xl transition-all duration-200"
-      style="background-image: linear-gradient(rgba(6,6,10,0.86), rgba(6,6,10,0.86)), url('/arkaplan.png'); background-size: cover; background-position: center 35%; border-color: rgba(212,168,70,0.28);"
+      class="header-pill mt-3 flex items-center justify-between rounded-2xl border px-5 py-2.5 backdrop-blur-2xl"
       data-site-header
     >
+
       <!-- Logo -->
-      <a href="/" aria-label="AKA Software Ana Sayfa" class="flex items-center" style="opacity:1; transition: opacity 150ms;">
+      <a href="/" aria-label="AKA Software Ana Sayfa" class="header-logo flex-shrink-0">
         <img
           src="/ana_logo.png"
           alt="AKA Software"
@@ -30,123 +33,390 @@ const currentPath = Astro.url.pathname;
       </a>
 
       <!-- Desktop nav -->
-      <nav class="hidden items-center gap-6 md:flex">
-        {navLinks.map((link) => {
-          const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
+      <nav class="hidden items-center gap-0.5 md:flex" aria-label="Ana Navigasyon">
+        {navLinks.map(({ href, label }) => {
+          const isActive = currentPath === href || currentPath.startsWith(href + '/');
           return (
-            <a href={link.href} class={`nav-link ${isActive ? 'nav-link--active' : ''}`}>
-              {link.label}
+            <a
+              href={href}
+              class="hn-link"
+              aria-current={isActive ? 'page' : undefined}
+              data-active={isActive ? '' : undefined}
+            >
+              {label}
             </a>
           );
         })}
       </nav>
 
-      <!-- Right actions -->
-      <div class="flex items-center gap-2">
+      <!-- Right-side actions -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+
         <!-- Theme toggle -->
-        <button
-          type="button"
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
-          style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
-          aria-label="Tema degistir"
-          data-theme-toggle
-        >
-          <svg class="h-4 w-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <button type="button" class="hdr-icon-btn" aria-label="Tema değiştir" data-theme-toggle>
+          <!-- Sun — light mode -->
+          <svg class="block dark:hidden" width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="4"/>
             <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/>
           </svg>
-          <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Moon — dark mode -->
+          <svg class="hidden dark:block" width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
           </svg>
         </button>
 
         <!-- Desktop CTA -->
-        <a href="/iletisim" class="btn-primary hidden md:inline-flex" style="height:2rem; padding: 0 1rem; font-size: 0.75rem;">
+        <a href="/iletisim" class="btn-primary hdr-cta hidden md:inline-flex">
           Teklif Al
         </a>
 
-        <!-- Mobile menu toggle -->
+        <!-- Hamburger / close -->
         <button
           type="button"
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150 md:hidden"
-          style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
-          aria-label="Menuyu ac"
+          class="hdr-icon-btn md:hidden"
+          aria-label="Menüyü aç"
           aria-expanded="false"
           aria-controls="mobile-nav"
           data-mobile-toggle
         >
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-            <path d="M4 6h16M4 12h16M4 18h16"/>
+          <svg class="ham-open" width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 6h16M4 12h10M4 18h16"/>
+          </svg>
+          <svg class="ham-close" width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18"/>
           </svg>
         </button>
+
       </div>
-    </div>
+    </div><!-- /pill -->
   </div>
 
-  <!-- Mobile overlay -->
+  <!-- ─── Mobile overlay ────────────────────────────── -->
   <div
     id="mobile-nav"
-    class="fixed inset-0 z-30 hidden backdrop-blur-sm md:hidden"
-    style="background: rgba(0,0,0,0.45);"
+    class="mob-overlay hidden fixed inset-0 z-30 md:hidden"
     aria-hidden="true"
     data-mobile-overlay
   >
-    <div class="site-container flex h-full items-start justify-end pt-16" data-mobile-panel>
-      <div
-        class="w-full max-w-sm rounded-2xl border p-5 shadow-xl"
-        style="background-image: linear-gradient(rgba(6,6,10,0.92), rgba(6,6,10,0.92)), url('/arkaplan.png'); background-size: cover; background-position: center; border-color: rgba(212,168,70,0.28);"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mobile-nav-title"
-      >
-        <div class="mb-4 flex items-center justify-between">
-          <img
-            src="/ana_logo.png"
-            alt="AKA Software"
-            height="36"
-            width="126"
-            class="h-9 w-auto object-contain"
-            style="max-width: 160px;"
-          />
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150"
-            style="border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.6);"
-            aria-label="Menuyu kapat"
-            data-mobile-close
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6 6 18"/>
-            </svg>
-          </button>
-        </div>
+    <!-- Panel -->
+    <div
+      class="mob-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mob-panel-title"
+      data-mobile-panel
+    >
 
-        <nav class="flex flex-col gap-1" id="mobile-nav-title" data-mobile-nav-links>
-          {navLinks.map((link) => {
-            const isActive = currentPath === link.href || currentPath.startsWith(link.href + '/');
-            return (
-              <a
-                href={link.href}
-                class="flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150"
-                style={isActive
-                  ? "background: rgba(212,168,70,0.12); color: rgba(255,255,255,0.95);"
-                  : "color: rgba(255,255,255,0.58);"}
-              >
-                {link.label}
-              </a>
-            );
-          })}
-        </nav>
-
-        <div class="mt-4 pt-4 border-t" style="border-color: rgba(255,255,255,0.1);">
-          <a href="/iletisim" class="btn-primary w-full justify-center" style="font-size: 0.8125rem;">
-            Teklif Al
-          </a>
-        </div>
+      <!-- Panel top bar -->
+      <div class="mob-topbar">
+        <img
+          src="/ana_logo.png"
+          alt="AKA Software"
+          height="36"
+          width="126"
+          class="h-9 w-auto object-contain"
+          style="max-width: 160px;"
+        />
+        <button type="button" class="hdr-icon-btn" aria-label="Menüyü kapat" data-mobile-close>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18"/>
+          </svg>
+        </button>
       </div>
-    </div>
-  </div>
+
+      <!-- Gold gradient separator -->
+      <div class="mob-sep" aria-hidden="true"></div>
+
+      <!-- Links -->
+      <nav class="mob-links" id="mob-panel-title" aria-label="Mobil Navigasyon" data-mobile-nav-links>
+        {navLinks.map(({ href, label }) => {
+          const isActive = currentPath === href || currentPath.startsWith(href + '/');
+          return (
+            <a
+              href={href}
+              class="mob-link"
+              aria-current={isActive ? 'page' : undefined}
+              data-active={isActive ? '' : undefined}
+            >
+              <span class="mob-link-dot" aria-hidden="true"></span>
+              {label}
+            </a>
+          );
+        })}
+      </nav>
+
+      <!-- Separator + CTA -->
+      <div class="mob-sep" style="margin-top: 0.375rem;" aria-hidden="true"></div>
+      <div class="mob-cta">
+        <a href="/iletisim" class="btn-primary" style="width:100%; justify-content:center;">
+          Teklif Al
+        </a>
+      </div>
+
+    </div><!-- /panel -->
+  </div><!-- /overlay -->
+
 </header>
+
+<!-- ─── Scoped styles ──────────────────────────────── -->
+<style>
+
+  /* ════ Header pill ════════════════════════════════ */
+  .header-pill {
+    /* Default: floating, transparent */
+    background   : rgba(17, 14, 13, 0.72);
+    border-color : rgba(161, 116, 24, 0.20);
+    box-shadow   : none;
+    transition   :
+      background   300ms ease,
+      border-color 300ms ease,
+      box-shadow   300ms ease;
+    /* Subtle top-edge gold highlight */
+    background-image: linear-gradient(
+      to bottom,
+      rgba(217,161,40,0.055) 0px,
+      transparent 1px
+    );
+  }
+  /* Scrolled state — more opaque, deeper shadow */
+  .header-pill[data-scrolled] {
+    background   : rgba(14, 11, 10, 0.96);
+    border-color : rgba(161, 116, 24, 0.36);
+    box-shadow   :
+      0 12px 40px rgba(0, 0, 0, 0.60),
+      0 1px  0   rgba(217, 161, 40, 0.09) inset;
+  }
+
+  /* ════ Logo ════════════════════════════════════════ */
+  .header-logo {
+    transition: filter 220ms ease;
+  }
+  .header-logo:hover {
+    filter: drop-shadow(0 0 9px rgba(217, 161, 40, 0.30));
+  }
+  .header-logo:focus-visible {
+    outline: 2px solid rgba(245, 214, 92, 0.80);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* ════ Desktop nav links ══════════════════════════ */
+  .hn-link {
+    position    : relative;
+    display     : inline-flex;
+    align-items : center;
+    padding     : 0.3125rem 0.6875rem;
+    border-radius: 0.5rem;
+    font-size   : 0.875rem;
+    font-weight : 500;
+    color       : rgba(255, 255, 255, 0.50);
+    text-decoration: none;
+    border      : 1px solid transparent;
+    transition  :
+      color        160ms ease,
+      background   160ms ease,
+      border-color 160ms ease;
+    white-space: nowrap;
+  }
+  .hn-link:hover {
+    color      : rgba(255, 255, 255, 0.88);
+    background : rgba(255, 255, 255, 0.05);
+  }
+  /* Active indicator: subtle gold pill */
+  .hn-link[data-active] {
+    color        : rgba(255, 255, 255, 0.96);
+    background   : rgba(217, 161, 40, 0.10);
+    border-color : rgba(217, 161, 40, 0.24);
+  }
+  /* Small gold dot at bottom of active link */
+  .hn-link[data-active]::after {
+    content      : '';
+    position     : absolute;
+    bottom       : -1px;
+    left         : 50%;
+    translate    : -50% 0;
+    width        : 3px;
+    height       : 3px;
+    border-radius: 9999px;
+    background   : rgba(217, 161, 40, 0.70);
+  }
+  .hn-link:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.80);
+    outline-offset: 2px;
+  }
+
+  /* ════ Icon buttons (theme toggle, hamburger, close) */
+  .hdr-icon-btn {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 2rem;
+    height         : 2rem;
+    border-radius  : 0.5rem;
+    border         : 1px solid rgba(255, 255, 255, 0.09);
+    color          : rgba(255, 255, 255, 0.50);
+    background     : transparent;
+    cursor         : pointer;
+    flex-shrink    : 0;
+    transition     :
+      color        160ms ease,
+      border-color 160ms ease,
+      background   160ms ease;
+  }
+  .hdr-icon-btn:hover {
+    color        : rgba(255, 255, 255, 0.90);
+    border-color : rgba(161, 116, 24, 0.40);
+    background   : rgba(161, 116, 24, 0.08);
+  }
+  .hdr-icon-btn:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.80);
+    outline-offset: 2px;
+  }
+
+  /* ════ Compact header CTA ══════════════════════════ */
+  .hdr-cta {
+    height     : 2rem      !important;
+    padding    : 0 0.9375rem !important;
+    font-size  : 0.75rem   !important;
+    font-weight: 600       !important;
+  }
+
+  /* ════ Hamburger ↔ X toggle ════════════════════════ */
+  .ham-close               { display: none; }
+  [aria-expanded="true"] .ham-open  { display: none;  }
+  [aria-expanded="true"] .ham-close { display: block; }
+
+  /* ════ Mobile overlay ═════════════════════════════ */
+  .mob-overlay {
+    background     : rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    pointer-events : none;
+    transition     :
+      background       260ms ease,
+      backdrop-filter  260ms ease;
+  }
+  .mob-overlay[data-open] {
+    background     : rgba(0, 0, 0, 0.50);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    pointer-events : all;
+  }
+
+  /* ════ Mobile panel ═══════════════════════════════ */
+  .mob-panel {
+    position     : absolute;
+    top          : 5rem;
+    right        : 1.25rem;
+    width        : min(calc(100vw - 2.5rem), 21rem);
+    padding      : 1.125rem;
+    border-radius: 1.25rem;
+
+    /* Surface */
+    background   : rgba(14, 11, 10, 0.98);
+    border       : 1px solid rgba(161, 116, 24, 0.28);
+    box-shadow   :
+      0 28px 70px rgba(0, 0, 0, 0.70),
+      0 1px  0   rgba(217, 161, 40, 0.12) inset,
+      /* top-edge line */
+      0 0    0   1px rgba(161, 116, 24, 0.10);
+
+    /* Entrance animation */
+    opacity  : 0;
+    transform: translateY(-10px) scale(0.975);
+    transition:
+      opacity   220ms ease,
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .mob-overlay[data-open] .mob-panel {
+    opacity  : 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* ════ Panel top bar ══════════════════════════════ */
+  .mob-topbar {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    margin-bottom  : 1rem;
+  }
+
+  /* ════ Gold gradient separator ═════════════════════ */
+  .mob-sep {
+    height     : 1px;
+    margin-bottom: 0.875rem;
+    background : linear-gradient(
+      to right,
+      transparent              0%,
+      rgba(161, 116, 24, 0.32) 25%,
+      rgba(217, 161, 40, 0.22) 50%,
+      rgba(161, 116, 24, 0.32) 75%,
+      transparent             100%
+    );
+  }
+
+  /* ════ Mobile nav links ═══════════════════════════ */
+  .mob-links {
+    display       : flex;
+    flex-direction: column;
+    gap           : 2px;
+  }
+
+  .mob-link {
+    display       : flex;
+    align-items   : center;
+    gap           : 0.625rem;
+    padding       : 0.625rem 0.75rem;
+    border-radius : 0.625rem;
+    font-size     : 0.9375rem;
+    font-weight   : 500;
+    color         : rgba(255, 255, 255, 0.50);
+    text-decoration: none;
+    border-left   : 2px solid transparent;
+    transition    :
+      color        150ms ease,
+      background   150ms ease,
+      border-color 150ms ease;
+  }
+  .mob-link:hover {
+    color      : rgba(255, 255, 255, 0.88);
+    background : rgba(255, 255, 255, 0.04);
+  }
+  .mob-link[data-active] {
+    color        : rgba(255, 255, 255, 0.96);
+    background   : rgba(217, 161, 40, 0.10);
+    border-color : rgba(217, 161, 40, 0.65);
+  }
+  .mob-link:focus-visible {
+    outline       : 2px solid rgba(245, 214, 92, 0.80);
+    outline-offset: 2px;
+  }
+
+  /* Accent dot next to active link label */
+  .mob-link-dot {
+    width        : 4px;
+    height       : 4px;
+    border-radius: 9999px;
+    background   : rgba(217, 161, 40, 0);
+    flex-shrink  : 0;
+    transition   : background 150ms ease;
+  }
+  .mob-link[data-active] .mob-link-dot {
+    background: rgba(217, 161, 40, 0.75);
+  }
+
+  /* ════ Mobile CTA ════════════════════════════════ */
+  .mob-cta {
+    margin-top: 0.625rem;
+  }
+
+</style>
 
 <script>
   const docEl = document.documentElement;
@@ -158,9 +428,9 @@ const currentPath = Astro.url.pathname;
 
   (function initTheme() {
     try {
-      const stored = localStorage.getItem(THEME_KEY);
-      const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+      const stored    = localStorage.getItem(THEME_KEY);
+      const preferDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(stored ?? (preferDark ? 'dark' : 'light'));
     } catch { /* noop */ }
   })();
 
@@ -171,19 +441,22 @@ const currentPath = Astro.url.pathname;
   }
 
   function setupHeader() {
-    document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
+    // Theme toggles
+    document.querySelectorAll('[data-theme-toggle]').forEach(btn =>
+      btn.addEventListener('click', toggleTheme)
+    );
 
-    const header = document.querySelector<HTMLElement>('[data-site-header]');
-    if (header) {
-      window.addEventListener('scroll', () => {
-        header.style.boxShadow = window.scrollY > 10
-          ? '0 8px 40px rgba(0,0,0,0.55)'
-          : 'none';
-      }, { passive: true });
+    // ── Scroll-aware pill ──────────────────────────
+    const pill = document.querySelector<HTMLElement>('.header-pill');
+    if (pill) {
+      const updateScroll = () => {
+        pill.toggleAttribute('data-scrolled', window.scrollY > 20);
+      };
+      window.addEventListener('scroll', updateScroll, { passive: true });
+      updateScroll();
     }
 
+    // ── Mobile menu ────────────────────────────────
     const toggleBtn = document.querySelector<HTMLElement>('[data-mobile-toggle]');
     const overlay   = document.querySelector<HTMLElement>('[data-mobile-overlay]');
     const closeBtn  = document.querySelector<HTMLElement>('[data-mobile-close]');
@@ -191,19 +464,49 @@ const currentPath = Astro.url.pathname;
     if (!toggleBtn || !overlay || !closeBtn || !panel) return;
 
     let lastFocused: HTMLElement | null = null;
+    let isOpen = false;
 
     function open() {
+      if (isOpen) return;
+      isOpen = true;
       lastFocused = document.activeElement as HTMLElement;
+
+      // 1. Make overlay present in layout (remove hidden)
       overlay!.classList.remove('hidden');
+      overlay!.removeAttribute('aria-hidden');
       toggleBtn!.setAttribute('aria-expanded', 'true');
-      panel!.querySelector<HTMLElement>('a, button')?.focus();
+      document.body.style.overflow = 'hidden';
+
+      // 2. Next frame: add [data-open] → triggers CSS transitions
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          overlay!.setAttribute('data-open', '');
+          // Focus first interactive element in panel after animation starts
+          setTimeout(() => {
+            panel!.querySelector<HTMLElement>('a[href], button:not([disabled])')?.focus();
+          }, 80);
+        });
+      });
+
       document.addEventListener('keydown', onKey);
     }
 
     function close() {
-      overlay!.classList.add('hidden');
+      if (!isOpen) return;
+      isOpen = false;
+
+      overlay!.removeAttribute('data-open');
+      overlay!.setAttribute('aria-hidden', 'true');
       toggleBtn!.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
       document.removeEventListener('keydown', onKey);
+
+      // After panel fade-out, add hidden back
+      const DURATION = 240;
+      setTimeout(() => {
+        if (!isOpen) overlay!.classList.add('hidden');
+      }, DURATION);
+
       lastFocused?.focus();
     }
 
@@ -214,17 +517,16 @@ const currentPath = Astro.url.pathname;
           panel!.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
         );
         if (!els.length) return;
-        const first = els[0], last = els[els.length - 1];
-        if (e.shiftKey && document.activeElement === first)      { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        const first = els[0]!;
+        const last  = els[els.length - 1]!;
+        if      (e.shiftKey  && document.activeElement === first) { e.preventDefault(); last.focus();  }
+        else if (!e.shiftKey && document.activeElement === last)  { e.preventDefault(); first.focus(); }
       }
     }
 
-    toggleBtn.addEventListener('click', () =>
-      overlay!.classList.contains('hidden') ? open() : close()
-    );
-    overlay.addEventListener('click', (e: Event) => { if (e.target === overlay) close(); });
-    closeBtn.addEventListener('click', close);
+    toggleBtn.addEventListener('click', () => (isOpen ? close : open)());
+    closeBtn .addEventListener('click', close);
+    overlay  .addEventListener('click', (e: Event) => { if (e.target === overlay) close(); });
   }
 
   document.addEventListener('DOMContentLoaded', setupHeader);

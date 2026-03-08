@@ -63,6 +63,9 @@ const ogImage = new URL('/ana_logo.png', Astro.site);
     <!-- Circuit board canvas background -->
     <canvas id="circuit-bg" aria-hidden="true"></canvas>
 
+    <!-- Fixed ambient glow field — layered behind all scrolling content -->
+    <div id="page-ambient" aria-hidden="true"></div>
+
     <Header />
     <main class="flex-1" style="position: relative; z-index: 2;">
       <slot />
@@ -335,6 +338,39 @@ const ogImage = new URL('/ana_logo.png', Astro.site);
       resize();
       launchFrom(Math.floor(Math.random() * ND.length));
       frame();
+    }());
+    </script>
+
+    <!-- ─── Motion reveal: scroll-triggered entrance animations ─── -->
+    <script is:inline>
+    (function () {
+      /* Skip if user prefers reduced motion */
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      /* Skip if IntersectionObserver not available */
+      if (!('IntersectionObserver' in window)) return;
+
+      /* Signal CSS that JS motion is active */
+      document.documentElement.setAttribute('data-motion', '');
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.setAttribute('data-revealed', '');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.07, rootMargin: '0px 0px -44px 0px' });
+
+      function observe() {
+        document.querySelectorAll('.reveal, .reveal-scale, .reveal-fade')
+          .forEach(function (el) { io.observe(el); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', observe);
+      } else {
+        observe();
+      }
     }());
     </script>
   </body>

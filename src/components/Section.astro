@@ -8,15 +8,20 @@ interface Props {
   bg?: 'default' | 'muted';
 }
 const { title, description, eyebrow, class: className = '', id, bg = 'default' } = Astro.props;
-const bgStyle = bg === 'muted'
-  ? 'background: linear-gradient(180deg, rgb(var(--color-muted) / 0.55) 0%, rgb(var(--color-muted) / 0.3) 100%);'
-  : '';
 ---
-<section id={id} class={`section-block ${className}`} style={bgStyle}>
+
+<section
+  id={id}
+  class={`section-block sec-bg-${bg} ${className}`}
+>
   <div class="site-container">
     {(title || description || eyebrow) && (
-      <div class="mx-auto mb-12 max-w-2xl text-center">
-        {eyebrow && <div class="section-eyebrow">{eyebrow}</div>}
+      <div class="sec-header reveal">
+        {eyebrow && (
+          <div class="sec-eyebrow-wrap">
+            <span class="section-eyebrow">{eyebrow}</span>
+          </div>
+        )}
         {title && <h2 class="section-title">{title}</h2>}
         {description && <p class="section-description mx-auto">{description}</p>}
       </div>
@@ -24,3 +29,82 @@ const bgStyle = bg === 'muted'
     <slot />
   </div>
 </section>
+
+<style>
+  /* ─── Default: transparent — canvas/body bg shows through ─── */
+  .sec-bg-default {
+    /* inherits body bg */
+  }
+
+  /* ─── Muted: layered surface with gradient-glow borders ─── */
+  .sec-bg-muted {
+    position: relative; /* needed for ::before / ::after border lines */
+    background:
+      /* Top halo — pulls eye in, establishes section presence */
+      radial-gradient(ellipse 85% 60% at 50% 0%,
+        rgb(var(--color-accent) / 0.068) 0%,
+        rgb(var(--color-accent) / 0.018) 52%,
+        transparent 68%),
+      /* Bottom ambient — anchors the section, avoids flat cut-off */
+      radial-gradient(ellipse 65% 42% at 50% 100%,
+        rgb(var(--color-accent) / 0.030) 0%, transparent 58%),
+      linear-gradient(
+        to bottom,
+        rgb(var(--color-surface) / 0.80) 0%,
+        rgb(var(--color-surface) / 0.55) 100%
+      );
+  }
+
+  /* Top: gold gradient rule replaces plain 1px border */
+  .sec-bg-muted::before {
+    content   : '';
+    position  : absolute;
+    top       : 0;
+    left      : 0;
+    right     : 0;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent                      0%,
+      rgb(var(--color-accent) / 0.20) 18%,
+      rgb(var(--color-accent) / 0.38) 50%,
+      rgb(var(--color-accent) / 0.20) 82%,
+      transparent                    100%
+    );
+    pointer-events: none;
+  }
+
+  /* Bottom: subtle fade-out divider */
+  .sec-bg-muted::after {
+    content   : '';
+    position  : absolute;
+    bottom    : 0;
+    left      : 0;
+    right     : 0;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent                          0%,
+      rgb(var(--color-border-subtle))     22%,
+      rgb(var(--color-border-subtle))     78%,
+      transparent                        100%
+    );
+    pointer-events: none;
+  }
+
+  /* ─── Section header block ─── */
+  .sec-header {
+    margin-left  : auto;
+    margin-right : auto;
+    margin-bottom: 3.5rem;
+    max-width    : 42rem;
+    text-align   : center;
+  }
+
+  /* Eyebrow spacing — controls gap between eyebrow badge and section title */
+  .sec-eyebrow-wrap {
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: center;
+  }
+</style>
