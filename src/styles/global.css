@@ -89,24 +89,26 @@
         rgba(161,116,24,0.04) 0%, transparent 55%);
   }
 
-  /* Dark: obsidian with 5-layer gold bloom system */
+  /* Dark: obsidian with crystal neon bloom system */
   .dark body {
     background-image:
-      /* 1. Top-center bloom — cinematic entrance, pulls eye to hero */
-      radial-gradient(ellipse 110% 50% at 50% -5%,
-        rgba(217,161,40,0.12) 0%, transparent 56%),
-      /* 2. Upper-left corner warmth — edge depth, avoids pure-black wall */
+      /* 1. Top-center neon bloom — hero glow, logo crystal resonance */
+      radial-gradient(ellipse 110% 52% at 50% -5%,
+        rgba(245,214,92,0.10) 0%,
+        rgba(217,161,40,0.08) 28%,
+        transparent 58%),
+      /* 2. Upper-left edge crystal — prismatic side light */
       radial-gradient(ellipse 44% 36% at -5% 20%,
-        rgba(161,116,24,0.058) 0%, transparent 55%),
-      /* 3. Mid-left ambient pool — gives vertical depth as you scroll */
+        rgba(217,161,40,0.07) 0%, transparent 55%),
+      /* 3. Mid-left ambient — vertical depth as user scrolls */
       radial-gradient(ellipse 36% 28% at 0% 60%,
-        rgba(161,116,24,0.045) 0%, transparent 58%),
-      /* 4. Mid-right ambient pool — balances left side */
+        rgba(161,116,24,0.052) 0%, transparent 58%),
+      /* 4. Mid-right ambient — balances left side */
       radial-gradient(ellipse 40% 30% at 102% 68%,
-        rgba(161,116,24,0.040) 0%, transparent 55%),
-      /* 5. Bottom-right warmth — grounds the page, prevents cold floor */
+        rgba(161,116,24,0.045) 0%, transparent 55%),
+      /* 5. Bottom-right crystal — grounds the page warmly */
       radial-gradient(ellipse 50% 32% at 88% 98%,
-        rgba(161,116,24,0.048) 0%, transparent 50%);
+        rgba(217,161,40,0.055) 0%, transparent 50%);
   }
 
   ::selection {
@@ -248,6 +250,7 @@
   color         : rgb(var(--color-accent));
   background    : rgb(var(--color-accent) / 0.09);
   border        : 1px solid rgb(var(--color-accent) / 0.28);
+  box-shadow    : 0 1px 0 0 rgba(245, 214, 92, 0.22) inset;
 }
 
 .section-title {
@@ -271,8 +274,8 @@
 }
 
 /* ── Card ───────────────────────────────────────────
-   Base: dark glass surface with inset top-highlight
-   Hover: gold edge-glow + slight lift
+   Base: crystal surface — neon gold top-edge + inner light
+   Hover: bright neon bloom + lift
 ────────────────────────────────────────────────────── */
 .card {
   position: relative;
@@ -280,21 +283,50 @@
   border: 1px solid rgb(var(--color-border));
   padding: 1.5rem;
   background: rgb(var(--color-card));
+  /* Crystal neon top edge: bright hot-line + inner bloom */
   box-shadow:
-    0 1px 0 0 rgb(255 255 255 / 0.035) inset,
-    0 2px 10px rgb(0 0 0 / 0.14);
+    0 1px 0 0  rgba(245, 214, 92, 0.48) inset,  /* neon top-edge line */
+    0 0 0 1px  rgba(217, 161, 40, 0.07) inset,  /* outer ring */
+    0 -6px 18px rgba(245, 214, 92, 0.05) inset, /* interior crystal bloom */
+    0 2px 10px rgb(0 0 0 / 0.16);
   transition:
     transform    260ms var(--ease-spring),
     box-shadow   260ms var(--ease-spring),
     border-color 220ms ease-out;
+  overflow: hidden; /* contain sweep pseudo-element */
+}
+
+/* Light sweep — left-to-right shimmer on hover, like crystal catching light */
+.card-hover::after {
+  content   : '';
+  position  : absolute;
+  inset     : 0;
+  background: linear-gradient(
+    108deg,
+    transparent           38%,
+    rgba(245, 214, 92, 0.07) 50%,
+    rgba(255, 230, 100, 0.04) 55%,
+    transparent           62%
+  );
+  background-size    : 200% 100%;
+  background-position: -200% center;
+  pointer-events     : none;
+  border-radius      : inherit;
+  transition         : background-position 0s;
+}
+.card-hover:hover::after {
+  background-position: 200% center;
+  transition: background-position 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgb(var(--color-accent) / 0.35);
-  box-shadow:
-    0 0  0 1px rgb(var(--color-accent) / 0.20),
-    0 0 28px rgb(var(--color-glow)  / 0.18),
+  transform   : translateY(-4px);
+  border-color: rgb(var(--color-accent) / 0.38);
+  box-shadow  :
+    0 1px 0 0  rgba(245, 214, 92, 0.72) inset,  /* neon edge — brighter on hover */
+    0 0 0 1px  rgba(217, 161, 40, 0.22) inset,
+    0 -8px 24px rgba(245, 214, 92, 0.08) inset, /* deeper inner bloom */
+    0 0   28px rgba(217, 161, 40, 0.18),         /* exterior neon halo */
     0 14px 44px rgb(0 0 0 / 0.30);
 }
 
@@ -525,26 +557,52 @@ textarea.input-field { resize: vertical; min-height: 7.5rem; }
   border: none;
 }
 
-/* ── Circuit board canvas background ── */
+/* ── Section rhythm ─────────────────────────────────────────
+   Transparent sections get a faint horizontal divider at their
+   bottom edge so adjacent transparent sections don't merge.
+   Uses ::after on .section-block — only visible in dark mode
+   (light mode parchment bg already provides enough contrast).
+─────────────────────────────────────────────────────────── */
+.section-block {
+  position : relative; /* needed for ::after divider pseudo-element */
+  isolation: isolate;  /* own stacking context */
+}
+
+/* Thin gold-fade separator at the bottom of every transparent section */
+.section-block:not(.sec-bg-muted)::after {
+  content   : '';
+  position  : absolute;
+  bottom    : 0; left: 0; right: 0;
+  height    : 1px;
+  background: linear-gradient(
+    to right,
+    transparent                       0%,
+    rgb(var(--color-accent) / 0.10)  20%,
+    rgb(var(--color-accent) / 0.18)  50%,
+    rgb(var(--color-accent) / 0.10)  80%,
+    transparent                      100%
+  );
+  pointer-events: none;
+}
+
+/* ── Crystal gem canvas background ── */
 #circuit-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   display: block;
-  /* Fade canvas at bottom — most vivid in hero, dissolves below mid-page */
-  mask-image: linear-gradient(
-    to bottom,
-    black       0%,
-    black      52%,
-    transparent 84%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    black       0%,
-    black      52%,
-    transparent 84%
-  );
+  /* Fade at sides & bottom — crystal vivid in hero, dissolves toward footer */
+  mask-image:
+    linear-gradient(to bottom, black 0%, black 48%, transparent 82%),
+    linear-gradient(to right,  transparent 0%, black 6%, black 94%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to bottom, black 0%, black 48%, transparent 82%),
+    linear-gradient(to right,  transparent 0%, black 6%, black 94%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  /* Cinematic fade-in on page load */
+  animation: k-fade 1.8s ease both;
 }
 
 /* ── Page ambient — fixed luminous field behind scrolling content ── */
@@ -597,34 +655,44 @@ textarea.input-field { resize: vertical; min-height: 7.5rem; }
 /* ─── Scroll-reveal: base (hidden) ─── */
 [data-motion] .reveal {
   opacity  : 0;
-  transform: translateY(22px);
+  transform: translateY(34px);
+  filter   : blur(5px);
   transition:
-    opacity   580ms var(--ease-expo),
-    transform 580ms var(--ease-expo);
+    opacity   680ms var(--ease-expo),
+    transform 680ms var(--ease-expo),
+    filter    560ms var(--ease-expo);
 }
 [data-motion] .reveal[data-revealed] {
   opacity  : 1;
   transform: translateY(0);
+  filter   : blur(0px);
 }
 
 [data-motion] .reveal-scale {
   opacity  : 0;
-  transform: scale(0.96) translateY(14px);
+  transform: scale(0.88) translateY(20px);
+  filter   : blur(8px);
   transition:
-    opacity   640ms var(--ease-expo),
-    transform 640ms var(--ease-spring);
+    opacity   740ms var(--ease-expo),
+    transform 740ms var(--ease-spring),
+    filter    600ms var(--ease-expo);
 }
 [data-motion] .reveal-scale[data-revealed] {
   opacity  : 1;
   transform: scale(1) translateY(0);
+  filter   : blur(0px);
 }
 
 [data-motion] .reveal-fade {
   opacity   : 0;
-  transition: opacity 720ms var(--ease-expo);
+  filter    : blur(3px);
+  transition:
+    opacity 800ms var(--ease-expo),
+    filter  640ms var(--ease-expo);
 }
 [data-motion] .reveal-fade[data-revealed] {
   opacity: 1;
+  filter : blur(0px);
 }
 
 /* ─── Reduced motion: kill everything ─── */
@@ -634,6 +702,7 @@ textarea.input-field { resize: vertical; min-height: 7.5rem; }
   [data-motion] .reveal-fade {
     opacity  : 1 !important;
     transform: none !important;
+    filter   : none !important;
     transition: none !important;
   }
   /* Hero entrance animations */

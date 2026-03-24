@@ -32,13 +32,15 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
         <div class="hero-eyebrow-wrap hero-entrance" style="animation-delay:100ms">
           <span class="hero-eyebrow">
             <span class="hero-eyebrow-pulse" aria-hidden="true"></span>
-            AI destekli yazılım danışmanlığı
+            AI & Yazılım Danışmanlığı
           </span>
         </div>
 
-        <!-- Headline -->
-        <h1 class="hero-headline hero-entrance" style="animation-delay:260ms">
-          {title}
+        <!-- Headline — word-by-word 3D entrance -->
+        <h1 class="hero-headline" style="perspective: 800px;">
+          {title.split(' ').map((word, i) => (
+            <span class="hero-word" style={`animation-delay:${240 + i * 80}ms`}>{word}{' '}</span>
+          ))}
         </h1>
 
         <!-- Description -->
@@ -51,7 +53,6 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
           {primaryCtaText && primaryCtaLink && (
             <a href={primaryCtaLink} class="btn-primary hero-btn-primary">
               {primaryCtaText}
-              <!-- Arrow icon -->
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2.2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -69,13 +70,18 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
         <!-- Trust signals -->
         <div class="hero-trust hero-entrance" style="animation-delay:700ms" role="list">
           <div class="hero-trust-item" role="listitem">
-            <span class="hero-trust-badge">24s</span>
-            <span class="hero-trust-label">Ortalama ilk dönüş</span>
+            <span class="hero-trust-badge">NDA</span>
+            <span class="hero-trust-label">Gizlilik odaklı</span>
           </div>
           <span class="hero-trust-sep" aria-hidden="true"></span>
           <div class="hero-trust-item" role="listitem">
-            <span class="hero-trust-badge">NDA</span>
-            <span class="hero-trust-label">Gizlilik odaklı</span>
+            <span class="hero-trust-badge">Agile</span>
+            <span class="hero-trust-label">Haftalık raporlama</span>
+          </div>
+          <span class="hero-trust-sep" aria-hidden="true"></span>
+          <div class="hero-trust-item" role="listitem">
+            <span class="hero-trust-badge">SSR</span>
+            <span class="hero-trust-label">İlk görüşme ücretsiz</span>
           </div>
         </div>
 
@@ -87,23 +93,21 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
         <!-- Ambient glow orb behind cards -->
         <div class="hdeco-glow"></div>
 
-        <!-- ── Float card 1 — Uptime metric (top-right) ── -->
+        <!-- ── Float card 1 — Real outcome metric (top-right) ── -->
         <div class="hcard hcard-f1">
-          <div class="hcard-metric-value">98<span class="hcard-metric-unit">%</span></div>
-          <div class="hcard-metric-label">Uptime SLA</div>
-          <div class="hcard-metric-bar">
-            <div class="hcard-metric-fill" style="width:98%"></div>
-          </div>
+          <div class="hcard-metric-value">+30<span class="hcard-metric-unit">%</span></div>
+          <div class="hcard-metric-label">Dönüşüm artışı</div>
+          <div class="hcard-metric-sublabel">E-ticaret vakası</div>
         </div>
 
-        <!-- ── Main status card ── -->
+        <!-- ── Main Architecture Stack Card ── -->
         <div class="hcard hcard-main">
 
           <!-- Card header -->
           <div class="hcard-header">
             <div class="hcard-header-left">
               <span class="hcard-status-dot"></span>
-              <span class="hcard-title">Sistem Mimarisi</span>
+              <span class="hcard-title">AI Sistem Mimarisi</span>
             </div>
             <span class="hcard-badge">Aktif</span>
           </div>
@@ -111,29 +115,49 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
           <!-- Separator -->
           <div class="hcard-sep"></div>
 
-          <!-- Progress rows -->
-          <div class="hcard-rows">
-            <div class="hcard-row">
-              <span class="hcard-row-label">AI Pipeline</span>
-              <div class="hcard-bar-track">
-                <div class="hcard-bar-fill" style="width:82%"></div>
+          <!-- Architecture stack layers -->
+          <div class="hcard-stack">
+
+            <div class="hcard-layer">
+              <div class="hcard-layer-info">
+                <span class="hcard-layer-label">Sunum</span>
+                <div class="hcard-layer-tags">
+                  <span class="hcard-ltag">React</span>
+                  <span class="hcard-ltag">Astro</span>
+                  <span class="hcard-ltag">Next.js</span>
+                </div>
               </div>
-              <span class="hcard-row-pct">82%</span>
+              <span class="hcard-layer-dot hcard-dot-ok"></span>
             </div>
-            <div class="hcard-row">
-              <span class="hcard-row-label">API Katmanı</span>
-              <div class="hcard-bar-track">
-                <div class="hcard-bar-fill" style="width:94%"></div>
+
+            <div class="hcard-layer-connector" aria-hidden="true"></div>
+
+            <div class="hcard-layer">
+              <div class="hcard-layer-info">
+                <span class="hcard-layer-label">AI / API</span>
+                <div class="hcard-layer-tags">
+                  <span class="hcard-ltag">LLM</span>
+                  <span class="hcard-ltag">RAG</span>
+                  <span class="hcard-ltag">REST</span>
+                </div>
               </div>
-              <span class="hcard-row-pct">94%</span>
+              <span class="hcard-layer-dot hcard-dot-ok"></span>
             </div>
-            <div class="hcard-row">
-              <span class="hcard-row-label">Veri Akışı</span>
-              <div class="hcard-bar-track">
-                <div class="hcard-bar-fill" style="width:71%"></div>
+
+            <div class="hcard-layer-connector" aria-hidden="true"></div>
+
+            <div class="hcard-layer">
+              <div class="hcard-layer-info">
+                <span class="hcard-layer-label">Veri</span>
+                <div class="hcard-layer-tags">
+                  <span class="hcard-ltag">SQL</span>
+                  <span class="hcard-ltag">Redis</span>
+                  <span class="hcard-ltag">Vector</span>
+                </div>
               </div>
-              <span class="hcard-row-pct">71%</span>
+              <span class="hcard-layer-dot hcard-dot-ok"></span>
             </div>
+
           </div>
 
           <!-- Separator -->
@@ -142,21 +166,23 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
           <!-- Card footer -->
           <div class="hcard-footer">
             <span class="hcard-footer-dot"></span>
-            <span class="hcard-footer-text">Tüm sistemler sağlıklı</span>
-            <span class="hcard-footer-version">v3.2</span>
+            <span class="hcard-footer-text">Tüm katmanlar sağlıklı</span>
+            <span class="hcard-footer-version">v4.1</span>
           </div>
 
         </div><!-- /hcard-main -->
 
-        <!-- ── Float card 2 — Tech stack (bottom-left) ── -->
+        <!-- ── Float card 2 — Tech stack chips (bottom-left) ── -->
         <div class="hcard hcard-f2">
           <div class="hcard-chips">
             <span class="hcard-chip">GPT-4o</span>
-            <span class="hcard-chip">Node.js</span>
             <span class="hcard-chip">React</span>
+            <span class="hcard-chip">Node.js</span>
             <span class="hcard-chip">Python</span>
+            <span class="hcard-chip">FastAPI</span>
+            <span class="hcard-chip">PostgreSQL</span>
           </div>
-          <div class="hcard-stack-label">Teknoloji Stack</div>
+          <div class="hcard-stack-label">Aktif Teknoloji Stack</div>
         </div>
 
       </div><!-- /hero-deco -->
@@ -175,14 +201,32 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
   .hero-entrance {
     animation: k-up 640ms var(--ease-expo) both;
   }
-  /* Deco column fades in (no translateY — it has its own float) */
   .hero-deco.hero-entrance {
     animation: k-fade 900ms var(--ease-expo) both;
   }
 
+  /* Word-by-word headline entrance: 3D flip up from below with blur */
+  .hero-word {
+    display          : inline-block;
+    animation        : hero-word-in 700ms var(--ease-expo) both;
+    transform-origin : 50% 100%;
+  }
+  @keyframes hero-word-in {
+    from {
+      opacity  : 0;
+      transform: translateY(28px) rotateX(28deg);
+      filter   : blur(6px);
+    }
+    to {
+      opacity  : 1;
+      transform: translateY(0) rotateX(0deg);
+      filter   : blur(0px);
+    }
+  }
+
   .hero-section {
-    position  : relative;
-    overflow  : hidden;
+    position      : relative;
+    overflow      : hidden;
     padding-top   : 7.5rem;
     padding-bottom: 5rem;
   }
@@ -190,9 +234,9 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
   @media (min-width: 1024px) { .hero-section { padding-top: 11rem;  padding-bottom: 8rem; min-height: 88vh; } }
 
   .hero-container {
-    position: relative;
-    z-index : 10;
-    display : flex;
+    position  : relative;
+    z-index   : 10;
+    display   : flex;
     align-items: center;
   }
 
@@ -205,23 +249,17 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     width                : 100%;
   }
   @media (min-width: 768px) {
-    .hero-grid {
-      grid-template-columns: 1fr 1fr;
-      gap                  : 3.5rem;
-    }
+    .hero-grid { grid-template-columns: 1fr 1fr; gap: 3.5rem; }
   }
   @media (min-width: 1024px) {
-    .hero-grid {
-      grid-template-columns: 1.15fr 0.85fr;
-      gap                  : 5rem;
-    }
+    .hero-grid { grid-template-columns: 1.2fr 0.8fr; gap: 5rem; }
   }
 
   /* ════ Background layers ═════════════════════════════════ */
   .hero-bg {
     position      : absolute;
     inset         : 0;
-    z-index       : 1;   /* above canvas (z:0), below content (z:10) */
+    z-index       : 1;
     pointer-events: none;
   }
   .hbg-bloom-top {
@@ -235,123 +273,70 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     );
   }
   .hbg-bloom-right {
-    position  : absolute;
-    top       : 5%;
-    right     : -8%;
-    width     : 62%;
+    position    : absolute;
+    top         : 5%;
+    right       : -8%;
+    width       : 62%;
     aspect-ratio: 1;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(161, 116, 24, 0.10) 0%,
-      transparent 60%
-    );
+    background  : radial-gradient(ellipse at center, rgba(161,116,24,0.10) 0%, transparent 60%);
   }
   .hbg-bloom-left {
-    position  : absolute;
-    bottom    : -5%;
-    left      : -12%;
-    width     : 50%;
+    position    : absolute;
+    bottom      : -5%;
+    left        : -12%;
+    width       : 50%;
     aspect-ratio: 1;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(161, 116, 24, 0.06) 0%,
-      transparent 58%
-    );
+    background  : radial-gradient(ellipse at center, rgba(161,116,24,0.06) 0%, transparent 58%);
   }
-  /* Corner + edge vignette — frames the scene, adds cinematic depth */
   .hbg-vignette {
     position  : absolute;
     inset     : 0;
     background:
-      /* Side walls — darken far left and right */
-      linear-gradient(
-        to right,
-        rgba(17, 14, 13, 0.22) 0%,
-        transparent 22%,
-        transparent 78%,
-        rgba(17, 14, 13, 0.18) 100%
-      ),
-      /* Bottom fade — grounds the section */
-      linear-gradient(
-        to top,
-        rgba(17, 14, 13, 0.24) 0%,
-        transparent 35%
-      );
+      linear-gradient(to right, rgba(17,14,13,0.22) 0%, transparent 22%, transparent 78%, rgba(17,14,13,0.18) 100%),
+      linear-gradient(to top,   rgba(17,14,13,0.24) 0%, transparent 35%);
   }
-
-  /* Micro-texture scan lines — editorial tech aesthetic, barely perceptible */
   .hbg-scan {
-    position  : absolute;
-    inset     : 0;
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent                    0px,
-      transparent                    2px,
-      rgba(217, 161, 40, 0.008)      2px,
-      rgba(217, 161, 40, 0.008)      3px
-    );
-    /* Mask: fade toward center so text stays clean, texture only at edges */
-    mask-image: radial-gradient(
-      ellipse 95% 90% at 50% 50%,
-      transparent 30%,
-      black       70%
-    );
-    -webkit-mask-image: radial-gradient(
-      ellipse 95% 90% at 50% 50%,
-      transparent 30%,
-      black       70%
-    );
+    position        : absolute;
+    inset           : 0;
+    background-image: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(217,161,40,0.008) 2px, rgba(217,161,40,0.008) 3px);
+    mask-image      : radial-gradient(ellipse 95% 90% at 50% 50%, transparent 30%, black 70%);
+    -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, transparent 30%, black 70%);
   }
-
-  /* Horizon line — thin gold gradient rule at hero section bottom edge */
   .hbg-horizon {
     position  : absolute;
-    bottom    : 0;
-    left      : 0;
-    right     : 0;
+    bottom    : 0; left: 0; right: 0;
     height    : 1px;
-    background: linear-gradient(
-      to right,
-      transparent                   0%,
-      rgba(217, 161, 40, 0.14)     18%,
-      rgba(217, 161, 40, 0.30)     50%,
-      rgba(217, 161, 40, 0.14)     82%,
-      transparent                 100%
-    );
+    background: linear-gradient(to right, transparent 0%, rgba(217,161,40,0.14) 18%, rgba(217,161,40,0.30) 50%, rgba(217,161,40,0.14) 82%, transparent 100%);
   }
 
   /* ════ Text column ═══════════════════════════════════════ */
   .hero-text {
-    display      : flex;
-    flex-direction: column;
-    gap          : 1.75rem;
-    align-items  : center;  /* mobile: centered */
-    text-align   : center;
+    display        : flex;
+    flex-direction : column;
+    gap            : 1.75rem;
+    align-items    : center;
+    text-align     : center;
   }
   @media (min-width: 768px) {
-    .hero-text {
-      align-items: flex-start;
-      text-align : left;
-    }
+    .hero-text { align-items: flex-start; text-align: left; }
   }
 
   /* Eyebrow */
   .hero-eyebrow-wrap { display: inline-flex; }
   .hero-eyebrow {
-    display     : inline-flex;
-    align-items : center;
-    gap         : 0.5rem;
-    padding     : 0.3125rem 0.875rem;
-    border-radius: 9999px;
-    font-size   : 0.6875rem;
-    font-weight : 600;
+    display       : inline-flex;
+    align-items   : center;
+    gap           : 0.5rem;
+    padding       : 0.3125rem 0.875rem;
+    border-radius : 9999px;
+    font-size     : 0.6875rem;
+    font-weight   : 600;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color       : rgb(var(--color-accent));
-    background  : rgb(var(--color-accent) / 0.09);
-    border      : 1px solid rgb(var(--color-accent) / 0.26);
+    color         : rgb(var(--color-accent));
+    background    : rgb(var(--color-accent) / 0.09);
+    border        : 1px solid rgb(var(--color-accent) / 0.26);
   }
-  /* Pulsing dot inside eyebrow */
   .hero-eyebrow-pulse {
     width        : 6px;
     height       : 6px;
@@ -369,23 +354,16 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     line-height   : 1.07;
     color         : rgb(var(--color-fg));
     max-width     : 16ch;
-    /* Enable optical kerning for display sizes */
     font-kerning  : normal;
-    text-wrap     : balance;  /* even line breaks on modern browsers */
+    text-wrap     : balance;
   }
-  @media (min-width: 640px)  {
-    .hero-headline { font-size: 3rem; letter-spacing: -0.038em; line-height: 1.05; }
-  }
-  @media (min-width: 768px)  {
-    .hero-headline { font-size: 3.375rem; max-width: none; letter-spacing: -0.040em; }
-  }
-  @media (min-width: 1024px) {
-    .hero-headline { font-size: 3.875rem; line-height: 1.03; letter-spacing: -0.042em; }
-  }
+  @media (min-width: 640px)  { .hero-headline { font-size: 3rem;    letter-spacing: -0.038em; line-height: 1.05; } }
+  @media (min-width: 768px)  { .hero-headline { font-size: 3.375rem; max-width: none; letter-spacing: -0.040em; } }
+  @media (min-width: 1024px) { .hero-headline { font-size: 3.875rem; line-height: 1.03; letter-spacing: -0.042em; } }
 
   /* Description */
   .hero-desc {
-    max-width  : 44ch;   /* tighter — Türkçe cümleler daha uzun, kısa satır okunabilirliği artırır */
+    max-width  : 44ch;
     font-size  : 1rem;
     line-height: 1.76;
     color      : rgb(var(--color-fg-muted));
@@ -395,39 +373,28 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
 
   /* CTAs */
   .hero-ctas {
-    display       : flex;
-    flex-direction: column;
-    gap           : 0.75rem;
-    align-items   : center;
-    width         : 100%;
+    display        : flex;
+    flex-direction : column;
+    gap            : 0.75rem;
+    align-items    : center;
+    width          : 100%;
   }
   @media (min-width: 480px) {
-    .hero-ctas {
-      flex-direction: row;
-      justify-content: center;
-      width: auto;
-    }
+    .hero-ctas { flex-direction: row; justify-content: center; width: auto; }
   }
   @media (min-width: 768px) {
     .hero-ctas { justify-content: flex-start; }
   }
 
-  .hero-btn-primary {
-    padding    : 0.875rem 1.875rem;
-    font-size  : 0.9375rem;
-    font-weight: 700;
-  }
-  .hero-btn-secondary {
-    padding  : 0.875rem 1.875rem;
-    font-size: 0.9375rem;
-  }
+  .hero-btn-primary  { padding: 0.875rem 1.875rem; font-size: 0.9375rem; font-weight: 700; }
+  .hero-btn-secondary { padding: 0.875rem 1.875rem; font-size: 0.9375rem; }
 
   /* Trust signals */
   .hero-trust {
-    display    : flex;
-    align-items: center;
-    gap        : 0.875rem;
-    flex-wrap  : wrap;
+    display        : flex;
+    align-items    : center;
+    gap            : 0.875rem;
+    flex-wrap      : wrap;
     justify-content: center;
   }
   @media (min-width: 768px) { .hero-trust { justify-content: flex-start; } }
@@ -455,20 +422,20 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
   }
   .hero-trust-label { color: rgb(var(--color-fg-faint)); }
   .hero-trust-sep {
-    width        : 1px;
-    height       : 14px;
-    background   : rgb(var(--color-border));
-    flex-shrink  : 0;
+    width      : 1px;
+    height     : 14px;
+    background : rgb(var(--color-border));
+    flex-shrink: 0;
   }
 
   /* ════ Decorative column ════════════════════════════════ */
   .hero-deco {
     display : none;
     position: relative;
-    height  : 380px;
+    height  : 400px;
   }
-  @media (min-width: 768px)  { .hero-deco { display: block; height: 360px; } }
-  @media (min-width: 1024px) { .hero-deco { height: 420px; } }
+  @media (min-width: 768px)  { .hero-deco { display: block; height: 370px; } }
+  @media (min-width: 1024px) { .hero-deco { height: 440px; } }
 
   /* Ambient glow orb */
   .hdeco-glow {
@@ -477,12 +444,7 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     left         : 5%;
     right        : 5%;
     bottom       : 10%;
-    background   : radial-gradient(
-      ellipse at 55% 45%,
-      rgba(217, 161, 40, 0.13) 0%,
-      rgba(161, 116, 24, 0.06) 45%,
-      transparent 70%
-    );
+    background   : radial-gradient(ellipse at 55% 45%, rgba(217,161,40,0.14) 0%, rgba(161,116,24,0.06) 45%, transparent 70%);
     filter       : blur(20px);
     animation    : hero-glow-breathe 5s ease-in-out infinite;
     pointer-events: none;
@@ -490,57 +452,52 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
 
   /* ════ Cards — shared base ══════════════════════════════ */
   .hcard {
-    position     : absolute;
-    background   : rgb(var(--color-card));
-    border       : 1px solid rgb(var(--color-border));
-    border-radius: 1rem;
-    padding      : 1.125rem;
-    box-shadow   :
-      0 1px 0 rgba(255,255,255,0.04) inset,
-      0 0 0 1px rgb(var(--color-accent) / 0.08),
+    position       : absolute;
+    background     : rgb(var(--color-card));
+    border         : 1px solid rgb(var(--color-border));
+    border-radius  : 1rem;
+    padding        : 1.125rem;
+    box-shadow     :
+      0 1px 0 0   rgba(245, 214, 92, 0.44) inset,  /* neon top-edge */
+      0 0 0 1px   rgba(217, 161, 40, 0.10) inset,  /* outer ring */
+      0 -5px 14px rgba(245, 214, 92, 0.04) inset,  /* crystal bloom */
       0 4px  12px rgba(0,0,0,0.12),
       0 16px 48px rgba(0,0,0,0.16);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    /* Top-edge gold line */
-    background-image: linear-gradient(
-      to bottom,
-      rgb(var(--color-accent) / 0.06) 0px,
-      transparent 1px
-    );
   }
 
-  /* ── Main card — center-anchored, floats slowly ── */
+  /* ── Main card — center-anchored ── */
   .hcard-main {
-    top    : 50%;
-    left   : 50%;
-    width  : 76%;
-    max-width: 300px;
+    top      : 50%;
+    left     : 50%;
+    width    : 80%;
+    max-width: 310px;
     transform: translate(-50%, -50%);
-    z-index: 2;
+    z-index  : 2;
     animation: hero-float-a 9s ease-in-out infinite;
   }
 
-  /* ── Float card 1 — uptime metric, top-right ── */
+  /* ── Float 1 — outcome metric, top-right ── */
   .hcard-f1 {
-    top    : 0;
-    right  : 0;
-    width  : 38%;
-    max-width: 140px;
-    z-index: 3;
-    padding: 1rem;
-    animation: hero-float-b 11s ease-in-out infinite;
+    top      : 0;
+    right    : 0;
+    width    : 40%;
+    max-width: 148px;
+    z-index  : 3;
+    padding  : 1rem;
+    animation: hero-float-b-abs 11s ease-in-out infinite;
   }
 
-  /* ── Float card 2 — tech chips, bottom-left ── */
+  /* ── Float 2 — tech chips, bottom-left ── */
   .hcard-f2 {
-    bottom : 0;
-    left   : 0;
-    width  : 52%;
-    max-width: 190px;
-    z-index: 3;
-    padding: 0.875rem;
-    animation: hero-float-a 10s ease-in-out infinite 1.2s;
+    bottom   : 0;
+    left     : 0;
+    width    : 58%;
+    max-width: 208px;
+    z-index  : 3;
+    padding  : 0.875rem;
+    animation: hero-float-a-abs 10s ease-in-out infinite 1.2s;
   }
 
   /* ════ Main card internals ══════════════════════════════ */
@@ -550,12 +507,7 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     justify-content: space-between;
     margin-bottom  : 0.75rem;
   }
-  .hcard-header-left {
-    display    : flex;
-    align-items: center;
-    gap        : 0.5rem;
-  }
-  /* Pulsing status dot */
+  .hcard-header-left { display: flex; align-items: center; gap: 0.5rem; }
   .hcard-status-dot {
     width        : 7px;
     height       : 7px;
@@ -564,12 +516,7 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     flex-shrink  : 0;
     animation    : hero-pulse-ring 2.4s ease-in-out infinite 0.4s;
   }
-  .hcard-title {
-    font-size  : 0.75rem;
-    font-weight: 600;
-    color      : rgb(var(--color-fg));
-    white-space: nowrap;
-  }
+  .hcard-title { font-size: 0.75rem; font-weight: 600; color: rgb(var(--color-fg)); white-space: nowrap; }
   .hcard-badge {
     font-size    : 0.5625rem;
     font-weight  : 700;
@@ -583,136 +530,138 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
   }
 
   .hcard-sep {
-    height        : 1px;
-    margin        : 0.75rem 0;
-    background    : linear-gradient(
-      to right,
-      transparent,
-      rgb(var(--color-border)) 25%,
-      rgb(var(--color-accent) / 0.20) 50%,
-      rgb(var(--color-border)) 75%,
-      transparent
-    );
+    height    : 1px;
+    margin    : 0.75rem 0;
+    background: linear-gradient(to right, transparent, rgb(var(--color-border)) 25%, rgb(var(--color-accent) / 0.20) 50%, rgb(var(--color-border)) 75%, transparent);
   }
 
-  /* Progress rows */
-  .hcard-rows     { display: flex; flex-direction: column; gap: 0.5rem; }
-  .hcard-row      { display: flex; align-items: center; gap: 0.5rem; }
-  .hcard-row-label {
-    font-size : 0.6875rem;
-    font-weight: 500;
-    color     : rgb(var(--color-fg-muted));
-    width     : 5.5rem;
-    flex-shrink: 0;
-    white-space: nowrap;
+  /* ── Architecture Stack ── */
+  .hcard-stack {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0;
   }
-  .hcard-bar-track {
-    flex         : 1;
-    height       : 4px;
-    border-radius: 9999px;
-    background   : rgb(var(--color-muted));
-    overflow     : hidden;
+
+  .hcard-layer {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    padding        : 0.5rem 0;
   }
-  .hcard-bar-fill {
-    height       : 100%;
-    border-radius: inherit;
-    background   : linear-gradient(
-      90deg,
-      rgba(161,116,24,0.75)  0%,
-      rgba(217,161,40,0.90) 60%,
-      rgba(245,214,92,0.80) 100%
-    );
+
+  .hcard-layer-info {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0.25rem;
+    flex          : 1;
+    min-width     : 0;
   }
-  .hcard-row-pct {
-    font-size  : 0.625rem;
+
+  .hcard-layer-label {
+    font-size  : 0.6875rem;
     font-weight: 600;
-    color      : rgb(var(--color-accent));
-    width      : 2rem;
-    text-align : right;
-    flex-shrink: 0;
+    color      : rgb(var(--color-fg-muted));
+    letter-spacing: 0.02em;
+  }
+
+  .hcard-layer-tags {
+    display  : flex;
+    flex-wrap: wrap;
+    gap      : 0.25rem;
+  }
+
+  .hcard-ltag {
+    font-size    : 0.5625rem;
+    font-weight  : 600;
+    color        : rgb(var(--color-fg-faint));
+    padding      : 0.0625rem 0.3125rem;
+    border-radius: 0.25rem;
+    background   : rgb(var(--color-muted));
+    border       : 1px solid rgb(var(--color-border) / 0.7);
+    white-space  : nowrap;
+  }
+
+  .hcard-layer-dot {
+    width        : 7px;
+    height       : 7px;
+    border-radius: 9999px;
+    flex-shrink  : 0;
+    margin-left  : 0.625rem;
+  }
+  .hcard-dot-ok {
+    background: rgba(74, 222, 128, 0.85);
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.40);
+  }
+
+  /* Vertical connector between layers */
+  .hcard-layer-connector {
+    width     : 1px;
+    height    : 0.625rem;
+    margin    : 0 0 0 0.375rem;
+    background: linear-gradient(to bottom, rgb(var(--color-border)), transparent);
   }
 
   /* Card footer */
-  .hcard-footer {
-    display    : flex;
-    align-items: center;
-    gap        : 0.4375rem;
-  }
+  .hcard-footer { display: flex; align-items: center; gap: 0.4375rem; }
   .hcard-footer-dot {
     width        : 5px;
     height       : 5px;
     border-radius: 9999px;
-    background   : rgba(74, 222, 128, 0.85); /* subtle green — "healthy" */
+    background   : rgba(74, 222, 128, 0.85);
     flex-shrink  : 0;
   }
-  .hcard-footer-text {
-    font-size  : 0.6875rem;
-    color      : rgb(var(--color-fg-muted));
-    flex       : 1;
-  }
+  .hcard-footer-text { font-size: 0.6875rem; color: rgb(var(--color-fg-muted)); flex: 1; }
   .hcard-footer-version {
-    font-size   : 0.5625rem;
-    font-weight : 600;
-    color       : rgb(var(--color-fg-faint));
-    font-family : ui-monospace, monospace;
+    font-size     : 0.5625rem;
+    font-weight   : 600;
+    color         : rgb(var(--color-fg-faint));
+    font-family   : ui-monospace, monospace;
     letter-spacing: 0.05em;
   }
 
-  /* ════ Metric card (f1) internals ═══════════════════════ */
+  /* ════ Metric card (f1) ═════════════════════════════════ */
   .hcard-metric-value {
-    font-size     : 2rem;
+    font-size     : 1.875rem;
     font-weight   : 800;
     letter-spacing: -0.04em;
     line-height   : 1;
     color         : rgb(var(--color-accent));
   }
-  .hcard-metric-unit {
-    font-size  : 1.25rem;
-    font-weight: 700;
-  }
+  .hcard-metric-unit { font-size: 1.125rem; font-weight: 700; }
   .hcard-metric-label {
     font-size  : 0.6875rem;
     color      : rgb(var(--color-fg-muted));
     margin-top : 0.25rem;
     font-weight: 500;
   }
-  .hcard-metric-bar {
-    margin-top   : 0.625rem;
-    height       : 3px;
-    border-radius: 9999px;
-    background   : rgb(var(--color-muted));
-    overflow     : hidden;
-  }
-  .hcard-metric-fill {
-    height       : 100%;
-    border-radius: inherit;
-    background   : linear-gradient(90deg, rgba(161,116,24,0.8), rgba(245,214,92,0.9));
+  .hcard-metric-sublabel {
+    font-size     : 0.5625rem;
+    color         : rgb(var(--color-fg-faint));
+    font-weight   : 500;
+    letter-spacing: 0.03em;
+    margin-top    : 0.125rem;
   }
 
-  /* ════ Tech chip card (f2) internals ════════════════════ */
-  .hcard-chips {
-    display  : flex;
-    flex-wrap: wrap;
-    gap      : 0.3125rem;
-  }
+  /* ════ Tech chip card (f2) ══════════════════════════════ */
+  .hcard-chips  { display: flex; flex-wrap: wrap; gap: 0.3125rem; }
   .hcard-chip {
-    display        : inline-flex;
-    align-items    : center;
-    padding        : 0.1875rem 0.5rem;
-    border-radius  : 0.375rem;
-    font-size      : 0.625rem;
-    font-weight    : 600;
-    letter-spacing : 0.02em;
-    background     : rgb(var(--color-accent) / 0.10);
-    color          : rgb(var(--color-accent));
-    border         : 1px solid rgb(var(--color-accent) / 0.22);
-    white-space    : nowrap;
+    display      : inline-flex;
+    align-items  : center;
+    padding      : 0.1875rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size    : 0.625rem;
+    font-weight  : 600;
+    letter-spacing: 0.02em;
+    background   : rgb(var(--color-accent) / 0.10);
+    color        : rgb(var(--color-accent));
+    border       : 1px solid rgb(var(--color-accent) / 0.22);
+    white-space  : nowrap;
   }
   .hcard-stack-label {
-    margin-top : 0.5rem;
-    font-size  : 0.625rem;
-    font-weight: 500;
-    color      : rgb(var(--color-fg-faint));
+    margin-top   : 0.5rem;
+    font-size    : 0.625rem;
+    font-weight  : 500;
+    color        : rgb(var(--color-fg-faint));
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -722,10 +671,6 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     0%, 100% { transform: translate(-50%, -50%) translateY(0px);  }
     50%       { transform: translate(-50%, -50%) translateY(-9px); }
   }
-  /* For non-centered cards */
-  .hcard-f1 { animation-name: hero-float-b-abs; }
-  .hcard-f2 { animation-name: hero-float-a-abs; }
-
   @keyframes hero-float-a-abs {
     0%, 100% { transform: translateY(0px);  }
     50%       { transform: translateY(-8px); }
@@ -734,12 +679,10 @@ const { title, description, primaryCtaText, primaryCtaLink, secondaryCtaText, se
     0%, 100% { transform: translateY(-4px); }
     50%       { transform: translateY(4px);  }
   }
-
   @keyframes hero-glow-breathe {
     0%, 100% { opacity: 0.7; transform: scale(1);    }
     50%       { opacity: 1.0; transform: scale(1.05); }
   }
-
   @keyframes hero-pulse-ring {
     0%, 100% { box-shadow: 0 0 0 0   rgb(var(--color-accent) / 0.50); }
     50%       { box-shadow: 0 0 0 4px rgb(var(--color-accent) / 0.00); }

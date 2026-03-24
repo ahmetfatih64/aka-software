@@ -1,0 +1,131 @@
+---
+// No external data needed — metrics sourced from actual case study results
+---
+
+<div class="proof-strip" aria-label="Proje sonuçları özeti">
+  <div class="site-container">
+    <div class="proof-inner">
+
+      <div class="proof-item reveal-fade" style="transition-delay:0ms">
+        <span class="proof-value">+30%</span>
+        <span class="proof-label">Dönüşüm artışı — e-ticaret vakası</span>
+      </div>
+
+      <span class="proof-sep" aria-hidden="true"></span>
+
+      <div class="proof-item reveal-fade" style="transition-delay:80ms">
+        <span class="proof-value">%60</span>
+        <span class="proof-label">Operasyon otomasyonu — fintech vakası</span>
+      </div>
+
+      <span class="proof-sep" aria-hidden="true"></span>
+
+      <div class="proof-item reveal-fade" style="transition-delay:160ms">
+        <span class="proof-badge">NDA</span>
+        <span class="proof-label">Tüm projeler gizlilik anlaşmalı</span>
+      </div>
+
+      <span class="proof-sep" aria-hidden="true"></span>
+
+      <div class="proof-item reveal-fade" style="transition-delay:240ms">
+        <span class="proof-badge">Agile</span>
+        <span class="proof-label">Haftalık ilerleme raporları</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .proof-strip {
+    position : relative;
+    padding  : 1.125rem 0;
+    /* Feathered background: fades in/out vertically for seamless section blending */
+    background: linear-gradient(
+      to bottom,
+      transparent                        0%,
+      rgb(var(--color-card) / 0.55)     15%,
+      rgb(var(--color-card) / 0.55)     85%,
+      transparent                       100%
+    );
+    /* Replace hard borders with gradient pseudo-elements */
+    overflow: hidden;
+  }
+  /* Top gold fade rule */
+  .proof-strip::before,
+  .proof-strip::after {
+    content   : '';
+    position  : absolute;
+    left      : 0; right: 0;
+    height    : 1px;
+    background: linear-gradient(
+      to right,
+      transparent                       0%,
+      rgb(var(--color-accent) / 0.16)  18%,
+      rgb(var(--color-accent) / 0.28)  50%,
+      rgb(var(--color-accent) / 0.16)  82%,
+      transparent                      100%
+    );
+    pointer-events: none;
+  }
+  .proof-strip::before { top: 0; }
+  .proof-strip::after  { bottom: 0; }
+
+  .proof-inner {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    flex-wrap      : wrap;
+    gap            : 0.75rem 2.25rem;
+  }
+
+  .proof-item {
+    display    : flex;
+    align-items: center;
+    gap        : 0.625rem;
+  }
+
+  .proof-value {
+    font-size     : 1rem;
+    font-weight   : 800;
+    letter-spacing: -0.025em;
+    color         : rgb(var(--color-accent));
+    line-height   : 1;
+  }
+
+  .proof-badge {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    height         : 1.375rem;
+    padding        : 0 0.5rem;
+    border-radius  : 0.3125rem;
+    font-size      : 0.5625rem;
+    font-weight    : 700;
+    letter-spacing : 0.08em;
+    text-transform : uppercase;
+    background     : rgb(var(--color-accent) / 0.10);
+    color          : rgb(var(--color-accent));
+    border         : 1px solid rgb(var(--color-accent) / 0.24);
+    white-space    : nowrap;
+  }
+
+  .proof-label {
+    font-size  : 0.8125rem;
+    color      : rgb(var(--color-fg-muted));
+    white-space: nowrap;
+  }
+
+  .proof-sep {
+    width      : 1px;
+    height     : 1.125rem;
+    background : rgb(var(--color-border));
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 767px) {
+    .proof-sep   { display: none; }
+    .proof-inner { gap: 0.75rem 1.5rem; justify-content: center; }
+    .proof-label { display: none; }
+  }
+</style>

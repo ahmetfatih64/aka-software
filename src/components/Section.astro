@@ -36,58 +36,91 @@ const { title, description, eyebrow, class: className = '', id, bg = 'default' }
     /* inherits body bg */
   }
 
-  /* ─── Muted: layered surface with gradient-glow borders ─── */
+  /* ─── Muted: feathered-edge surface — fades in/out of page bg ─── */
   .sec-bg-muted {
-    position: relative; /* needed for ::before / ::after border lines */
+    position: relative; /* needed for ::before / ::after pseudo-elements */
     background:
-      /* Top halo — pulls eye in, establishes section presence */
-      radial-gradient(ellipse 85% 60% at 50% 0%,
-        rgb(var(--color-accent) / 0.068) 0%,
-        rgb(var(--color-accent) / 0.018) 52%,
-        transparent 68%),
-      /* Bottom ambient — anchors the section, avoids flat cut-off */
-      radial-gradient(ellipse 65% 42% at 50% 100%,
-        rgb(var(--color-accent) / 0.030) 0%, transparent 58%),
+      /* Top gold halo — warm glow at section entrance */
+      radial-gradient(ellipse 90% 65% at 50% 0%,
+        rgb(var(--color-accent) / 0.065) 0%,
+        rgb(var(--color-accent) / 0.015) 50%,
+        transparent 66%),
+      /* Bottom ambient — anchors section, avoids cold cut-off */
+      radial-gradient(ellipse 70% 45% at 50% 100%,
+        rgb(var(--color-accent) / 0.028) 0%, transparent 56%),
+      /* Surface fill: fades from transparent → surface → transparent
+         so section "floats" out of the page instead of hard-boxing */
       linear-gradient(
         to bottom,
-        rgb(var(--color-surface) / 0.80) 0%,
-        rgb(var(--color-surface) / 0.55) 100%
+        transparent                          0%,
+        rgb(var(--color-surface) / 0.72)    7%,
+        rgb(var(--color-surface) / 0.72)   93%,
+        transparent                        100%
       );
   }
 
-  /* Top: gold gradient rule replaces plain 1px border */
+  /* Top: feathered gold rule — appears at 7% so it aligns with the fill start */
   .sec-bg-muted::before {
     content   : '';
     position  : absolute;
     top       : 0;
     left      : 0;
     right     : 0;
-    height    : 1px;
+    /* Tall gradient so the "line" fades in over ~48px, not a hard 1px cut */
+    height    : 3rem;
     background: linear-gradient(
-      to right,
-      transparent                      0%,
-      rgb(var(--color-accent) / 0.20) 18%,
-      rgb(var(--color-accent) / 0.38) 50%,
-      rgb(var(--color-accent) / 0.20) 82%,
+      to bottom,
+      rgb(var(--color-accent) / 0.00) 0%,
+      rgb(var(--color-accent) / 0.22) 40%,
+      rgb(var(--color-accent) / 0.30) 50%,
+      rgb(var(--color-accent) / 0.10) 70%,
       transparent                    100%
+    );
+    /* Horizontal mask: bright in center, fades to edges */
+    mask-image: linear-gradient(
+      to right,
+      transparent  0%,
+      black       18%,
+      black       82%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent  0%,
+      black       18%,
+      black       82%,
+      transparent 100%
     );
     pointer-events: none;
   }
 
-  /* Bottom: subtle fade-out divider */
+  /* Bottom: mirror of top — gentle dissolve back into page */
   .sec-bg-muted::after {
     content   : '';
     position  : absolute;
     bottom    : 0;
     left      : 0;
     right     : 0;
-    height    : 1px;
+    height    : 3rem;
     background: linear-gradient(
+      to top,
+      rgb(var(--color-accent) / 0.00) 0%,
+      rgb(var(--color-border-subtle) / 0.60) 40%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
       to right,
-      transparent                          0%,
-      rgb(var(--color-border-subtle))     22%,
-      rgb(var(--color-border-subtle))     78%,
-      transparent                        100%
+      transparent  0%,
+      black       22%,
+      black       78%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent  0%,
+      black       22%,
+      black       78%,
+      transparent 100%
     );
     pointer-events: none;
   }

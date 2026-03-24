@@ -1,29 +1,125 @@
 ---
 interface Testimonial {
-  quote: string;
+  quote : string;
   author: string;
-  role: string;
+  role  : string;
 }
 interface Props {
   testimonials: Testimonial[];
 }
 const { testimonials } = Astro.props;
 ---
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-  {testimonials.map(t => (
-    <figure class="card card-hover flex h-full flex-col justify-between gap-4">
-      <div>
-        <svg class="mb-4 h-6 w-6 opacity-30" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="color: rgb(var(--color-accent));">
-          <path d="M9.5 5.25C6.6 5.25 4.5 7.35 4.5 10.25c0 2.85 2.05 4.7 4.95 4.7.1 0 .25 0 .35-.05-.25 1.55-1.1 2.35-2.35 3.15-.25.15-.3.45-.2.7l.75 1.35c.15.3.5.4.8.25 2.7-1.4 4.2-3.45 4.2-7.05v-8c0-.6-.45-1.05-1.05-1.05h-1.95Zm8 0c-2.9 0-5 2.1-5 5 0 2.85 2.05 4.7 4.95 4.7.1 0 .25 0 .35-.05-.25 1.55-1.1 2.35-2.35 3.15-.25.15-.3.45-.2.7l.75 1.35c.15.3.5.4.8.25 2.7-1.4 4.2-3.45 4.2-7.05v-8c0-.6-.45-1.05-1.05-1.05h-1.95Z" />
+
+<div class="tlist-grid">
+  {testimonials.map((t, i) => (
+    <figure class="tlist-card card card-hover reveal-scale" style={`transition-delay:${i * 110}ms`}>
+
+      <!-- Top-edge gold rule -->
+      <div class="tlist-rule" aria-hidden="true"></div>
+
+      <!-- Quote mark -->
+      <div class="tlist-quote-mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M9.5 5.25C6.6 5.25 4.5 7.35 4.5 10.25c0 2.85 2.05 4.7 4.95 4.7.1 0 .25 0 .35-.05-.25 1.55-1.1 2.35-2.35 3.15-.25.15-.3.45-.2.7l.75 1.35c.15.3.5.4.8.25 2.7-1.4 4.2-3.45 4.2-7.05v-8c0-.6-.45-1.05-1.05-1.05h-1.95Zm8 0c-2.9 0-5 2.1-5 5 0 2.85 2.05 4.7 4.95 4.7.1 0 .25 0 .35-.05-.25 1.55-1.1 2.35-2.35 3.15-.25.15-.3.45-.2.7l.75 1.35c.15.3.5.4.8.25 2.7-1.4 4.2-3.45 4.2-7.05v-8c0-.6-.45-1.05-1.05-1.05h-1.95Z"/>
         </svg>
-        <blockquote class="text-sm leading-relaxed" style="color: rgb(var(--color-fg-muted));">
-          "{t.quote}"
-        </blockquote>
       </div>
-      <figcaption class="mt-4 border-t pt-4" style="border-color: rgb(var(--color-border));">
-        <div class="text-sm font-medium" style="color: rgb(var(--color-fg));">{t.author}</div>
-        <div class="text-xs" style="color: rgb(var(--color-fg-faint));">{t.role}</div>
+
+      <!-- Quote text -->
+      <blockquote class="tlist-quote">
+        "{t.quote}"
+      </blockquote>
+
+      <!-- Attribution -->
+      <figcaption class="tlist-author">
+        <div class="tlist-avatar" aria-hidden="true">
+          {t.author.charAt(0).toUpperCase()}
+        </div>
+        <div class="tlist-author-info">
+          <div class="tlist-name">{t.author}</div>
+          <div class="tlist-role">{t.role}</div>
+        </div>
       </figcaption>
+
     </figure>
   ))}
 </div>
+
+<style>
+  .tlist-grid {
+    display              : grid;
+    grid-template-columns: 1fr;
+    gap                  : 1.25rem;
+  }
+  @media (min-width: 640px)  { .tlist-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .tlist-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .tlist-card {
+    display        : flex;
+    flex-direction : column;
+    gap            : 1.25rem;
+    padding        : 1.75rem;
+    background-image: linear-gradient(145deg, rgb(var(--color-accent) / 0.04) 0%, transparent 45%);
+    height         : 100%;
+  }
+
+  .tlist-rule {
+    position  : absolute;
+    top       : 0;
+    left      : 1.5rem;
+    right     : 1.5rem;
+    height    : 1px;
+    background: linear-gradient(to right, transparent, rgb(var(--color-accent) / 0.42) 30%, rgb(var(--color-accent) / 0.58) 50%, rgb(var(--color-accent) / 0.42) 70%, transparent);
+  }
+
+  .tlist-quote-mark { color: rgb(var(--color-accent) / 0.28); line-height: 1; }
+
+  .tlist-quote {
+    font-size  : 0.9375rem;
+    line-height: 1.74;
+    color      : rgb(var(--color-fg));
+    flex       : 1;
+    font-style : normal;
+    quotes     : none;
+  }
+
+  .tlist-author {
+    display    : flex;
+    align-items: center;
+    gap        : 0.875rem;
+    padding-top: 1.125rem;
+    border-top : 1px solid rgb(var(--color-border) / 0.7);
+    margin-top : auto;
+  }
+
+  .tlist-avatar {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 2.25rem;
+    height         : 2.25rem;
+    border-radius  : 9999px;
+    flex-shrink    : 0;
+    font-size      : 0.8125rem;
+    font-weight    : 700;
+    color          : rgb(var(--color-accent));
+    background     : rgb(var(--color-accent) / 0.12);
+    border         : 1px solid rgb(var(--color-accent) / 0.24);
+  }
+
+  .tlist-author-info { display: flex; flex-direction: column; gap: 0.1875rem; min-width: 0; }
+  .tlist-name {
+    font-size    : 0.875rem;
+    font-weight  : 600;
+    color        : rgb(var(--color-fg));
+    white-space  : nowrap;
+    overflow     : hidden;
+    text-overflow: ellipsis;
+  }
+  .tlist-role {
+    font-size    : 0.75rem;
+    color        : rgb(var(--color-fg-faint));
+    white-space  : nowrap;
+    overflow     : hidden;
+    text-overflow: ellipsis;
+  }
+</style>

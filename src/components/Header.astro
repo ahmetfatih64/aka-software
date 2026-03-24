@@ -52,21 +52,6 @@ const currentPath = Astro.url.pathname;
       <!-- Right-side actions -->
       <div class="flex items-center gap-2 flex-shrink-0">
 
-        <!-- Theme toggle -->
-        <button type="button" class="hdr-icon-btn" aria-label="Tema değiştir" data-theme-toggle>
-          <!-- Sun — light mode -->
-          <svg class="block dark:hidden" width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4"/>
-            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/>
-          </svg>
-          <!-- Moon — dark mode -->
-          <svg class="hidden dark:block" width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
-          </svg>
-        </button>
-
         <!-- Desktop CTA -->
         <a href="/iletisim" class="btn-primary hdr-cta hidden md:inline-flex">
           Teklif Al
@@ -176,12 +161,8 @@ const currentPath = Astro.url.pathname;
       background   300ms ease,
       border-color 300ms ease,
       box-shadow   300ms ease;
-    /* Subtle top-edge gold highlight */
-    background-image: linear-gradient(
-      to bottom,
-      rgba(217,161,40,0.055) 0px,
-      transparent 1px
-    );
+    /* Crystal neon top-edge line */
+    box-shadow: 0 1px 0 0 rgba(245, 214, 92, 0.30) inset;
   }
   /* Scrolled state — more opaque, deeper shadow */
   .header-pill[data-scrolled] {
@@ -189,7 +170,7 @@ const currentPath = Astro.url.pathname;
     border-color : rgba(161, 116, 24, 0.36);
     box-shadow   :
       0 12px 40px rgba(0, 0, 0, 0.60),
-      0 1px  0   rgba(217, 161, 40, 0.09) inset;
+      0 1px  0   rgba(245, 214, 92, 0.44) inset;
   }
 
   /* ════ Logo ════════════════════════════════════════ */
@@ -419,33 +400,7 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
-  const docEl = document.documentElement;
-  const THEME_KEY = 'aka-theme';
-
-  function applyTheme(theme: string) {
-    docEl.classList.toggle('dark', theme === 'dark');
-  }
-
-  (function initTheme() {
-    try {
-      const stored    = localStorage.getItem(THEME_KEY);
-      const preferDark = matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(stored ?? (preferDark ? 'dark' : 'light'));
-    } catch { /* noop */ }
-  })();
-
-  function toggleTheme() {
-    const next = docEl.classList.contains('dark') ? 'light' : 'dark';
-    applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch { /* noop */ }
-  }
-
   function setupHeader() {
-    // Theme toggles
-    document.querySelectorAll('[data-theme-toggle]').forEach(btn =>
-      btn.addEventListener('click', toggleTheme)
-    );
-
     // ── Scroll-aware pill ──────────────────────────
     const pill = document.querySelector<HTMLElement>('.header-pill');
     if (pill) {

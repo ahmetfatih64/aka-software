@@ -4,22 +4,41 @@ seoTitle: "AI ve Modern Yazılım Danışmanlığı | AKA Software"
 seoDescription: "AKA Software ile işletmenizi geleceğe taşıyın. AI ve modern yazılım çözümleri."
 sections:
   hero:
-    title: "Geleceğin Teknolojilerini Bugünden İşletmenize Entegre Edin"
-    description: "Yapay zeka odaklı kurumsal yazılım çözümleriyle operasyonel verimliliğinizi artırın ve rakiplerinize fark atın."
-    primaryCtaText: "Ücretsiz Keşif Görüşmesi"
+    title: "Teknik Vizyonunuzu Çalışan Sisteme Dönüştürüyoruz"
+    description: "Yapay zeka entegrasyonu, modern ürün mühendisliği ve mimari danışmanlıkla gerçek teslimat yapıyoruz — konsept değil."
+    primaryCtaText: "Keşif Görüşmesi Ayarlayalım"
     primaryCtaLink: "/iletisim"
-    secondaryCtaText: "Hizmetlerimizi İnceleyin"
-    secondaryCtaLink: "/hizmetler"
+    secondaryCtaText: "Vaka Çalışmalarını İncele"
+    secondaryCtaLink: "/vaka-calismalari"
   services:
     title: "Neler Yapıyoruz?"
     description: "İhtiyacınıza özel uçtan uca yazılım ve teknoloji danışmanlığı"
     items:
       - title: "AI & LLM Entegrasyonu"
         description: "İş süreçlerinize özel yapay zeka modelleri ve dil modelleri (LLM) entegrasyonu."
+        icon: "AI"
       - title: "Modern Web Uygulamaları"
         description: "Astro, Next.js ve React gibi modern teknolojilerle yüksek performanslı web çözümleri."
+        icon: "WB"
       - title: "Teknoloji Danışmanlığı"
         description: "Mimari tasarım, altyapı modernizasyonu ve teknik ekip liderliği (CTO as a Service)."
+        icon: "CTO"
+  process:
+    title: "Nasıl Çalışıyoruz?"
+    description: "Her projeyi dört net adımda hayata geçiriyoruz."
+    items:
+      - step: "01"
+        title: "Keşif Görüşmesi"
+        description: "İhtiyaçlarınızı anlamak için ücretsiz bir ön görüşme yapıyoruz."
+      - step: "02"
+        title: "Planlama & Teklif"
+        description: "Teknik mimari, zaman çizelgesi ve detaylı teklif hazırlıyoruz."
+      - step: "03"
+        title: "Geliştirme"
+        description: "Agile süreçlerle iteratif geliştirme ve haftalık ilerleme paylaşımları."
+      - step: "04"
+        title: "Teslim & Destek"
+        description: "Canlıya alma, dokümantasyon ve sürekli destek süreci."
   testimonials:
     title: "Müşterilerimiz Neler Diyor?"
     items:
@@ -37,8 +56,8 @@ sections:
       - q: "Proje süreci nasıl işliyor?"
         a: "Öncelikle ihtiyaçlarınızı analiz eden ücretsiz bir keşif görüşmesi yapıyoruz. Ardından detaylı bir teklif, planlama, geliştirme ve teslim aşamalarıyla ilerliyoruz."
   cta:
-    title: "İşletmenizi Dijital Dünyada Zirveye Taşıyalım"
-    description: "Geleceğin teknolojilerine bugünden hazırlıklı olun."
-    buttonText: "Hemen İletişime Geçin"
+    title: "Güçlü bir teknoloji partneri arıyorsanız doğru yerdesiniz"
+    description: "Projenizi anlayalım, teknik yaklaşımı birlikte tasarlayalım. İlk görüşme ücretsiz ve bağlayıcı değil."
+    buttonText: "Keşif Görüşmesi Ayarlayalım"
     buttonLink: "/iletisim"
 ---

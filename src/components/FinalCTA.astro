@@ -1,0 +1,267 @@
+---
+interface Props {
+  title?      : string;
+  description?: string;
+  buttonText? : string;
+  buttonLink? : string;
+}
+const {
+  title       = "Güçlü bir teknoloji partneri arıyorsanız doğru yerdesiniz",
+  description = "Projenizi anlayalım, teknik yaklaşımı birlikte tasarlayalım. İlk görüşme ücretsiz ve bağlayıcı değil.",
+  buttonText  = "Keşif Görüşmesi Ayarlayalım",
+  buttonLink  = "/iletisim"
+} = Astro.props;
+---
+
+<section class="fcta-section section-block">
+  <div class="site-container">
+    <div class="fcta-panel">
+
+      <!-- Background layers -->
+      <div class="fcta-layer fcta-center-glow"    aria-hidden="true"></div>
+      <div class="fcta-layer fcta-corner-tl"       aria-hidden="true"></div>
+      <div class="fcta-layer fcta-corner-br"       aria-hidden="true"></div>
+      <div class="fcta-layer fcta-dot-grid"        aria-hidden="true"></div>
+      <div class="fcta-layer fcta-rule-top"        aria-hidden="true"></div>
+      <div class="fcta-layer fcta-rule-bottom"     aria-hidden="true"></div>
+      <div class="fcta-cm fcta-cm-tl"              aria-hidden="true"></div>
+      <div class="fcta-cm fcta-cm-tr"              aria-hidden="true"></div>
+      <div class="fcta-cm fcta-cm-bl"              aria-hidden="true"></div>
+      <div class="fcta-cm fcta-cm-br"              aria-hidden="true"></div>
+
+      <!-- Content -->
+      <div class="fcta-content reveal">
+
+        <!-- Eyebrow -->
+        <p class="fcta-eyebrow" aria-hidden="true">
+          <span class="fcta-eyebrow-dot"></span>
+          Birlikte İnşa Edelim
+        </p>
+
+        <!-- Headline -->
+        <h2 class="fcta-title">{title}</h2>
+
+        <!-- Description -->
+        <p class="fcta-desc">{description}</p>
+
+        <!-- Trust indicators -->
+        <div class="fcta-trust" role="list">
+          <div class="fcta-trust-item" role="listitem">
+            <svg class="fcta-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>NDA ile çalışıyoruz</span>
+          </div>
+          <span class="fcta-trust-sep" aria-hidden="true"></span>
+          <div class="fcta-trust-item" role="listitem">
+            <svg class="fcta-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>İlk görüşme ücretsiz</span>
+          </div>
+          <span class="fcta-trust-sep" aria-hidden="true"></span>
+          <div class="fcta-trust-item" role="listitem">
+            <svg class="fcta-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            <span>Haftalık ilerleme raporları</span>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="fcta-divider" aria-hidden="true"></div>
+
+        <!-- CTA button -->
+        <div class="fcta-action">
+          <a href={buttonLink} class="fcta-btn btn-primary">
+            {buttonText}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+
+      </div><!-- /fcta-content -->
+    </div><!-- /fcta-panel -->
+  </div>
+</section>
+
+<style>
+  .fcta-section { background: transparent; }
+
+  /* ════ Panel ════════════════════════════════════════════════ */
+  .fcta-panel {
+    position     : relative;
+    overflow     : hidden;
+    border-radius: 1.5rem;
+    padding      : 5rem 1.5rem;
+    text-align   : center;
+    background   : rgba(14, 11, 10, 0.97);
+    border       : 1px solid rgba(161, 116, 24, 0.28);
+    box-shadow   :
+      0 1px 0 0  rgba(245, 214, 92, 0.55) inset,   /* neon crystal top-edge */
+      0 0 0 1px  rgba(217, 161, 40, 0.08) inset,
+      0 -8px 28px rgba(245, 214, 92, 0.05) inset,  /* interior crystal bloom */
+      0 0 100px rgba(217, 161, 40, 0.08),
+      0 40px 120px rgba(0, 0, 0, 0.60);
+  }
+  @media (min-width: 640px)  { .fcta-panel { padding: 5.5rem 3rem; } }
+  @media (min-width: 768px)  { .fcta-panel { padding: 6.5rem 5rem; } }
+  @media (min-width: 1024px) { .fcta-panel { padding: 7.5rem 7rem; } }
+
+  /* ════ Background layers ════════════════════════════════════ */
+  .fcta-layer {
+    position      : absolute;
+    inset         : 0;
+    pointer-events: none;
+  }
+  .fcta-center-glow {
+    background: radial-gradient(
+      ellipse 75% 70% at 50% 50%,
+      rgba(217, 161, 40, 0.11) 0%,
+      rgba(161, 116, 24, 0.04) 45%,
+      transparent 72%
+    );
+    animation: fcta-breathe 5.5s ease-in-out infinite;
+  }
+  .fcta-corner-tl {
+    background: radial-gradient(ellipse 50% 45% at -5% -5%, rgba(161,116,24,0.11) 0%, transparent 65%);
+  }
+  .fcta-corner-br {
+    background: radial-gradient(ellipse 45% 40% at 105% 105%, rgba(161,116,24,0.08) 0%, transparent 65%);
+  }
+  .fcta-dot-grid {
+    background-image: radial-gradient(rgba(217,161,40,0.055) 1px, transparent 1px);
+    background-size : 24px 24px;
+    mask-image      : radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, black 55%, black 80%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, black 55%, black 80%, transparent 100%);
+  }
+  .fcta-rule-top, .fcta-rule-bottom {
+    inset : auto;
+    left  : 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent 0%, rgba(161,116,24,0.30) 20%, rgba(217,161,40,0.42) 50%, rgba(161,116,24,0.30) 80%, transparent 100%);
+  }
+  .fcta-rule-top    { top: 2.25rem; }
+  .fcta-rule-bottom { bottom: 2.25rem; }
+
+  /* Corner marks */
+  .fcta-cm { position: absolute; width: 14px; height: 14px; }
+  .fcta-cm::before, .fcta-cm::after { content: ''; position: absolute; background: rgba(217,161,40,0.44); }
+  .fcta-cm::before { height: 1px; width: 100%; top: 0; left: 0; }
+  .fcta-cm::after  { width: 1px; height: 100%; top: 0; left: 0; }
+  .fcta-cm-tl { top: 1.25rem; left: 1.25rem; }
+  .fcta-cm-tr { top: 1.25rem; right: 1.25rem; transform: scaleX(-1); }
+  .fcta-cm-bl { bottom: 1.25rem; left: 1.25rem; transform: scaleY(-1); }
+  .fcta-cm-br { bottom: 1.25rem; right: 1.25rem; transform: scale(-1); }
+
+  /* ════ Content ══════════════════════════════════════════════ */
+  .fcta-content {
+    position      : relative;
+    z-index       : 2;
+    max-width     : 48rem;
+    margin        : 0 auto;
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+    gap           : 1.5rem;
+  }
+
+  /* Eyebrow */
+  .fcta-eyebrow {
+    display       : inline-flex;
+    align-items   : center;
+    gap           : 0.4375rem;
+    font-size     : 0.6875rem;
+    font-weight   : 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color         : rgba(217, 161, 40, 0.72);
+    margin-bottom : -0.25rem;
+  }
+  .fcta-eyebrow-dot {
+    width        : 4px;
+    height       : 4px;
+    border-radius: 9999px;
+    background   : rgba(217, 161, 40, 0.72);
+    flex-shrink  : 0;
+  }
+
+  /* Title */
+  .fcta-title {
+    font-size     : 2rem;
+    font-weight   : 800;
+    letter-spacing: -0.038em;
+    line-height   : 1.07;
+    color         : rgba(242, 236, 224, 1);
+    max-width     : 22ch;
+    text-wrap     : balance;
+  }
+  @media (min-width: 640px)  { .fcta-title { font-size: 2.5rem;   letter-spacing: -0.040em; } }
+  @media (min-width: 768px)  { .fcta-title { font-size: 3rem;     letter-spacing: -0.042em; line-height: 1.05; } }
+  @media (min-width: 1024px) { .fcta-title { font-size: 3.375rem; } }
+
+  /* Description */
+  .fcta-desc {
+    font-size  : 1rem;
+    line-height: 1.76;
+    color      : rgba(178, 164, 144, 0.90);
+    max-width  : 40ch;
+  }
+
+  /* Trust indicators row */
+  .fcta-trust {
+    display        : flex;
+    align-items    : center;
+    flex-wrap      : wrap;
+    justify-content: center;
+    gap            : 0.625rem 1.5rem;
+    margin-top     : -0.25rem;
+  }
+  .fcta-trust-item {
+    display    : flex;
+    align-items: center;
+    gap        : 0.4375rem;
+    font-size  : 0.8125rem;
+    color      : rgba(178, 164, 144, 0.80);
+  }
+  .fcta-trust-icon { color: rgba(217, 161, 40, 0.65); flex-shrink: 0; }
+  .fcta-trust-sep  { width: 1px; height: 14px; background: rgba(217,161,40,0.20); flex-shrink: 0; }
+  @media (max-width: 479px) { .fcta-trust-sep { display: none; } }
+
+  /* Divider */
+  .fcta-divider {
+    width     : 3rem;
+    height    : 1px;
+    background: linear-gradient(to right, transparent, rgba(217,161,40,0.50), transparent);
+    margin    : 0.25rem 0;
+  }
+
+  /* Button */
+  .fcta-action { display: flex; flex-direction: column; align-items: center; }
+  .fcta-btn {
+    padding    : 1rem 2.25rem;
+    font-size  : 1rem;
+    font-weight: 700;
+    box-shadow :
+      0 1px 0 0 rgba(255,255,255,0.30) inset,
+      0 6px 24px rgba(217,161,40,0.38),
+      0 16px 48px rgba(217,161,40,0.18),
+      0 2px  8px  rgba(0,0,0,0.40) !important;
+  }
+  .fcta-btn:hover {
+    box-shadow :
+      0 1px 0 0 rgba(255,255,255,0.36) inset,
+      0 10px 36px rgba(217,161,40,0.50),
+      0 20px 60px rgba(217,161,40,0.22),
+      0 4px  12px rgba(0,0,0,0.44) !important;
+  }
+
+  @keyframes fcta-breathe {
+    0%, 100% { opacity: 0.65; transform: scale(1);    }
+    50%       { opacity: 1.00; transform: scale(1.06); }
+  }
+</style>
