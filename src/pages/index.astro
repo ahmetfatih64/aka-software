@@ -85,6 +85,9 @@ const processSteps: ProcessStep[] = processSection?.items ?? [];
     description={processSection?.description ?? "Her projeyi dört net adımda hayata geçiriyoruz."}
     eyebrow="Süreç"
     bg="muted"
+    titleKey="process.title"
+    descriptionKey="process.description"
+    eyebrowKey="process.eyebrow"
   >
     <div class="proc-grid">
       {processSteps.map((item, idx) => (
@@ -94,8 +97,8 @@ const processSteps: ProcessStep[] = processSection?.items ?? [];
           {idx < processSteps.length - 1 && (
             <div class="proc-connector" aria-hidden="true"></div>
           )}
-          <h3 class="proc-title">{item.title}</h3>
-          <p class="proc-desc">{item.description}</p>
+          <h3 class="proc-title" data-i18n={`process.step${idx}.title`}>{item.title}</h3>
+          <p class="proc-desc" data-i18n={`process.step${idx}.desc`}>{item.description}</p>
         </div>
       ))}
     </div>
@@ -111,6 +114,9 @@ const processSteps: ProcessStep[] = processSection?.items ?? [];
       eyebrow="Referanslar"
       description="NDA kapsamında çalıştığımız müşterilerimizden geri bildirimler."
       bg="muted"
+      titleKey="testimonials.title"
+      descriptionKey="testimonials.description"
+      eyebrowKey="testimonials.eyebrow"
     >
       <TestimonialList testimonials={testimonials.items} />
     </Section>

@@ -19,9 +19,9 @@ function formatDate(date: string | Date) {
 
     <!-- Header -->
     <div class="fi-header reveal">
-      <p class="section-eyebrow">Teknik İçgörüler</p>
-      <h2 class="section-title">Blog & Makaleler</h2>
-      <p class="section-description">
+      <p class="section-eyebrow" data-i18n="insights.eyebrow">Teknik İçgörüler</p>
+      <h2 class="section-title" data-i18n="insights.title">Blog & Makaleler</h2>
+      <p class="section-description" data-i18n="insights.description">
         AI entegrasyonu, yazılım mimarisi ve modern mühendislik üzerine notlar.
       </p>
     </div>
@@ -54,7 +54,7 @@ function formatDate(date: string | Date) {
             <time class="fi-date" datetime={post.data.publishDate instanceof Date ? post.data.publishDate.toISOString() : String(post.data.publishDate)}>
               {formatDate(post.data.publishDate)}
             </time>
-            <span class="fi-read-link" aria-hidden="true">
+            <span class="fi-read-link" aria-hidden="true" data-i18n="insights.read">
               Oku
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -68,7 +68,7 @@ function formatDate(date: string | Date) {
 
     <!-- Footer link -->
     <div class="fi-footer reveal">
-      <a href="/blog" class="fi-viewall">
+      <a href="/blog" class="fi-viewall" data-i18n="insights.viewAll">
         Tüm makaleleri gör
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7"/>

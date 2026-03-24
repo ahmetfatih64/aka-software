@@ -6,8 +6,11 @@ interface Props {
   class?: string;
   id?: string;
   bg?: 'default' | 'muted';
+  titleKey?: string;
+  descriptionKey?: string;
+  eyebrowKey?: string;
 }
-const { title, description, eyebrow, class: className = '', id, bg = 'default' } = Astro.props;
+const { title, description, eyebrow, class: className = '', id, bg = 'default', titleKey, descriptionKey, eyebrowKey } = Astro.props;
 ---
 
 <section
@@ -19,11 +22,11 @@ const { title, description, eyebrow, class: className = '', id, bg = 'default' }
       <div class="sec-header reveal">
         {eyebrow && (
           <div class="sec-eyebrow-wrap">
-            <span class="section-eyebrow">{eyebrow}</span>
+            <span class="section-eyebrow" data-i18n={eyebrowKey}>{eyebrow}</span>
           </div>
         )}
-        {title && <h2 class="section-title">{title}</h2>}
-        {description && <p class="section-description mx-auto">{description}</p>}
+        {title && <h2 class="section-title" data-i18n={titleKey}>{title}</h2>}
+        {description && <p class="section-description mx-auto" data-i18n={descriptionKey}>{description}</p>}
       </div>
     )}
     <slot />

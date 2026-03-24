@@ -1,10 +1,12 @@
 ---
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
 const navLinks = [
-  { href: '/hizmetler',        label: 'Hizmetler'         },
-  { href: '/vaka-calismalari', label: 'Vaka Çalışmaları'  },
-  { href: '/blog',             label: 'Blog'              },
-  { href: '/hakkimizda',       label: 'Hakkımızda'        },
-  { href: '/iletisim',         label: 'İletişim'          },
+  { href: '/hizmetler',        label: 'Hizmetler',        key: 'nav.services'    },
+  { href: '/vaka-calismalari', label: 'Vaka Çalışmaları', key: 'nav.caseStudies' },
+  { href: '/blog',             label: 'Blog',             key: 'nav.blog'        },
+  { href: '/hakkimizda',       label: 'Hakkımızda',       key: 'nav.about'       },
+  { href: '/iletisim',         label: 'İletişim',         key: 'nav.contact'     },
 ];
 const currentPath = Astro.url.pathname;
 ---
@@ -34,7 +36,7 @@ const currentPath = Astro.url.pathname;
 
       <!-- Desktop nav -->
       <nav class="hidden items-center gap-0.5 md:flex" aria-label="Ana Navigasyon">
-        {navLinks.map(({ href, label }) => {
+        {navLinks.map(({ href, label, key }) => {
           const isActive = currentPath === href || currentPath.startsWith(href + '/');
           return (
             <a
@@ -42,6 +44,7 @@ const currentPath = Astro.url.pathname;
               class="hn-link"
               aria-current={isActive ? 'page' : undefined}
               data-active={isActive ? '' : undefined}
+              data-i18n={key}
             >
               {label}
             </a>
@@ -52,8 +55,11 @@ const currentPath = Astro.url.pathname;
       <!-- Right-side actions -->
       <div class="flex items-center gap-2 flex-shrink-0">
 
+        <!-- Language switcher -->
+        <LanguageSwitcher />
+
         <!-- Desktop CTA -->
-        <a href="/iletisim" class="btn-primary hdr-cta hidden md:inline-flex">
+        <a href="/iletisim" class="btn-primary hdr-cta hidden md:inline-flex" data-i18n="nav.getQuote">
           Teklif Al
         </a>
 
@@ -62,6 +68,7 @@ const currentPath = Astro.url.pathname;
           type="button"
           class="hdr-icon-btn md:hidden"
           aria-label="Menüyü aç"
+          data-i18n-aria="nav.openMenu"
           aria-expanded="false"
           aria-controls="mobile-nav"
           data-mobile-toggle
@@ -106,7 +113,7 @@ const currentPath = Astro.url.pathname;
           class="h-9 w-auto object-contain"
           style="max-width: 160px;"
         />
-        <button type="button" class="hdr-icon-btn" aria-label="Menüyü kapat" data-mobile-close>
+        <button type="button" class="hdr-icon-btn" aria-label="Menüyü kapat" data-i18n-aria="nav.closeMenu" data-mobile-close>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6 6 18"/>
@@ -119,7 +126,7 @@ const currentPath = Astro.url.pathname;
 
       <!-- Links -->
       <nav class="mob-links" id="mob-panel-title" aria-label="Mobil Navigasyon" data-mobile-nav-links>
-        {navLinks.map(({ href, label }) => {
+        {navLinks.map(({ href, label, key }) => {
           const isActive = currentPath === href || currentPath.startsWith(href + '/');
           return (
             <a
@@ -127,6 +134,7 @@ const currentPath = Astro.url.pathname;
               class="mob-link"
               aria-current={isActive ? 'page' : undefined}
               data-active={isActive ? '' : undefined}
+              data-i18n={key}
             >
               <span class="mob-link-dot" aria-hidden="true"></span>
               {label}
@@ -138,7 +146,7 @@ const currentPath = Astro.url.pathname;
       <!-- Separator + CTA -->
       <div class="mob-sep" style="margin-top: 0.375rem;" aria-hidden="true"></div>
       <div class="mob-cta">
-        <a href="/iletisim" class="btn-primary" style="width:100%; justify-content:center;">
+        <a href="/iletisim" class="btn-primary" style="width:100%; justify-content:center;" data-i18n="nav.getQuote">
           Teklif Al
         </a>
       </div>
