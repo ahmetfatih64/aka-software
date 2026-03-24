@@ -1,0 +1,150 @@
+---
+const error = Astro.url.searchParams.get('error');
+const errorMsg = error === '1' ? 'Kullanıcı adı veya şifre hatalı.' :
+                 error === 'config' ? 'Sunucu yapılandırma hatası.' : null;
+---
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <title>Giriş — AKA Admin</title>
+  <link rel="icon" type="image/png" href="/ana_logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background : #0b0a09;
+      color      : rgba(242,236,224,0.92);
+      min-height : 100vh;
+      display    : flex;
+      align-items: center;
+      justify-content: center;
+      padding    : 1.5rem;
+    }
+    .card {
+      width         : 100%;
+      max-width     : 400px;
+      background    : #131110;
+      border        : 1px solid rgba(161,116,24,0.20);
+      border-radius : 1.25rem;
+      padding       : 2.5rem 2rem;
+      box-shadow    :
+        0 1px 0 0 rgba(245,214,92,0.22) inset,
+        0 0 0 1px rgba(217,161,40,0.06) inset,
+        0 32px 80px rgba(0,0,0,0.60);
+    }
+    .logo { height: 36px; width: auto; object-fit: contain; display: block; margin: 0 auto 1.75rem; }
+    h1 {
+      font-size    : 1.25rem;
+      font-weight  : 700;
+      text-align   : center;
+      margin-bottom: 0.375rem;
+      letter-spacing: -0.022em;
+    }
+    .subtitle {
+      font-size  : 0.8125rem;
+      color      : rgba(140,128,108,0.70);
+      text-align : center;
+      margin-bottom: 1.75rem;
+    }
+    .error {
+      background : rgba(248,113,113,0.09);
+      border     : 1px solid rgba(248,113,113,0.26);
+      border-radius: 0.5rem;
+      padding    : 0.625rem 0.875rem;
+      font-size  : 0.8125rem;
+      color      : rgba(248,113,113,0.90);
+      margin-bottom: 1.25rem;
+      display    : flex;
+      align-items: center;
+      gap        : 0.5rem;
+    }
+    .field { margin-bottom: 1rem; }
+    label {
+      display      : block;
+      font-size    : 0.75rem;
+      font-weight  : 600;
+      color        : rgba(178,164,144,0.80);
+      margin-bottom: 0.4375rem;
+      letter-spacing: 0.02em;
+    }
+    input {
+      width         : 100%;
+      background    : rgba(255,255,255,0.04);
+      border        : 1px solid rgba(161,116,24,0.18);
+      border-radius : 0.625rem;
+      padding       : 0.6875rem 0.875rem;
+      font-size     : 0.9375rem;
+      font-family   : inherit;
+      color         : rgba(242,236,224,0.92);
+      transition    : border-color 160ms ease, box-shadow 160ms ease;
+      outline       : none;
+    }
+    input:focus {
+      border-color: rgba(217,161,40,0.50);
+      box-shadow  : 0 0 0 3px rgba(217,161,40,0.10);
+    }
+    input::placeholder { color: rgba(120,110,90,0.50); }
+    .btn {
+      width         : 100%;
+      margin-top    : 1.5rem;
+      padding       : 0.8125rem;
+      background    : linear-gradient(135deg, rgb(217,161,40) 0%, rgb(245,214,92) 100%);
+      color         : #0b0a09;
+      border        : none;
+      border-radius : 0.625rem;
+      font-size     : 0.9375rem;
+      font-weight   : 700;
+      font-family   : inherit;
+      cursor        : pointer;
+      transition    : opacity 150ms ease, transform 150ms ease;
+    }
+    .btn:hover   { opacity: 0.92; }
+    .btn:active  { transform: scale(0.99); }
+    .sep {
+      margin  : 1.75rem 0 1.25rem;
+      height  : 1px;
+      background: linear-gradient(to right, transparent, rgba(161,116,24,0.25), transparent);
+    }
+    .footer {
+      font-size : 0.6875rem;
+      color     : rgba(120,110,90,0.55);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="/ana_logo.png" alt="AKA Software" class="logo"/>
+    <h1>Yönetici Girişi</h1>
+    <p class="subtitle">Admin paneline erişmek için giriş yapın</p>
+
+    {errorMsg && (
+      <div class="error">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {errorMsg}
+      </div>
+    )}
+
+    <form method="post" action="/api/admin/login">
+      <div class="field">
+        <label for="username">Kullanıcı Adı</label>
+        <input type="text" id="username" name="username" placeholder="admin" autocomplete="username" required/>
+      </div>
+      <div class="field">
+        <label for="password">Şifre</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required/>
+      </div>
+      <button type="submit" class="btn">Giriş Yap</button>
+    </form>
+
+    <div class="sep"></div>
+    <p class="footer">AKA Software — Yönetim Paneli v2.0</p>
+  </div>
+</body>
+</html>

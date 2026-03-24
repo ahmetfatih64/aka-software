@@ -1,58 +1,339 @@
 ---
-import { db, ContactMessages } from 'astro:db';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, ContactMessages, eq } from 'astro:db';
 
-// ── Authorization ─────────────────────────────────────────────────────────
-// Protect this page with a secret token set in the server environment.
-// Set ADMIN_SECRET in your .env (local) or server environment variables.
-// Access: /admin/mesajlar?token=<ADMIN_SECRET>
-const adminSecret = import.meta.env.ADMIN_SECRET;
-const token       = Astro.url.searchParams.get('token');
+const filterParam = Astro.url.searchParams.get('filter') ?? 'all';
 
-const authorized = adminSecret && token === adminSecret;
-if (!authorized) {
-  return new Response('Yetkisiz erişim.', { status: 401 });
+let allMsgs = await db.select().from(ContactMessages);
+allMsgs.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const totalAll    = allMsgs.length;
+const totalUnread = allMsgs.filter((m: any) => !m.isRead).length;
+const totalRead   = allMsgs.filter((m: any) => m.isRead).length;
+
+const messages = filterParam === 'unread' ? allMsgs.filter((m: any) => !m.isRead)
+               : filterParam === 'read'   ? allMsgs.filter((m: any) =>  m.isRead)
+               : allMsgs;
+
+const currentUrl = Astro.url.pathname + (filterParam !== 'all' ? `?filter=${filterParam}` : '');
+
+function fmtDate(d: Date | string) {
+  return new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
-// ─────────────────────────────────────────────────────────────────────────
-
-const messages = await db.select().from(ContactMessages).orderBy();
+function fmtDateShort(d: Date | string) {
+  return new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'numeric' });
+}
 ---
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gelen Mesajlar (Admin)</title>
-    <style>
-        body { font-family: system-ui, sans-serif; padding: 2rem; background: #0f0f0f; color: #e5e5e5; }
-        h1   { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
-        p    { color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem; }
-        .card { background: #1a1a1a; border: 1px solid #2a2a2a; padding: 1.25rem 1.5rem; border-radius: 8px; margin-bottom: 0.75rem; }
-        .name  { font-weight: 600; }
-        .email { color: #a17418; font-size: 0.875rem; margin-left: 0.5rem; }
-        .msg   { color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.6; }
-        .date  { color: #4b5563; font-size: 0.75rem; margin-top: 0.5rem; }
-        .empty { color: #4b5563; font-style: italic; }
-    </style>
-</head>
-<body>
-    <h1>Gelen Mesajlar</h1>
-    <p>{messages.length} mesaj bulundu.</p>
+<AdminLayout title="Mesajlar" section="mesajlar">
+  <style>
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.028em; color: rgba(242,236,224,0.96); }
+    .page-header p  { font-size: 0.875rem; color: rgba(140,128,108,0.70); margin-top: 0.25rem; }
 
-    {messages.length === 0
-      ? <p class="empty">Henüz mesaj yok.</p>
-      : messages.map((m) => (
-          <div class="card">
-              <div>
-                <span class="name">{m.name}</span>
-                <span class="email">{m.email}</span>
-              </div>
-              <p class="msg">{m.message}</p>
-              {m.createdAt && (
-                <p class="date">{new Date(m.createdAt).toLocaleString('tr-TR')}</p>
-              )}
-          </div>
-        ))
+    /* Filter tabs */
+    .filter-bar {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1.25rem; flex-wrap: wrap;
     }
-</body>
-</html>
+    .filter-tab {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      padding: 0.4375rem 0.875rem;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem; font-weight: 500;
+      text-decoration: none;
+      border: 1px solid rgba(161,116,24,0.14);
+      background: rgba(255,255,255,0.02);
+      color: rgba(178,164,144,0.75);
+      transition: all 140ms ease;
+    }
+    .filter-tab:hover { color: rgba(242,236,224,0.88); background: rgba(255,255,255,0.05); }
+    .filter-tab.active {
+      background: rgba(217,161,40,0.12);
+      border-color: rgba(217,161,40,0.30);
+      color: rgba(245,214,92,0.92);
+    }
+    .filter-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 1.25rem; height: 1.25rem; padding: 0 0.25rem;
+      border-radius: 9999px;
+      font-size: 0.625rem; font-weight: 700;
+      background: rgba(217,161,40,0.18);
+      color: rgb(217,161,40);
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative; margin-bottom: 1.25rem;
+    }
+    .search-icon {
+      position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
+      color: rgba(120,110,90,0.55); pointer-events: none;
+    }
+    .search-input {
+      width: 100%; max-width: 400px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(161,116,24,0.16);
+      border-radius: 0.625rem;
+      padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+      font-size: 0.875rem; font-family: inherit;
+      color: rgba(242,236,224,0.88);
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+    .search-input:focus {
+      border-color: rgba(217,161,40,0.40);
+      box-shadow: 0 0 0 3px rgba(217,161,40,0.08);
+    }
+    .search-input::placeholder { color: rgba(120,110,90,0.50); }
+
+    /* Table */
+    .table-wrap {
+      background: #161310;
+      border: 1px solid rgba(161,116,24,0.14);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 1px 0 0 rgba(245,214,92,0.10) inset;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(140,128,108,0.70);
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(161,116,24,0.12);
+      text-align: left; white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(161,116,24,0.07);
+      transition: background 120ms ease;
+      cursor: pointer;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(217,161,40,0.04); }
+    td { padding: 0.875rem 1.25rem; font-size: 0.8125rem; color: rgba(178,164,144,0.85); vertical-align: middle; }
+    td.td-name { font-weight: 600; color: rgba(242,236,224,0.90); white-space: nowrap; }
+    td.td-email { color: rgba(217,161,40,0.75); white-space: nowrap; }
+    td.td-msg { max-width: 260px; }
+    .msg-preview { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    td.td-date { white-space: nowrap; font-size: 0.75rem; }
+    td.td-actions { white-space: nowrap; }
+
+    .badge-new  { display: inline-flex; align-items: center; gap: 0.3125rem; padding: 0.1875rem 0.5625rem; border-radius: 9999px; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(251,191,36,0.12); color: rgb(251,191,36); border: 1px solid rgba(251,191,36,0.28); }
+    .badge-read { display: inline-flex; align-items: center; gap: 0.3125rem; padding: 0.1875rem 0.5625rem; border-radius: 9999px; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(120,110,90,0.10); color: rgba(140,128,108,0.65); border: 1px solid rgba(120,110,90,0.16); }
+    .badge-dot { width: 5px; height: 5px; border-radius: 9999px; flex-shrink: 0; }
+    .badge-new  .badge-dot { background: rgb(251,191,36); box-shadow: 0 0 4px rgba(251,191,36,0.50); }
+    .badge-read .badge-dot { background: rgba(140,128,108,0.55); }
+
+    /* Action buttons */
+    .act-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1.875rem; height: 1.875rem;
+      border: 1px solid transparent;
+      border-radius: 0.4375rem;
+      background: transparent;
+      color: rgba(140,128,108,0.60);
+      cursor: pointer;
+      transition: all 140ms ease;
+      font-size: 0;
+    }
+    .act-btn.read-btn:hover  { color: rgba(74,222,128,0.90); background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.22); }
+    .act-btn.view-btn:hover  { color: rgba(217,161,40,0.90); background: rgba(217,161,40,0.08); border-color: rgba(217,161,40,0.22); }
+    .act-btn.del-btn:hover   { color: rgba(248,113,113,0.90); background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.22); }
+    .act-group { display: inline-flex; align-items: center; gap: 0.25rem; }
+
+    .empty-state {
+      padding: 4rem 2rem; text-align: center;
+      color: rgba(120,110,90,0.55); font-size: 0.875rem;
+    }
+    .empty-state svg { margin: 0 auto 1rem; display: block; opacity: 0.25; }
+
+    /* Message detail dialog */
+    dialog {
+      background: #1a1714;
+      border: 1px solid rgba(161,116,24,0.22);
+      border-radius: 1.125rem;
+      padding: 0;
+      width: min(560px, calc(100vw - 2rem));
+      max-height: 80vh;
+      color: rgba(242,236,224,0.90);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.70), 0 1px 0 rgba(245,214,92,0.18) inset;
+      overflow: hidden;
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); }
+    .dialog-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(161,116,24,0.14);
+    }
+    .dialog-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.016em; }
+    .dialog-close {
+      width: 1.875rem; height: 1.875rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(161,116,24,0.18); border-radius: 0.5rem;
+      background: transparent; color: rgba(140,128,108,0.70); cursor: pointer;
+      transition: all 140ms ease; font-size: 0;
+    }
+    .dialog-close:hover { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.25); color: rgba(248,113,113,0.88); }
+    .dialog-body { padding: 1.5rem; overflow-y: auto; max-height: calc(80vh - 4rem); }
+    .dialog-field { margin-bottom: 1.125rem; }
+    .dialog-field:last-child { margin-bottom: 0; }
+    .dialog-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(140,128,108,0.65); margin-bottom: 0.375rem; }
+    .dialog-value { font-size: 0.9375rem; color: rgba(242,236,224,0.88); }
+    .dialog-value.message-text { line-height: 1.72; font-size: 0.875rem; color: rgba(178,164,144,0.85); white-space: pre-wrap; }
+    .dialog-email { color: rgba(217,161,40,0.80); }
+    .dialog-sep { height: 1px; background: rgba(161,116,24,0.14); margin: 1.125rem 0; }
+
+    /* Responsive table */
+    @media (max-width: 768px) {
+      .td-msg, .td-date { display: none; }
+      td { padding: 0.75rem 0.875rem; }
+      thead th { padding: 0.625rem 0.875rem; }
+    }
+  </style>
+
+  <div class="page-header">
+    <div>
+      <h1>Mesajlar</h1>
+      <p>{totalAll} mesaj · {totalUnread} okunmamış</p>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-bar">
+    <a href="/admin/mesajlar" class={`filter-tab${filterParam === 'all' ? ' active' : ''}`}>
+      Tümü <span class="filter-count">{totalAll}</span>
+    </a>
+    <a href="/admin/mesajlar?filter=unread" class={`filter-tab${filterParam === 'unread' ? ' active' : ''}`}>
+      Okunmamış <span class="filter-count">{totalUnread}</span>
+    </a>
+    <a href="/admin/mesajlar?filter=read" class={`filter-tab${filterParam === 'read' ? ' active' : ''}`}>
+      Okunmuş <span class="filter-count">{totalRead}</span>
+    </a>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="search-input" id="msg-search" placeholder="Ad, e-posta veya mesaj ara..."/>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    {messages.length === 0 ? (
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Bu filtrede henüz mesaj yok.
+      </div>
+    ) : (
+      <table id="msg-table">
+        <thead>
+          <tr>
+            <th>Durum</th>
+            <th>Ad Soyad</th>
+            <th>E-posta</th>
+            <th class="td-msg">Mesaj</th>
+            <th class="td-date">Tarih</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          {messages.map((m: any) => (
+            <tr data-search={`${m.name} ${m.email} ${m.message}`.toLowerCase()}
+                onclick={`showMsg(${JSON.stringify({id:m.id,name:m.name,email:m.email,message:m.message,date:fmtDate(m.createdAt),isRead:m.isRead})})`}>
+              <td>
+                {m.isRead
+                  ? <span class="badge-read"><span class="badge-dot"></span>Okundu</span>
+                  : <span class="badge-new"><span class="badge-dot"></span>Yeni</span>
+                }
+              </td>
+              <td class="td-name">{m.name}</td>
+              <td class="td-email">{m.email}</td>
+              <td class="td-msg"><div class="msg-preview">{m.message}</div></td>
+              <td class="td-date">{fmtDateShort(m.createdAt)}</td>
+              <td class="td-actions" onclick="event.stopPropagation()">
+                <div class="act-group">
+                  {!m.isRead && (
+                    <form method="post" action="/api/admin/mark-read" style="display:inline">
+                      <input type="hidden" name="id" value={m.id}/>
+                      <input type="hidden" name="back" value={currentUrl}/>
+                      <button type="submit" class="act-btn read-btn" title="Okundu işaretle">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </button>
+                    </form>
+                  )}
+                  <button type="button" class="act-btn view-btn" title="Detay gör"
+                          onclick={`event.stopPropagation();showMsg(${JSON.stringify({id:m.id,name:m.name,email:m.email,message:m.message,date:fmtDate(m.createdAt),isRead:m.isRead})})`}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <form method="post" action="/api/admin/delete" style="display:inline"
+                        onsubmit="return confirm('Bu mesajı kalıcı olarak silmek istediğinizden emin misiniz?')">
+                    <input type="hidden" name="id" value={m.id}/>
+                    <input type="hidden" name="back" value={currentUrl}/>
+                    <button type="submit" class="act-btn del-btn" title="Sil">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+
+  <!-- Message detail dialog -->
+  <dialog id="msg-dialog">
+    <div class="dialog-header">
+      <div class="dialog-title">Mesaj Detayı</div>
+      <button class="dialog-close" onclick="document.getElementById('msg-dialog').close()" aria-label="Kapat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="dialog-field">
+        <div class="dialog-label">Ad Soyad</div>
+        <div class="dialog-value" id="d-name"></div>
+      </div>
+      <div class="dialog-sep"></div>
+      <div class="dialog-field">
+        <div class="dialog-label">E-posta</div>
+        <div class="dialog-value dialog-email" id="d-email"></div>
+      </div>
+      <div class="dialog-sep"></div>
+      <div class="dialog-field">
+        <div class="dialog-label">Tarih</div>
+        <div class="dialog-value" id="d-date"></div>
+      </div>
+      <div class="dialog-sep"></div>
+      <div class="dialog-field">
+        <div class="dialog-label">Mesaj</div>
+        <div class="dialog-value message-text" id="d-message"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script is:inline>
+    // Client-side search
+    var searchInput = document.getElementById('msg-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        document.querySelectorAll('#msg-table tbody tr').forEach(function(row) {
+          var text = row.getAttribute('data-search') || '';
+          row.style.display = (!q || text.includes(q)) ? '' : 'none';
+        });
+      });
+    }
+
+    // Message detail modal
+    function showMsg(data) {
+      document.getElementById('d-name').textContent    = data.name;
+      document.getElementById('d-email').textContent   = data.email;
+      document.getElementById('d-date').textContent    = data.date;
+      document.getElementById('d-message').textContent = data.message;
+      document.getElementById('msg-dialog').showModal();
+    }
+  </script>
+</AdminLayout>

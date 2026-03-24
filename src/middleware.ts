@@ -1,4 +1,21 @@
 import { defineMiddleware } from 'astro:middleware';
+import { createHmac } from 'node:crypto';
+
+function verifyAdminToken(token: string, secret: string): boolean {
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    const colonIdx = decoded.indexOf(':');
+    if (colonIdx < 0) return false;
+    const ts = decoded.slice(0, colonIdx);
+    const sig = decoded.slice(colonIdx + 1);
+    const expected = createHmac('sha256', secret).update(ts).digest('hex');
+    if (sig !== expected) return false;
+    const age = Date.now() - parseInt(ts, 10);
+    return age > 0 && age < 24 * 60 * 60 * 1000;
+  } catch {
+    return false;
+  }
+}
 
 // In-Memory Rate Limiting Store
 // Note: This resets on server restarts and may not share state across serverless instances.
@@ -42,6 +59,25 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+
+    // ── Admin auth ────────────────────────────────────────────────
+    const { pathname } = context.url;
+    const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+    const isPublicAdminRoute = ['/admin/login', '/api/admin/login', '/api/admin/logout'].includes(pathname);
+
+    if (isAdminRoute && !isPublicAdminRoute) {
+        const secret = import.meta.env.ADMIN_SECRET;
+        const token  = context.cookies.get('aka_admin')?.value;
+        if (!secret || !token || !verifyAdminToken(token, secret)) {
+            if (pathname.startsWith('/api/')) {
+                return new Response(JSON.stringify({ error: 'Yetkisiz erişim' }), {
+                    status: 401, headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            return context.redirect('/admin/login');
+        }
+    }
+    // ─────────────────────────────────────────────────────────────
 
     // 1. Rate Limiting Check (Only apply to API routes to protect endpoints)
     if (context.url.pathname.startsWith('/api/')) {

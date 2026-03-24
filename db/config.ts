@@ -7,6 +7,7 @@ const ContactMessages = defineTable({
         email: column.text(),
         message: column.text(),
         createdAt: column.date({ default: NOW }),
+        isRead: column.boolean({ default: false }),
     }
 });
 
