@@ -516,46 +516,55 @@
     }, 40);
   }
 
-  function addMsg(role, text, typing) {
+  function addMsg(role, text) {
     var msg = document.createElement('div');
     msg.className = 'ai-msg ai-msg--' + (role === 'user' ? 'user' : 'bot');
-    if (typing) msg.className += ' ai-typing';
 
-    var parts = [];
-
-    if (role === 'bot') {
-      parts.push('<img src="/aka_aiAsistan.png" alt="" class="ai-msg-avatar" aria-hidden="true"/>');
-    }
-
-    var bubble = document.createElement('div');
-    bubble.className = 'ai-msg-bubble';
-
-    if (typing) {
-      bubble.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
-    } else {
-      bubble.textContent = text;
-    }
+    var msgBubble = document.createElement('div');
+    msgBubble.className = 'ai-msg-bubble';
+    msgBubble.textContent = text;
 
     if (role === 'bot') {
-      msg.innerHTML = parts.join('');
-      msg.appendChild(bubble);
-    } else {
-      msg.appendChild(bubble);
+      var av = document.createElement('img');
+      av.src = '/aka_aiAsistan.png';
+      av.alt = '';
+      av.className = 'ai-msg-avatar';
+      av.setAttribute('aria-hidden', 'true');
+      msg.appendChild(av);
     }
-
+    msg.appendChild(msgBubble);
     messages.appendChild(msg);
     scrollBottom();
-    return bubble;
+    return msgBubble;
+  }
+
+  function addTyping() {
+    var msg = document.createElement('div');
+    msg.className = 'ai-msg ai-msg--bot ai-typing';
+    var av = document.createElement('img');
+    av.src = '/aka_aiAsistan.png'; av.alt = ''; av.className = 'ai-msg-avatar';
+    av.setAttribute('aria-hidden', 'true');
+    var msgBubble = document.createElement('div');
+    msgBubble.className = 'ai-msg-bubble';
+    msgBubble.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
+    msg.appendChild(av);
+    msg.appendChild(msgBubble);
+    messages.appendChild(msg);
+    scrollBottom();
+    return msg;
   }
 
   function addError(text) {
     var msg = document.createElement('div');
     msg.className = 'ai-msg ai-msg--bot';
-    msg.innerHTML = '<img src="/aka_aiAsistan.png" alt="" class="ai-msg-avatar" aria-hidden="true"/>';
-    var bubble = document.createElement('div');
-    bubble.className = 'ai-msg-bubble error';
-    bubble.textContent = text;
-    msg.appendChild(bubble);
+    var av = document.createElement('img');
+    av.src = '/aka_aiAsistan.png'; av.alt = ''; av.className = 'ai-msg-avatar';
+    av.setAttribute('aria-hidden', 'true');
+    var msgBubble = document.createElement('div');
+    msgBubble.className = 'ai-msg-bubble error';
+    msgBubble.textContent = text;
+    msg.appendChild(av);
+    msg.appendChild(msgBubble);
     messages.appendChild(msg);
     scrollBottom();
   }
@@ -579,12 +588,7 @@
 
     setLoading(true);
 
-    // Show typing indicator
-    var typingMsg = document.createElement('div');
-    typingMsg.className = 'ai-msg ai-msg--bot ai-typing';
-    typingMsg.innerHTML = '<img src="/aka_aiAsistan.png" alt="" class="ai-msg-avatar" aria-hidden="true"/><div class="ai-msg-bubble"><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span></div>';
-    messages.appendChild(typingMsg);
-    scrollBottom();
+    var typingMsg = addTyping();
 
     // SSE streaming
     fetch('/api/chat', {
@@ -593,11 +597,12 @@
       body: JSON.stringify({ message: text, history: history.slice(-10) }),
     })
     .then(function(res) {
-      if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
+      if (!res.ok) {
+        return res.json().then(function(j) { throw new Error(j.error || 'Sunucu hatası'); });
+      }
 
-      // Replace typing indicator with real bubble
       messages.removeChild(typingMsg);
-      var bubble = addMsg('bot', '');
+      var replyBubble = addMsg('bot', '');
       var fullText = '';
 
       var reader = res.body.getReader();
@@ -627,13 +632,14 @@
             try {
               var parsed = JSON.parse(raw);
               if (parsed.error) {
-                bubble.textContent = parsed.error;
-                bubble.classList.add('error');
+                replyBubble.textContent = parsed.error;
+                replyBubble.classList.add('error');
+                setLoading(false);
                 return;
               }
               if (parsed.text) {
                 fullText += parsed.text;
-                bubble.textContent = fullText;
+                replyBubble.textContent = fullText;
                 scrollBottom();
               }
             } catch (_) {}
