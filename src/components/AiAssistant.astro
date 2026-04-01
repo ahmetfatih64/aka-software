@@ -2,6 +2,13 @@
 // AKA AI Assistant — floating chat widget
 ---
 
+<!-- ── Greeting bubble ── -->
+<div id="ai-bubble" aria-hidden="true">
+  <span id="ai-bubble-close" role="button" aria-label="Kapat">×</span>
+  Merhaba işinizi hızlandırmam için size yardımcı olmaktan mutluluk duyarım.
+  <span class="ai-bubble-tail"></span>
+</div>
+
 <!-- ── Floating toggle button ── -->
 <button
   id="ai-btn"
@@ -76,14 +83,76 @@
     --ai-faint   : rgba(120,110,90,0.55);
   }
 
+  /* ─── Greeting bubble ─── */
+  #ai-bubble {
+    position: fixed;
+    bottom: calc(1.75rem + 23px + 112px + 14px);
+    right: calc(1.75rem + 22px);
+    z-index: 9992;
+    max-width: 240px;
+    padding: 0.75rem 1.75rem 0.75rem 1rem;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    border-radius: 1rem 1rem 0.25rem 1rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--ai-text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(217,161,40,0.08);
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+    pointer-events: none;
+    transition: opacity 350ms ease, transform 350ms cubic-bezier(0.22,1,0.36,1);
+  }
+  #ai-bubble.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  #ai-bubble.hiding {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+    pointer-events: none;
+  }
+  .ai-bubble-tail {
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 0px solid transparent;
+    border-top: 8px solid var(--ai-border);
+  }
+  .ai-bubble-tail::after {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: -7px;
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 0px solid transparent;
+    border-top: 7px solid var(--ai-bg);
+  }
+  #ai-bubble-close {
+    position: absolute;
+    top: 0.3rem; right: 0.4rem;
+    font-size: 1rem; line-height: 1;
+    color: var(--ai-faint);
+    cursor: pointer;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    transition: color 150ms;
+  }
+  #ai-bubble-close:hover { color: var(--ai-text); }
+
   /* ─── Toggle button ─── */
   #ai-btn {
     position: fixed;
     bottom: calc(1.75rem + 23px);
     right: calc(1.75rem + 22px);
     z-index: 9990;
-    width: 93px;
-    height: 93px;
+    width: 112px;
+    height: 112px;
     border-radius: 9999px;
     border: none;
     background: transparent;
@@ -96,8 +165,8 @@
   }
 
   .ai-btn-img {
-    width: 93px;
-    height: 93px;
+    width: 112px;
+    height: 112px;
     border-radius: 9999px;
     object-fit: cover;
     display: block;
@@ -137,7 +206,7 @@
   /* ─── Panel ─── */
   #ai-panel {
     position: fixed;
-    bottom: calc(93px + 1.25rem);
+    bottom: calc(112px + 1.25rem + 23px);
     right: 1.75rem;
     z-index: 9991;
     width: 370px;
@@ -315,9 +384,10 @@
 
   /* ─── Mobile ─── */
   @media (max-width: 480px) {
-    #ai-btn { bottom: 1.25rem; right: 1.25rem; width: 72px; height: 72px; }
-    .ai-btn-img { width: 72px; height: 72px; }
-    #ai-panel { right: 0.75rem; bottom: calc(72px + 1rem); width: calc(100vw - 1.5rem); }
+    #ai-btn { bottom: 1.25rem; right: 1.25rem; width: 86px; height: 86px; }
+    .ai-btn-img { width: 86px; height: 86px; }
+    #ai-panel { right: 0.75rem; bottom: calc(86px + 1rem); width: calc(100vw - 1.5rem); }
+    #ai-bubble { right: 0.75rem; bottom: calc(1.25rem + 86px + 12px); max-width: 200px; }
   }
 </style>
 
@@ -332,8 +402,35 @@
   var input    = document.getElementById('ai-input');
   var messages = document.getElementById('ai-messages');
   var badge    = document.getElementById('ai-badge');
+  var bubble   = document.getElementById('ai-bubble');
+  var bubbleX  = document.getElementById('ai-bubble-close');
   var isOpen   = false;
   var isLoading = false;
+
+  // ── Greeting bubble ──
+  function hideBubble() {
+    bubble.classList.add('hiding');
+    setTimeout(function() { bubble.style.display = 'none'; }, 380);
+  }
+
+  if (!sessionStorage.getItem('aka-ai-greeted')) {
+    setTimeout(function() {
+      bubble.classList.add('visible');
+      sessionStorage.setItem('aka-ai-greeted', '1');
+      // Auto-hide after 6s
+      setTimeout(hideBubble, 6000);
+    }, 1200);
+  } else {
+    bubble.style.display = 'none';
+  }
+
+  bubbleX.addEventListener('click', hideBubble);
+  // Clicking bubble opens chat
+  bubble.addEventListener('click', function(e) {
+    if (e.target === bubbleX) return;
+    hideBubble();
+    openPanel();
+  });
 
   // Conversation history for context
   var history = [];
@@ -343,6 +440,7 @@
     panel.classList.add('open');
     btn.setAttribute('aria-expanded', 'true');
     badge.classList.remove('show');
+    hideBubble();
     setTimeout(function() { input.focus(); }, 280);
     scrollBottom();
   }
