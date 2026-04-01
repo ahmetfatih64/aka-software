@@ -11,7 +11,31 @@ const ContactMessages = defineTable({
     }
 });
 
+const ServiceRequests = defineTable({
+    columns: {
+        id: column.number({ primaryKey: true }),
+        name: column.text(),
+        email: column.text(),
+        company: column.text({ optional: true }),
+        phone: column.text({ optional: true }),
+        service: column.text(),
+        message: column.text(),
+        status: column.text({ default: 'beklemede' }),
+        createdAt: column.date({ default: NOW }),
+    }
+});
+
+const SiteSettings = defineTable({
+    columns: {
+        id: column.number({ primaryKey: true }),
+        key: column.text(),
+        value: column.text(),
+        label: column.text(),
+        group: column.text(),
+    }
+});
+
 // https://astro.build/db/config
 export default defineDb({
-    tables: { ContactMessages },
+    tables: { ContactMessages, ServiceRequests, SiteSettings },
 });

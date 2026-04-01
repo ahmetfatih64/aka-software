@@ -1,0 +1,260 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getPost } from '../../../lib/blogFs';
+
+const { slug } = Astro.params as { slug: string };
+const post = getPost(slug);
+
+if (!post) return Astro.redirect('/admin/blog');
+
+const { fm, body } = post;
+
+// Format for datetime-local input: "YYYY-MM-DDTHH:MM"
+function toInputDate(d: string) {
+  try { return new Date(d).toISOString().slice(0, 16); } catch { return d; }
+}
+const publishDateVal = toInputDate(fm.publishDate);
+---
+
+<AdminLayout title="Yazıyı Düzenle" section="blog">
+  <style>
+    .editor-wrap { display:grid; grid-template-columns:1fr 320px; gap:1.5rem; align-items:start; }
+    @media (max-width: 900px) { .editor-wrap { grid-template-columns:1fr; } }
+
+    .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap; }
+    .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+    .page-sub    { font-size:0.8125rem; color:var(--adm-muted); margin-top:0.2rem; font-family:monospace; }
+
+    .back-btn {
+      display:inline-flex; align-items:center; gap:0.375rem;
+      padding:0.4375rem 0.875rem; border-radius:0.5rem; border:1px solid var(--adm-border);
+      font-size:0.8125rem; font-weight:500; color:var(--adm-muted);
+      background:transparent; text-decoration:none; transition:all 150ms;
+    }
+    .back-btn:hover { color:var(--adm-text); border-color:var(--adm-border-h); }
+
+    .editor-card { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.875rem; overflow:hidden; }
+    .card-body { padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; }
+
+    .field label { display:block; font-size:0.6875rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--adm-faint); margin-bottom:0.375rem; }
+    .field input, .field textarea {
+      width:100%; padding:0.5625rem 0.75rem;
+      background:var(--adm-card-h); border:1px solid var(--adm-border);
+      border-radius:0.5rem; color:var(--adm-text); font-size:0.875rem; outline:none;
+      transition:border-color 150ms;
+    }
+    .field input:focus, .field textarea:focus { border-color:rgba(217,161,40,0.40); }
+
+    .md-toolbar {
+      display:flex; gap:0.25rem; flex-wrap:wrap;
+      padding:0.5rem 0.75rem; background:rgba(255,255,255,0.025);
+      border-bottom:1px solid var(--adm-border);
+    }
+    .md-toolbar-btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:2rem; height:2rem; border-radius:0.375rem; border:1px solid transparent;
+      background:transparent; color:var(--adm-muted); cursor:pointer;
+      font-size:0.8125rem; font-weight:700; font-family:monospace;
+      transition:all 120ms;
+    }
+    .md-toolbar-btn:hover { color:var(--adm-text); background:rgba(255,255,255,0.06); border-color:var(--adm-border); }
+    .md-toolbar-sep { width:1px; background:var(--adm-border); margin:0 0.25rem; align-self:stretch; }
+
+    .md-area {
+      width:100%; min-height:480px; padding:1rem; resize:vertical;
+      background:var(--adm-card-h); border:none;
+      color:var(--adm-text); font-size:0.9rem; font-family:'JetBrains Mono','Fira Code','Courier New',monospace;
+      line-height:1.7; outline:none;
+    }
+    .md-editor-wrap { border:1px solid var(--adm-border); border-radius:0.5rem; overflow:hidden; }
+    .md-editor-wrap:focus-within { border-color:rgba(217,161,40,0.40); }
+
+    .sidebar-card { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.875rem; overflow:hidden; position:sticky; top:5rem; }
+    .sidebar-head { padding:0.875rem 1.25rem; border-bottom:1px solid var(--adm-border); font-size:0.8125rem; font-weight:600; color:var(--adm-text); background:rgba(255,255,255,0.015); }
+    .sidebar-body { padding:1.25rem; display:flex; flex-direction:column; gap:1rem; }
+
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; }
+    .toggle-label { font-size:0.875rem; font-weight:500; color:var(--adm-text); }
+    .toggle-desc  { font-size:0.75rem; color:var(--adm-faint); margin-top:0.125rem; }
+    .toggle {
+      position:relative; width:2.5rem; height:1.375rem; flex-shrink:0;
+      background:rgba(255,255,255,0.10); border:1px solid var(--adm-border);
+      border-radius:9999px; cursor:pointer; transition:background 200ms, border-color 200ms;
+      appearance:none; -webkit-appearance:none;
+    }
+    .toggle::after {
+      content:''; position:absolute; top:2px; left:2px;
+      width:1rem; height:1rem; border-radius:9999px; background:var(--adm-muted);
+      transition:transform 200ms, background 200ms;
+    }
+    .toggle:checked { background:rgba(74,222,128,0.20); border-color:rgba(74,222,128,0.40); }
+    .toggle:checked::after { transform:translateX(1.125rem); background:rgba(74,222,128,0.9); }
+
+    .divider { height:1px; background:var(--adm-border); margin:0.25rem 0; }
+
+    .btn-publish {
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+      width:100%; padding:0.625rem 1rem; border-radius:0.625rem;
+      background:var(--adm-gold); color:#0b0a09;
+      font-size:0.875rem; font-weight:700; border:none; cursor:pointer; transition:background 150ms;
+    }
+    .btn-publish:hover { background:var(--adm-gold-b); }
+    .btn-outline {
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+      width:100%; padding:0.5625rem 1rem; border-radius:0.625rem;
+      background:transparent; border:1px solid var(--adm-border);
+      color:var(--adm-muted); font-size:0.875rem; font-weight:500; cursor:pointer; transition:all 150ms;
+      text-decoration:none;
+    }
+    .btn-outline:hover { color:var(--adm-text); border-color:var(--adm-border-h); }
+    .btn-danger {
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+      width:100%; padding:0.5rem 1rem; border-radius:0.625rem;
+      background:transparent; border:1px solid rgba(248,113,113,0.22);
+      color:var(--adm-red); font-size:0.8125rem; font-weight:500; cursor:pointer; transition:all 150ms;
+    }
+    .btn-danger:hover { background:rgba(248,113,113,0.06); border-color:rgba(248,113,113,0.35); }
+
+    .status-banner {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8125rem; font-weight:500;
+    }
+    .banner-green { background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.22); color:rgba(74,222,128,0.9); }
+    .banner-amber { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.22); color:rgba(251,191,36,0.9); }
+  </style>
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Yazıyı Düzenle</div>
+      <div class="page-sub">{slug}.md</div>
+    </div>
+    <a href="/admin/blog" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Geri
+    </a>
+  </div>
+
+  <form method="post" action="/api/admin/blog-update" id="blog-form">
+    <input type="hidden" name="slug" value={slug}/>
+    <input type="hidden" name="draft" id="draft-hidden" value={fm.draft ? 'true' : 'false'}/>
+
+    <div class="editor-wrap">
+      <!-- Main editor -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="editor-card">
+          <div class="card-body">
+            <div class="field">
+              <label>Başlık *</label>
+              <input type="text" name="title" required value={fm.title}/>
+            </div>
+            <div class="field">
+              <label>Kısa Açıklama *</label>
+              <input type="text" name="description" required value={fm.description}/>
+            </div>
+            <div class="field">
+              <label>Etiketler</label>
+              <input type="text" name="tags" value={fm.tags.join(', ')} placeholder="AI, LLM, Engineering"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-card">
+          <div style="padding:.875rem 1.25rem; border-bottom:1px solid var(--adm-border); font-size:.8125rem; font-weight:600; color:var(--adm-text); background:rgba(255,255,255,.015)">
+            İçerik (Markdown)
+          </div>
+          <div class="md-toolbar">
+            <button type="button" class="md-toolbar-btn" data-wrap="**" title="Kalın">B</button>
+            <button type="button" class="md-toolbar-btn" data-wrap="*" title="İtalik" style="font-style:italic">I</button>
+            <button type="button" class="md-toolbar-btn" data-wrap="`" title="Kod">{'<>'}</button>
+            <div class="md-toolbar-sep"></div>
+            <button type="button" class="md-toolbar-btn" data-prefix="## " title="Başlık 2">H2</button>
+            <button type="button" class="md-toolbar-btn" data-prefix="### " title="Başlık 3">H3</button>
+            <button type="button" class="md-toolbar-btn" data-prefix="- " title="Liste">—</button>
+            <button type="button" class="md-toolbar-btn" data-prefix="> " title="Alıntı">❝</button>
+            <div class="md-toolbar-sep"></div>
+            <button type="button" class="md-toolbar-btn" data-insert="[bağlantı](url)" title="Bağlantı">🔗</button>
+          </div>
+          <div class="md-editor-wrap" style="border:none;border-radius:0">
+            <textarea id="md-content" name="content" class="md-area">{body}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-card">
+        <div class="sidebar-head">Yayın Ayarları</div>
+        <div class="sidebar-body">
+
+          <!-- Current status -->
+          <div class={`status-banner ${fm.draft ? 'banner-amber' : 'banner-green'}`}>
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+            {fm.draft ? 'Taslak' : 'Yayında'}
+          </div>
+
+          <div class="field">
+            <label>Yayın Tarihi</label>
+            <input type="datetime-local" name="publishDate" value={publishDateVal}/>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Taslak</div>
+              <div class="toggle-desc">Taslak olarak kaydet</div>
+            </div>
+            <input type="checkbox" class="toggle" id="draft-toggle" checked={fm.draft}/>
+          </div>
+
+          <div class="divider"></div>
+
+          <button type="submit" class="btn-publish">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Kaydet
+          </button>
+
+          <a href={`/blog/${slug}`} target="_blank" class="btn-outline">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Önizle
+          </a>
+
+          <div class="divider"></div>
+
+          <form method="post" action="/api/admin/blog-delete" onsubmit="return confirm('Bu yazı kalıcı olarak silinecek!')">
+            <input type="hidden" name="slug" value={slug}/>
+            <button type="submit" class="btn-danger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              Yazıyı Sil
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script is:inline>
+    var draftToggle = document.getElementById('draft-toggle');
+    var draftHidden = document.getElementById('draft-hidden');
+    draftToggle.addEventListener('change', function() {
+      draftHidden.value = this.checked ? 'true' : 'false';
+    });
+
+    var textarea = document.getElementById('md-content');
+    document.querySelectorAll('.md-toolbar-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var wrap   = this.dataset.wrap;
+        var prefix = this.dataset.prefix;
+        var insert = this.dataset.insert;
+        var start  = textarea.selectionStart;
+        var end    = textarea.selectionEnd;
+        var sel    = textarea.value.slice(start, end);
+        var rep    = '';
+        if (wrap)   rep = wrap + (sel || 'metin') + wrap;
+        if (prefix) rep = '\n' + prefix + (sel || 'metin');
+        if (insert) rep = insert;
+        textarea.setRangeText(rep, start, end, 'end');
+        textarea.focus();
+      });
+    });
+  </script>
+</AdminLayout>
