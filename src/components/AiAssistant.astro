@@ -5,7 +5,11 @@
 <!-- ── Greeting bubble ── -->
 <div id="ai-bubble" aria-hidden="true">
   <span id="ai-bubble-close" role="button" aria-label="Kapat">×</span>
-  Merhaba işinizi hızlandırmam için size yardımcı olmaktan mutluluk duyarım.
+  <div class="ai-bubble-label">
+    <span class="ai-bubble-label-dot"></span>
+    AKA AI Asistan
+  </div>
+  Merhaba! İşinizi hızlandırmam için size yardımcı olmaktan mutluluk duyarım.
   <span class="ai-bubble-tail"></span>
 </div>
 
@@ -86,23 +90,28 @@
   /* ─── Greeting bubble ─── */
   #ai-bubble {
     position: fixed;
-    bottom: calc(1.75rem + 23px + 112px + 14px);
+    bottom: calc(1.75rem + 23px + 112px + 16px);
     right: calc(1.75rem + 22px);
     z-index: 9992;
-    max-width: 240px;
-    padding: 0.75rem 1.75rem 0.75rem 1rem;
-    background: var(--ai-bg);
-    border: 1px solid var(--ai-border);
-    border-radius: 1rem 1rem 0.25rem 1rem;
+    max-width: 260px;
+    padding: 1rem 2rem 1rem 1.125rem;
+    background: linear-gradient(135deg, #17130a 0%, #0f0d07 100%);
+    border: 1px solid rgba(217,161,40,0.35);
+    border-radius: 1.125rem 1.125rem 0.3rem 1.125rem;
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.8125rem;
-    line-height: 1.55;
+    line-height: 1.6;
     color: var(--ai-text);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(217,161,40,0.08);
+    box-shadow:
+      0 0 0 1px rgba(217,161,40,0.10),
+      0 12px 40px rgba(0,0,0,0.65),
+      inset 0 1px 0 rgba(217,161,40,0.12);
     opacity: 0;
-    transform: translateY(8px) scale(0.95);
+    transform: translateY(10px) scale(0.93);
     pointer-events: none;
-    transition: opacity 350ms ease, transform 350ms cubic-bezier(0.22,1,0.36,1);
+    transition: opacity 400ms cubic-bezier(0.22,1,0.36,1),
+                transform 400ms cubic-bezier(0.22,1,0.36,1);
+    cursor: pointer;
   }
   #ai-bubble.visible {
     opacity: 1;
@@ -111,39 +120,83 @@
   }
   #ai-bubble.hiding {
     opacity: 0;
-    transform: translateY(6px) scale(0.95);
+    transform: translateY(8px) scale(0.93);
     pointer-events: none;
+    transition: opacity 300ms ease, transform 300ms ease;
   }
+
+  /* Gold top accent line */
+  #ai-bubble::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1rem; right: 1rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(217,161,40,0.55), transparent);
+    border-radius: 9999px;
+  }
+
+  /* Shimmer on hover */
+  #ai-bubble:hover {
+    border-color: rgba(217,161,40,0.55);
+    box-shadow:
+      0 0 0 1px rgba(217,161,40,0.18),
+      0 16px 48px rgba(0,0,0,0.70),
+      inset 0 1px 0 rgba(217,161,40,0.18);
+  }
+
+  /* Tail */
   .ai-bubble-tail {
     position: absolute;
-    bottom: -8px;
-    right: 20px;
+    bottom: -9px;
+    right: 22px;
     width: 0; height: 0;
-    border-left: 8px solid transparent;
-    border-right: 0px solid transparent;
-    border-top: 8px solid var(--ai-border);
+    border-left: 9px solid transparent;
+    border-right: 0 solid transparent;
+    border-top: 9px solid rgba(217,161,40,0.35);
   }
   .ai-bubble-tail::after {
     content: '';
     position: absolute;
-    top: -9px;
-    left: -7px;
+    top: -10px;
+    left: -8px;
     width: 0; height: 0;
-    border-left: 7px solid transparent;
-    border-right: 0px solid transparent;
-    border-top: 7px solid var(--ai-bg);
+    border-left: 8px solid transparent;
+    border-right: 0 solid transparent;
+    border-top: 8px solid #0f0d07;
   }
+
+  /* Bot label inside bubble */
+  .ai-bubble-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ai-gold);
+    margin-bottom: 0.375rem;
+  }
+  .ai-bubble-label-dot {
+    width: 5px; height: 5px; border-radius: 9999px;
+    background: rgba(74,222,128,0.85);
+    animation: aiDotPulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
   #ai-bubble-close {
     position: absolute;
-    top: 0.3rem; right: 0.4rem;
-    font-size: 1rem; line-height: 1;
+    top: 0.5rem; right: 0.5rem;
+    width: 1.25rem; height: 1.25rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.875rem; line-height: 1;
     color: var(--ai-faint);
     cursor: pointer;
-    padding: 0.1rem 0.3rem;
     border-radius: 0.25rem;
-    transition: color 150ms;
+    transition: color 150ms, background 150ms;
+    z-index: 1;
   }
-  #ai-bubble-close:hover { color: var(--ai-text); }
+  #ai-bubble-close:hover { color: var(--ai-text); background: rgba(255,255,255,0.06); }
 
   /* ─── Toggle button ─── */
   #ai-btn {
@@ -413,16 +466,12 @@
     setTimeout(function() { bubble.style.display = 'none'; }, 380);
   }
 
-  if (!sessionStorage.getItem('aka-ai-greeted')) {
-    setTimeout(function() {
-      bubble.classList.add('visible');
-      sessionStorage.setItem('aka-ai-greeted', '1');
-      // Auto-hide after 6s
-      setTimeout(hideBubble, 6000);
-    }, 1200);
-  } else {
-    bubble.style.display = 'none';
-  }
+  // Show on every page load
+  setTimeout(function() {
+    bubble.classList.add('visible');
+    // Auto-hide after 6s
+    setTimeout(hideBubble, 6000);
+  }, 1200);
 
   bubbleX.addEventListener('click', hideBubble);
   // Clicking bubble opens chat
