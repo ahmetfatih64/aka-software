@@ -13,6 +13,17 @@ interface Props {
 
 const { title, description, seoTitle, seoDescription } = Astro.props;
 
+// Derive page context from pathname for the AI assistant
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pageContextMap: Record<string, string> = {
+  '/':           'homepage',
+  '/hizmetler':  'hizmetler',
+  '/hakkimizda': 'hakkimizda',
+  '/iletisim':   'iletisim',
+  '/sss':        'sss',
+};
+const aiPageContext = pageContextMap[pathname] ?? 'homepage';
+
 const siteName = "AKA Software";
 const metaTitle = seoTitle || `${title} | ${siteName}`;
 const metaDesc = seoDescription || description || "Modern ve kurumsal AI Yazilim Danismanlik hizmetleri.";
@@ -62,7 +73,7 @@ const ogImage = new URL('/ana_logo.png', Astro.site);
       <slot />
     </main>
     <div style="position: relative; z-index: 2;"><Footer /></div>
-    <AiAssistant />
+    <AiAssistant pageContext={aiPageContext} mode="website" />
 
     <script is:inline>
     /* ═══════════════════════════════════════════════════════════

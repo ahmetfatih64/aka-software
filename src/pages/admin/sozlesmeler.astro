@@ -1,0 +1,383 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, Contracts, Leads, Projects } from 'astro:db';
+import { desc, eq } from 'astro:db';
+
+const filter = Astro.url.searchParams.get('filter') ?? 'tumu';
+const saved  = Astro.url.searchParams.get('saved');
+
+const allContracts = (await db.select().from(Contracts).orderBy(desc(Contracts.createdAt))) as any[];
+const allLeads     = (await db.select().from(Leads)) as any[];
+const allProjects  = (await db.select().from(Projects)) as any[];
+
+const leadsMap    = Object.fromEntries(allLeads.map(l => [l.id, l]));
+const projectsForContract = Object.fromEntries(
+  allProjects.filter(p => p.contractId).map(p => [p.contractId!, p])
+);
+
+const counts = {
+  tumu:      allContracts.length,
+  draft:     allContracts.filter(c => c.status === 'draft').length,
+  sent:      allContracts.filter(c => c.status === 'sent').length,
+  signed:    allContracts.filter(c => c.status === 'signed').length,
+  active:    allContracts.filter(c => c.status === 'active').length,
+  completed: allContracts.filter(c => c.status === 'completed').length,
+  cancelled: allContracts.filter(c => c.status === 'cancelled').length,
+};
+
+let rows = filter === 'tumu' ? allContracts : allContracts.filter(c => c.status === filter);
+
+const statusLabel: Record<string, string> = {
+  draft: 'Taslak', sent: 'Gönderildi', signed: 'İmzalandı',
+  active: 'Aktif', completed: 'Tamamlandı', cancelled: 'İptal',
+};
+const typeLabel: Record<string, string> = {
+  fixed_price: 'Sabit Fiyat', time_material: 'Zaman & Malzeme', retainer: 'Retainer',
+};
+
+function fmt(d: Date | null | string) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function fmtMoney(n: number) {
+  return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+const today = new Date();
+function daysLeft(d: Date | null) {
+  if (!d) return null;
+  return Math.ceil((new Date(d).getTime() - today.getTime()) / 86400000);
+}
+---
+
+<AdminLayout title="Sözleşmeler" section="sozlesmeler">
+<style>
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap; }
+  .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+  .page-sub    { font-size:0.8125rem; color:var(--adm-muted); margin-top:0.2rem; }
+  .filter-bar { display:flex; gap:0.375rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .filter-btn { display:inline-flex; align-items:center; gap:0.375rem; padding:0.4375rem 0.875rem; border-radius:0.5rem; border:1px solid var(--adm-border); font-size:0.8125rem; font-weight:500; color:var(--adm-muted); background:transparent; cursor:pointer; text-decoration:none; transition:all 150ms; }
+  .filter-btn:hover { color:var(--adm-text); background:rgba(255,255,255,0.04); }
+  .filter-btn.active { color:var(--adm-gold); border-color:rgba(217,161,40,0.35); background:rgba(217,161,40,0.07); }
+  .filter-count { font-size:0.6875rem; padding:0.125rem 0.375rem; border-radius:9999px; background:rgba(255,255,255,0.07); }
+  .btn-primary { display:inline-flex; align-items:center; gap:0.375rem; padding:0.5rem 1rem; border-radius:0.625rem; background:var(--adm-gold); color:#0b0a09; font-size:0.8125rem; font-weight:600; border:none; cursor:pointer; text-decoration:none; transition:background 150ms; white-space:nowrap; }
+  .btn-primary:hover { background:var(--adm-gold-b); }
+  .table-wrap { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:1rem; overflow:hidden; box-shadow:0 1px 0 0 rgba(245,214,92,0.08) inset; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--adm-faint); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--adm-border); text-align:left; }
+  tbody tr { border-bottom:1px solid rgba(161,116,24,0.07); transition:background 120ms; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(217,161,40,0.04); }
+  td { padding:0.875rem 1rem; font-size:0.8125rem; color:var(--adm-muted); vertical-align:middle; }
+  td.primary { font-weight:600; color:var(--adm-text); }
+  td.num { font-size:0.75rem; font-family:monospace; color:var(--adm-faint); }
+  .badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.6rem; border-radius:9999px; font-size:0.6875rem; font-weight:600; white-space:nowrap; }
+  .badge-dot { width:5px; height:5px; border-radius:9999px; flex-shrink:0; }
+  .badge-draft     { background:rgba(120,110,90,0.15); color:rgba(178,164,144,0.80); border:1px solid rgba(120,110,90,0.22); }
+  .badge-sent      { background:rgba(99,179,237,0.12);  color:rgb(99,179,237);  border:1px solid rgba(99,179,237,0.25); }
+  .badge-signed    { background:rgba(167,139,250,0.12); color:rgb(167,139,250); border:1px solid rgba(167,139,250,0.25); }
+  .badge-active    { background:rgba(74,222,128,0.12);  color:rgb(74,222,128);  border:1px solid rgba(74,222,128,0.25); }
+  .badge-completed { background:rgba(217,161,40,0.12);  color:rgb(217,161,40);  border:1px solid rgba(217,161,40,0.25); }
+  .badge-cancelled { background:rgba(248,113,113,0.10); color:rgb(248,113,113); border:1px solid rgba(248,113,113,0.22); }
+  .money { font-weight:700; color:var(--adm-gold); }
+  .days-warn { font-size:0.6875rem; color:var(--adm-amber); }
+  .days-ok   { font-size:0.6875rem; color:var(--adm-faint); }
+  .actions { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .action-btn { padding:0.3125rem 0.625rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500; border:1px solid var(--adm-border); background:transparent; color:var(--adm-muted); cursor:pointer; text-decoration:none; transition:all 150ms; white-space:nowrap; }
+  .action-btn:hover { color:var(--adm-text); border-color:var(--adm-border-h); background:rgba(255,255,255,0.04); }
+  .action-btn.gold  { color:var(--adm-gold); border-color:rgba(217,161,40,0.30); }
+  .action-btn.gold:hover { background:rgba(217,161,40,0.08); }
+  .action-btn.green { color:var(--adm-green); border-color:rgba(74,222,128,0.28); }
+  .action-btn.green:hover { background:rgba(74,222,128,0.07); }
+  .empty-state { padding:3rem; text-align:center; color:var(--adm-faint); font-size:0.875rem; }
+  .toast { position:fixed; top:1.25rem; right:1.25rem; z-index:9999; background:var(--adm-card); border:1px solid rgba(74,222,128,0.30); border-radius:0.75rem; padding:0.875rem 1.25rem; font-size:0.875rem; color:var(--adm-green); box-shadow:0 8px 32px rgba(0,0,0,0.4); animation:toastIn 300ms ease, toastOut 300ms ease 2.5s forwards; }
+  @keyframes toastIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
+  dialog { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:1.25rem; padding:0; max-width:560px; width:94vw; color:var(--adm-text); box-shadow:0 24px 64px rgba(0,0,0,0.6); }
+  dialog::backdrop { background:rgba(0,0,0,0.55); }
+  .dlg-head { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid var(--adm-border); }
+  .dlg-title { font-size:1rem; font-weight:700; }
+  .dlg-close { background:none; border:none; color:var(--adm-faint); cursor:pointer; font-size:1.25rem; line-height:1; }
+  .dlg-close:hover { color:var(--adm-text); }
+  .dlg-body  { padding:1.5rem; display:flex; flex-direction:column; gap:1rem; }
+  .dlg-row   { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .dlg-field label { font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--adm-faint); display:block; margin-bottom:0.375rem; }
+  .dlg-field input, .dlg-field select, .dlg-field textarea { width:100%; padding:0.5625rem 0.75rem; background:rgba(255,255,255,0.04); border:1px solid var(--adm-border); border-radius:0.5rem; color:var(--adm-text); font-size:0.875rem; outline:none; transition:border-color 150ms; font-family:inherit; }
+  .dlg-field input:focus, .dlg-field select:focus { border-color:var(--adm-border-h); }
+  .dlg-field select option { background:#1a1710; }
+  .dlg-field textarea { resize:vertical; min-height:72px; }
+  .dlg-foot { padding:1rem 1.5rem; border-top:1px solid var(--adm-border); display:flex; gap:0.75rem; justify-content:flex-end; }
+  .btn-ghost { padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; background:transparent; border:1px solid var(--adm-border); color:var(--adm-muted); cursor:pointer; }
+  .btn-save  { padding:0.5rem 1.25rem; border-radius:0.5rem; font-size:0.875rem; font-weight:600; background:var(--adm-gold); color:#0b0a09; border:none; cursor:pointer; }
+  .btn-save:hover { background:var(--adm-gold-b); }
+  .info-box { background:rgba(99,179,237,0.06); border:1px solid rgba(99,179,237,0.18); border-radius:0.625rem; padding:0.75rem 1rem; font-size:0.8125rem; color:rgba(99,179,237,0.85); }
+</style>
+
+{saved && <div class="toast">✓ Sözleşme güncellendi.</div>}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Sözleşmeler</div>
+    <div class="page-sub">Kabul edilen tekliflerden oluşturulan sözleşmeler</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  {[
+    { key: 'tumu',      label: 'Tümü' },
+    { key: 'draft',     label: 'Taslak' },
+    { key: 'sent',      label: 'Gönderildi' },
+    { key: 'signed',    label: 'İmzalandı' },
+    { key: 'active',    label: 'Aktif' },
+    { key: 'completed', label: 'Tamamlandı' },
+    { key: 'cancelled', label: 'İptal' },
+  ].map(f => (
+    <a href={`/admin/sozlesmeler?filter=${f.key}`} class={`filter-btn${filter === f.key ? ' active' : ''}`}>
+      {f.label}
+      <span class="filter-count">{counts[f.key as keyof typeof counts]}</span>
+    </a>
+  ))}
+</div>
+
+<div class="table-wrap">
+  {rows.length === 0 ? (
+    <div class="empty-state">
+      {filter === 'tumu'
+        ? 'Henüz sözleşme yok. Teklifler sayfasından bir teklifi kabul edince otomatik oluşur.'
+        : 'Bu filtrede kayıt yok.'}
+    </div>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Sözleşme No</th>
+          <th>Başlık / Müşteri</th>
+          <th>Tür</th>
+          <th>Durum</th>
+          <th>Bedel</th>
+          <th>Bitiş</th>
+          <th>Proje</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(c => {
+          const lead    = leadsMap[c.leadId];
+          const project = projectsForContract[c.id];
+          const dl      = daysLeft(c.endDate);
+          return (
+            <tr>
+              <td class="num">{c.contractNumber}</td>
+              <td>
+                <div class="primary">{c.title}</div>
+                <div style="font-size:0.75rem;color:var(--adm-faint);margin-top:0.125rem;">
+                  {lead ? `${lead.contactName}${lead.companyName ? ` — ${lead.companyName}` : ''}` : '—'}
+                </div>
+              </td>
+              <td style="font-size:0.75rem;">{typeLabel[c.contractType] ?? c.contractType}</td>
+              <td>
+                <span class={`badge badge-${c.status}`}>
+                  <span class="badge-dot"></span>
+                  {statusLabel[c.status] ?? c.status}
+                </span>
+              </td>
+              <td><span class="money">{fmtMoney(c.totalValue)} ₺</span></td>
+              <td>
+                <div>{fmt(c.endDate)}</div>
+                {c.endDate && dl !== null && dl <= 30 && dl > 0 && (
+                  <div class="days-warn">⚠ {dl} gün kaldı</div>
+                )}
+                {c.endDate && dl !== null && dl <= 0 && c.status === 'active' && (
+                  <div class="days-warn">⚠ Süresi doldu</div>
+                )}
+              </td>
+              <td>
+                {project
+                  ? <a href={`/admin/projeler`} style="color:var(--adm-gold);font-size:0.75rem;">{project.projectCode}</a>
+                  : <span style="color:var(--adm-faint);font-size:0.75rem;">—</span>
+                }
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn gold" onclick={`openEdit(${JSON.stringify(c)})`}>Düzenle</button>
+                  {c.status === 'signed' && !project && (
+                    <button class="action-btn green"
+                      onclick={`openCreateProject(${c.id}, '${c.title.replace(/'/g,"\\'")}', ${c.totalValue}, '${c.contractType}', ${c.hourlyRate ?? 0}, '${c.leadId}')`}>
+                      Proje Oluştur
+                    </button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  )}
+</div>
+
+<!-- Sözleşme Düzenle Dialog -->
+<dialog id="dlg-edit">
+  <div class="dlg-head">
+    <div class="dlg-title">Sözleşme Düzenle</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-edit').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/contract-update">
+    <input type="hidden" name="id" id="edit-id"/>
+    <div class="dlg-body">
+      <div class="dlg-field">
+        <label>Başlık</label>
+        <input id="edit-title" name="title" required/>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Durum</label>
+          <select id="edit-status" name="status">
+            <option value="draft">Taslak</option>
+            <option value="sent">Gönderildi</option>
+            <option value="signed">İmzalandı</option>
+            <option value="active">Aktif</option>
+            <option value="completed">Tamamlandı</option>
+            <option value="cancelled">İptal</option>
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Sözleşme Türü</label>
+          <select id="edit-type" name="contractType">
+            <option value="fixed_price">Sabit Fiyat</option>
+            <option value="time_material">Zaman & Malzeme</option>
+            <option value="retainer">Retainer</option>
+          </select>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Başlangıç</label>
+          <input id="edit-startDate" name="startDate" type="date"/>
+        </div>
+        <div class="dlg-field">
+          <label>Bitiş</label>
+          <input id="edit-endDate" name="endDate" type="date"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Saatlik Ücret (₺)</label>
+          <input id="edit-hourlyRate" name="hourlyRate" type="number" min="0" step="0.01" placeholder="0"/>
+        </div>
+        <div class="dlg-field">
+          <label>Ödeme Vadesi (gün)</label>
+          <input id="edit-paymentTerms" name="paymentTerms" type="number" min="1" value="30"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>İmzalayan</label>
+          <input id="edit-signedBy" name="signedBy" placeholder="Müşteri adı"/>
+        </div>
+        <div class="dlg-field">
+          <label>İmza Tarihi</label>
+          <input id="edit-signedAt" name="signedAt" type="date"/>
+        </div>
+      </div>
+      <div class="dlg-field">
+        <label>Notlar</label>
+        <textarea id="edit-notes" name="notes"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-edit').close()">İptal</button>
+      <button type="submit" class="btn-save">Kaydet</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Proje Oluştur Dialog -->
+<dialog id="dlg-project">
+  <div class="dlg-head">
+    <div class="dlg-title">Proje Oluştur</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-project').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/project-create">
+    <input type="hidden" name="contractId" id="proj-contractId"/>
+    <input type="hidden" name="leadId"     id="proj-leadId"/>
+    <div class="dlg-body">
+      <div class="info-box">Sözleşme verilerinden otomatik dolduruldu. Düzenleyebilirsiniz.</div>
+      <div class="dlg-field">
+        <label>Proje Adı *</label>
+        <input id="proj-name" name="name" required/>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Proje Türü</label>
+          <select id="proj-type" name="projectType">
+            <option value="fixed_price">Sabit Fiyat</option>
+            <option value="time_material">Zaman & Malzeme</option>
+            <option value="retainer">Retainer</option>
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Bütçe (₺)</label>
+          <input id="proj-budget" name="budgetAmount" type="number" min="0" step="0.01"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Planlanan Saat</label>
+          <input name="budgetHours" type="number" min="0" step="0.5" placeholder="0"/>
+        </div>
+        <div class="dlg-field">
+          <label>Saatlik Ücret (₺)</label>
+          <input id="proj-hourly" name="hourlyRate" type="number" min="0" step="0.01" placeholder="0"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Başlangıç</label>
+          <input name="startDate" type="date"/>
+        </div>
+        <div class="dlg-field">
+          <label>Planlanan Bitiş</label>
+          <input name="endDate" type="date"/>
+        </div>
+      </div>
+      <div class="dlg-field">
+        <label>Açıklama</label>
+        <textarea name="description" placeholder="Proje kapsamı…"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-project').close()">İptal</button>
+      <button type="submit" class="btn-save">Proje Oluştur</button>
+    </div>
+  </form>
+</dialog>
+
+<script is:inline>
+  function openEdit(c) {
+    document.getElementById('edit-id').value           = c.id;
+    document.getElementById('edit-title').value        = c.title        ?? '';
+    document.getElementById('edit-status').value       = c.status       ?? 'draft';
+    document.getElementById('edit-type').value         = c.contractType ?? 'fixed_price';
+    document.getElementById('edit-hourlyRate').value   = c.hourlyRate   ?? '';
+    document.getElementById('edit-paymentTerms').value = c.paymentTerms ?? 30;
+    document.getElementById('edit-signedBy').value     = c.signedBy     ?? '';
+    document.getElementById('edit-notes').value        = c.notes        ?? '';
+    function toDate(d) { return d ? new Date(d).toISOString().split('T')[0] : ''; }
+    document.getElementById('edit-startDate').value = toDate(c.startDate);
+    document.getElementById('edit-endDate').value   = toDate(c.endDate);
+    document.getElementById('edit-signedAt').value  = toDate(c.signedAt);
+    document.getElementById('dlg-edit').showModal();
+  }
+
+  function openCreateProject(contractId, title, budget, type, hourlyRate, leadId) {
+    document.getElementById('proj-contractId').value = contractId;
+    document.getElementById('proj-leadId').value     = leadId;
+    document.getElementById('proj-name').value       = title;
+    document.getElementById('proj-budget').value     = budget;
+    document.getElementById('proj-type').value       = type;
+    document.getElementById('proj-hourly').value     = hourlyRate || '';
+    document.getElementById('dlg-project').showModal();
+  }
+</script>
+</AdminLayout>

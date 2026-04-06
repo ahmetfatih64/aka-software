@@ -1,0 +1,197 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, ChatSessions, ChatMessages } from 'astro:db';
+import { desc, eq } from 'astro:db';
+
+const selectedSession = Astro.url.searchParams.get('session');
+
+const allSessions = (await db.select().from(ChatSessions).orderBy(desc(ChatSessions.createdAt))) as any[];
+const allMessages = (await db.select().from(ChatMessages).orderBy(desc(ChatMessages.createdAt))) as any[];
+
+// Message count per session
+const msgCountMap: Record<string, number> = {};
+const lastMsgMap: Record<string, string> = {};
+for (const m of allMessages) {
+  msgCountMap[m.sessionId] = (msgCountMap[m.sessionId] ?? 0) + 1;
+  if (!lastMsgMap[m.sessionId] && m.role === 'user') {
+    lastMsgMap[m.sessionId] = m.message.length > 60 ? m.message.slice(0, 60) + '…' : m.message;
+  }
+}
+
+// Selected session messages (chronological)
+let sessionMessages: any[] = [];
+let activeSession: any = null;
+if (selectedSession) {
+  sessionMessages = allMessages
+    .filter(m => m.sessionId === selectedSession)
+    .reverse(); // oldest first
+  activeSession = allSessions.find(s => s.sessionId === selectedSession);
+}
+
+const modeLabel: Record<string, string> = { website: 'Web Sitesi', admin: 'Panel' };
+const totalSessions = allSessions.length;
+const totalMessages = allMessages.length;
+const todayStr = new Date().toDateString();
+const todaySessions = allSessions.filter(s => new Date(s.createdAt).toDateString() === todayStr).length;
+
+function fmt(d: Date | string) {
+  return new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function fmtFull(d: Date | string) {
+  return new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+---
+
+<AdminLayout title="AI Sohbetler" section="ai-sohbetler">
+<style>
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
+  .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+
+  .stats-row { display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .stat-card { flex:1; min-width:140px; background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.75rem; padding:1rem; }
+  .stat-val  { font-size:1.5rem; font-weight:700; color:var(--adm-gold); }
+  .stat-lbl  { font-size:0.75rem; color:var(--adm-muted); margin-top:0.25rem; }
+
+  .chat-layout { display:grid; grid-template-columns:340px 1fr; gap:1rem; min-height:500px; }
+  @media(max-width:768px) { .chat-layout { grid-template-columns:1fr; } }
+
+  /* Session list */
+  .session-list { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.75rem; overflow-y:auto; max-height:600px; }
+  .session-item {
+    display:block; padding:0.875rem 1rem; border-bottom:1px solid var(--adm-border);
+    text-decoration:none; color:var(--adm-text); transition:background 150ms;
+  }
+  .session-item:hover { background:rgba(217,161,40,0.04); }
+  .session-item.active { background:rgba(217,161,40,0.08); border-left:3px solid var(--adm-gold); }
+  .session-meta { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.35rem; }
+  .session-mode {
+    font-size:0.6rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    padding:0.15rem 0.4rem; border-radius:0.25rem;
+    background:rgba(217,161,40,0.12); color:var(--adm-gold);
+  }
+  .session-mode.admin { background:rgba(59,130,246,0.12); color:rgb(96,165,250); }
+  .session-date { font-size:0.7rem; color:var(--adm-muted); }
+  .session-page { font-size:0.7rem; color:var(--adm-muted); margin-bottom:0.25rem; }
+  .session-preview { font-size:0.78rem; color:var(--adm-text); opacity:0.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .session-count { font-size:0.65rem; color:var(--adm-muted); }
+
+  /* Chat view */
+  .chat-view { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.75rem; display:flex; flex-direction:column; }
+  .chat-header { padding:1rem; border-bottom:1px solid var(--adm-border); }
+  .chat-header-title { font-weight:600; color:var(--adm-text); font-size:0.9rem; }
+  .chat-header-sub { font-size:0.75rem; color:var(--adm-muted); margin-top:0.2rem; }
+  .chat-body { flex:1; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:0.75rem; max-height:480px; }
+
+  .chat-row { display:flex; gap:0.5rem; max-width:85%; }
+  .chat-row.user { align-self:flex-end; flex-direction:row-reverse; }
+  .chat-row.bot  { align-self:flex-start; }
+
+  .chat-avatar {
+    width:28px; height:28px; border-radius:9999px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.6rem; font-weight:700; margin-top:0.1rem;
+  }
+  .chat-row.bot .chat-avatar  { background:rgba(217,161,40,0.15); color:var(--adm-gold); border:1px solid rgba(217,161,40,0.3); }
+  .chat-row.user .chat-avatar { background:rgba(59,130,246,0.12); color:rgb(96,165,250); border:1px solid rgba(59,130,246,0.25); }
+
+  .chat-bubble {
+    padding:0.6rem 0.85rem; border-radius:0.75rem; font-size:0.8125rem; line-height:1.6;
+    word-break:break-word; white-space:pre-wrap;
+  }
+  .chat-row.bot .chat-bubble  {
+    background:var(--adm-bg); border:1px solid var(--adm-border);
+    border-radius:2px 0.75rem 0.75rem 0.75rem; color:var(--adm-text);
+  }
+  .chat-row.user .chat-bubble {
+    background:rgba(217,161,40,0.10); border:1px solid rgba(217,161,40,0.25);
+    border-radius:0.75rem 2px 0.75rem 0.75rem; color:var(--adm-text);
+  }
+  .chat-time { font-size:0.6rem; color:var(--adm-muted); margin-top:0.2rem; padding:0 0.25rem; }
+  .chat-row.user .chat-time { text-align:right; }
+
+  .empty-state {
+    display:flex; align-items:center; justify-content:center; height:100%;
+    color:var(--adm-muted); font-size:0.875rem; text-align:center; padding:2rem;
+  }
+  .no-sessions { text-align:center; padding:3rem 1rem; color:var(--adm-muted); }
+</style>
+
+<div class="page-header">
+  <div class="page-title">AI Sohbetler</div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-val">{totalSessions}</div>
+    <div class="stat-lbl">Toplam Oturum</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val">{totalMessages}</div>
+    <div class="stat-lbl">Toplam Mesaj</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val">{todaySessions}</div>
+    <div class="stat-lbl">Bugünkü Oturum</div>
+  </div>
+</div>
+
+<div class="chat-layout">
+  <!-- Session list -->
+  <div class="session-list">
+    {allSessions.length === 0 ? (
+      <div class="no-sessions">Henüz sohbet yok</div>
+    ) : (
+      allSessions.map(s => (
+        <a
+          href={`/admin/ai-sohbetler?session=${s.sessionId}`}
+          class={`session-item${selectedSession === s.sessionId ? ' active' : ''}`}
+        >
+          <div class="session-meta">
+            <span class={`session-mode${s.mode === 'admin' ? ' admin' : ''}`}>
+              {modeLabel[s.mode] ?? s.mode}
+            </span>
+            <span class="session-date">{fmt(s.createdAt)}</span>
+          </div>
+          <div class="session-page">{s.pageContext}</div>
+          <div class="session-preview">{lastMsgMap[s.sessionId] ?? '—'}</div>
+          <div class="session-count">{msgCountMap[s.sessionId] ?? 0} mesaj</div>
+        </a>
+      ))
+    )}
+  </div>
+
+  <!-- Chat view -->
+  <div class="chat-view">
+    {!selectedSession ? (
+      <div class="empty-state">Görüntülemek için sol taraftan bir sohbet seçin</div>
+    ) : sessionMessages.length === 0 ? (
+      <div class="empty-state">Bu oturumda mesaj bulunamadı</div>
+    ) : (
+      <>
+        <div class="chat-header">
+          <div class="chat-header-title">
+            Oturum: {activeSession?.sessionId?.slice(0, 12)}…
+          </div>
+          <div class="chat-header-sub">
+            {activeSession ? `${modeLabel[activeSession.mode] ?? activeSession.mode} · ${activeSession.pageContext} · ${fmtFull(activeSession.createdAt)}` : ''}
+          </div>
+        </div>
+        <div class="chat-body">
+          {sessionMessages.map(m => (
+            <div>
+              <div class={`chat-row ${m.role}`}>
+                <div class="chat-avatar">{m.role === 'bot' ? 'AI' : 'K'}</div>
+                <div>
+                  <div class="chat-bubble">{m.message}</div>
+                  <div class="chat-time">{fmt(m.createdAt)}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+</div>
+
+</AdminLayout>

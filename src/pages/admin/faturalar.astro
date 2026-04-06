@@ -1,0 +1,421 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, Invoices, Payments, Projects, Leads, TimeEntries } from 'astro:db';
+import { desc, eq } from 'astro:db';
+
+const filter = Astro.url.searchParams.get('filter') ?? 'tumu';
+const saved  = Astro.url.searchParams.get('saved');
+
+const allInvoices  = (await db.select().from(Invoices).orderBy(desc(Invoices.createdAt))) as any[];
+const allPayments  = (await db.select().from(Payments)) as any[];
+const allProjects  = (await db.select().from(Projects)) as any[];
+const allLeads     = (await db.select().from(Leads)) as any[];
+
+const projectMap = Object.fromEntries(allProjects.map(p => [p.id, p]));
+const leadsMap   = Object.fromEntries(allLeads.map(l   => [l.id, l]));
+
+// Gerçek ödeme tutarlarını hesapla
+const paidPerInvoice: Record<number, number> = {};
+for (const p of allPayments) {
+  paidPerInvoice[p.invoiceId] = (paidPerInvoice[p.invoiceId] ?? 0) + p.amount;
+}
+
+// Vadesi geçmiş faturalar için status güncelle (client-side mantık)
+const today = new Date();
+
+const counts = {
+  tumu:     allInvoices.length,
+  draft:    allInvoices.filter(i => i.status === 'draft').length,
+  sent:     allInvoices.filter(i => i.status === 'sent').length,
+  partial:  allInvoices.filter(i => i.status === 'partial').length,
+  overdue:  allInvoices.filter(i => {
+    const due = new Date(i.dueDate);
+    const paid = paidPerInvoice[i.id] ?? 0;
+    return due < today && paid < i.totalAmount && !['paid','cancelled'].includes(i.status);
+  }).length,
+  paid:     allInvoices.filter(i => i.status === 'paid').length,
+  cancelled:allInvoices.filter(i => i.status === 'cancelled').length,
+};
+
+let rows = filter === 'tumu' ? allInvoices : filter === 'overdue'
+  ? allInvoices.filter(i => {
+      const due = new Date(i.dueDate);
+      const paid = paidPerInvoice[i.id] ?? 0;
+      return new Date(i.dueDate) < today && paid < i.totalAmount && !['paid','cancelled'].includes(i.status);
+    })
+  : allInvoices.filter(i => i.status === filter);
+
+// Özet toplamlar
+const totalInvoiced  = allInvoices.filter(i => i.status !== 'cancelled').reduce((s, i) => s + i.totalAmount, 0);
+const totalCollected = allInvoices.reduce((s, i) => s + (paidPerInvoice[i.id] ?? 0), 0);
+const totalPending   = allInvoices.filter(i => !['paid','cancelled'].includes(i.status))
+  .reduce((s, i) => s + (i.totalAmount - (paidPerInvoice[i.id] ?? 0)), 0);
+
+const statusLabel: Record<string, string> = {
+  draft: 'Taslak', sent: 'Gönderildi', partial: 'Kısmi Ödendi',
+  paid: 'Ödendi', overdue: 'Vadesi Geçti', cancelled: 'İptal',
+};
+
+function fmt(d: Date | null | string) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('tr-TR', { day:'2-digit', month:'short', year:'numeric' });
+}
+function fmtMoney(n: number) {
+  return n.toLocaleString('tr-TR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function getEffectiveStatus(inv: typeof allInvoices[0]) {
+  const paid = paidPerInvoice[inv.id] ?? 0;
+  if (inv.status === 'paid' || inv.status === 'cancelled') return inv.status;
+  if (new Date(inv.dueDate) < today && paid < inv.totalAmount) return 'overdue';
+  return inv.status;
+}
+---
+
+<AdminLayout title="Faturalar" section="faturalar">
+<style>
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap; }
+  .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+  .page-sub    { font-size:0.8125rem; color:var(--adm-muted); margin-top:0.2rem; }
+  .btn-primary { display:inline-flex; align-items:center; gap:0.375rem; padding:0.5rem 1rem; border-radius:0.625rem; background:var(--adm-gold); color:#0b0a09; font-size:0.8125rem; font-weight:600; border:none; cursor:pointer; text-decoration:none; transition:background 150ms; white-space:nowrap; }
+  .btn-primary:hover { background:var(--adm-gold-b); }
+  .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+  @media(max-width:640px) { .summary-grid { grid-template-columns:1fr; } }
+  .sum-card { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.875rem; padding:1.125rem 1.25rem; }
+  .sum-label { font-size:0.6875rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--adm-faint); margin-bottom:0.5rem; }
+  .sum-value { font-size:1.5rem; font-weight:800; letter-spacing:-0.03em; }
+  .sum-value.gold { color:var(--adm-gold); }
+  .sum-value.green { color:var(--adm-green); }
+  .sum-value.amber { color:var(--adm-amber); }
+  .sum-sub { font-size:0.75rem; color:var(--adm-muted); margin-top:0.25rem; }
+  .filter-bar { display:flex; gap:0.375rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .filter-btn { display:inline-flex; align-items:center; gap:0.375rem; padding:0.4375rem 0.875rem; border-radius:0.5rem; border:1px solid var(--adm-border); font-size:0.8125rem; font-weight:500; color:var(--adm-muted); background:transparent; cursor:pointer; text-decoration:none; transition:all 150ms; }
+  .filter-btn:hover { color:var(--adm-text); background:rgba(255,255,255,0.04); }
+  .filter-btn.active { color:var(--adm-gold); border-color:rgba(217,161,40,0.35); background:rgba(217,161,40,0.07); }
+  .filter-count { font-size:0.6875rem; padding:0.125rem 0.375rem; border-radius:9999px; background:rgba(255,255,255,0.07); }
+  .table-wrap { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:1rem; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--adm-faint); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--adm-border); text-align:left; }
+  tbody tr { border-bottom:1px solid rgba(161,116,24,0.07); transition:background 120ms; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(217,161,40,0.04); }
+  td { padding:0.875rem 1rem; font-size:0.8125rem; color:var(--adm-muted); vertical-align:middle; }
+  td.primary { font-weight:600; color:var(--adm-text); }
+  td.num { font-size:0.75rem; font-family:monospace; color:var(--adm-faint); }
+  .badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.6rem; border-radius:9999px; font-size:0.6875rem; font-weight:600; white-space:nowrap; }
+  .badge-dot { width:5px; height:5px; border-radius:9999px; flex-shrink:0; }
+  .badge-draft     { background:rgba(120,110,90,0.15); color:rgba(178,164,144,0.80); border:1px solid rgba(120,110,90,0.22); }
+  .badge-sent      { background:rgba(99,179,237,0.12); color:rgb(99,179,237); border:1px solid rgba(99,179,237,0.25); }
+  .badge-partial   { background:rgba(251,191,36,0.12); color:rgb(251,191,36); border:1px solid rgba(251,191,36,0.28); }
+  .badge-paid      { background:rgba(74,222,128,0.12); color:rgb(74,222,128); border:1px solid rgba(74,222,128,0.25); }
+  .badge-overdue   { background:rgba(248,113,113,0.10); color:rgb(248,113,113); border:1px solid rgba(248,113,113,0.22); }
+  .badge-cancelled { background:rgba(120,110,90,0.12); color:rgba(120,110,90,0.70); border:1px solid rgba(120,110,90,0.20); }
+  .money  { font-weight:700; color:var(--adm-gold); }
+  .money-paid { font-weight:700; color:var(--adm-green); }
+  .remaining { font-size:0.75rem; color:var(--adm-amber); margin-top:0.125rem; }
+  .actions { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .action-btn { padding:0.3125rem 0.625rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500; border:1px solid var(--adm-border); background:transparent; color:var(--adm-muted); cursor:pointer; text-decoration:none; transition:all 150ms; white-space:nowrap; }
+  .action-btn:hover { color:var(--adm-text); border-color:var(--adm-border-h); background:rgba(255,255,255,0.04); }
+  .action-btn.gold  { color:var(--adm-gold); border-color:rgba(217,161,40,0.30); }
+  .action-btn.gold:hover { background:rgba(217,161,40,0.08); }
+  .action-btn.green { color:var(--adm-green); border-color:rgba(74,222,128,0.28); }
+  .action-btn.green:hover { background:rgba(74,222,128,0.07); }
+  .empty-state { padding:3rem; text-align:center; color:var(--adm-faint); font-size:0.875rem; }
+  .toast { position:fixed; top:1.25rem; right:1.25rem; z-index:9999; background:var(--adm-card); border:1px solid rgba(74,222,128,0.30); border-radius:0.75rem; padding:0.875rem 1.25rem; font-size:0.875rem; color:var(--adm-green); box-shadow:0 8px 32px rgba(0,0,0,0.4); animation:toastIn 300ms ease, toastOut 300ms ease 2.5s forwards; }
+  @keyframes toastIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
+  dialog { background:var(--adm-card); border:1px solid var(--adm-border); border-radius:1.25rem; padding:0; max-width:520px; width:94vw; color:var(--adm-text); box-shadow:0 24px 64px rgba(0,0,0,0.6); }
+  dialog::backdrop { background:rgba(0,0,0,0.55); }
+  .dlg-head { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid var(--adm-border); }
+  .dlg-title { font-size:1rem; font-weight:700; }
+  .dlg-close { background:none; border:none; color:var(--adm-faint); cursor:pointer; font-size:1.25rem; line-height:1; }
+  .dlg-body  { padding:1.5rem; display:flex; flex-direction:column; gap:1rem; }
+  .dlg-row   { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .dlg-field label { font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--adm-faint); display:block; margin-bottom:0.375rem; }
+  .dlg-field input, .dlg-field select, .dlg-field textarea { width:100%; padding:0.5625rem 0.75rem; background:rgba(255,255,255,0.04); border:1px solid var(--adm-border); border-radius:0.5rem; color:var(--adm-text); font-size:0.875rem; outline:none; transition:border-color 150ms; font-family:inherit; }
+  .dlg-field input:focus, .dlg-field select:focus { border-color:var(--adm-border-h); }
+  .dlg-field select option { background:#1a1710; }
+  .dlg-field textarea { resize:vertical; min-height:64px; }
+  .dlg-foot { padding:1rem 1.5rem; border-top:1px solid var(--adm-border); display:flex; gap:0.75rem; justify-content:flex-end; }
+  .btn-ghost { padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; background:transparent; border:1px solid var(--adm-border); color:var(--adm-muted); cursor:pointer; }
+  .btn-save  { padding:0.5rem 1.25rem; border-radius:0.5rem; font-size:0.875rem; font-weight:600; background:var(--adm-gold); color:#0b0a09; border:none; cursor:pointer; }
+  .btn-save:hover { background:var(--adm-gold-b); }
+  .info-row { display:flex; justify-content:space-between; font-size:0.8125rem; padding:0.25rem 0; }
+  .info-row span:first-child { color:var(--adm-muted); }
+  .info-row span:last-child  { font-weight:600; color:var(--adm-text); }
+  .info-divider { border-top:1px solid var(--adm-border); margin:0.375rem 0; }
+</style>
+
+{saved && <div class="toast">✓ Fatura kaydedildi.</div>}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Faturalar</div>
+    <div class="page-sub">Fatura ve tahsilat yönetimi</div>
+  </div>
+  <button class="btn-primary" onclick="openNew()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Yeni Fatura
+  </button>
+</div>
+
+<!-- Özet -->
+<div class="summary-grid">
+  <div class="sum-card">
+    <div class="sum-label">Toplam Faturalandı</div>
+    <div class="sum-value gold">{fmtMoney(totalInvoiced)} ₺</div>
+    <div class="sum-sub">{allInvoices.filter(i => i.status !== 'cancelled').length} fatura</div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-label">Tahsil Edildi</div>
+    <div class="sum-value green">{fmtMoney(totalCollected)} ₺</div>
+    <div class="sum-sub">Gerçekleşen tahsilat</div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-label">Tahsilat Bekliyor</div>
+    <div class="sum-value amber">{fmtMoney(totalPending)} ₺</div>
+    <div class="sum-sub">Açık bakiye</div>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  {[
+    { key: 'tumu',      label: 'Tümü' },
+    { key: 'draft',     label: 'Taslak' },
+    { key: 'sent',      label: 'Gönderildi' },
+    { key: 'partial',   label: 'Kısmi Ödendi' },
+    { key: 'overdue',   label: 'Vadesi Geçti' },
+    { key: 'paid',      label: 'Ödendi' },
+    { key: 'cancelled', label: 'İptal' },
+  ].map(f => (
+    <a href={`/admin/faturalar?filter=${f.key}`} class={`filter-btn${filter === f.key ? ' active' : ''}`}>
+      {f.label}
+      <span class="filter-count">{counts[f.key as keyof typeof counts]}</span>
+    </a>
+  ))}
+</div>
+
+<div class="table-wrap">
+  {rows.length === 0 ? (
+    <div class="empty-state">
+      {filter === 'tumu' ? 'Henüz fatura yok.' : 'Bu filtrede kayıt yok.'}
+    </div>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Fatura No</th>
+          <th>Proje / Müşteri</th>
+          <th>Durum</th>
+          <th>Toplam</th>
+          <th>Ödenen</th>
+          <th>Vade</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(inv => {
+          const proj   = projectMap[inv.projectId];
+          const lead   = leadsMap[inv.leadId];
+          const paid   = paidPerInvoice[inv.id] ?? 0;
+          const remain = inv.totalAmount - paid;
+          const effSt  = getEffectiveStatus(inv);
+          return (
+            <tr>
+              <td class="num">{inv.invoiceNumber}</td>
+              <td>
+                <div class="primary">{proj?.name ?? '—'}</div>
+                <div style="font-size:0.75rem;color:var(--adm-faint);">
+                  {lead ? `${lead.contactName}${lead.companyName ? ` — ${lead.companyName}` : ''}` : '—'}
+                </div>
+              </td>
+              <td>
+                <span class={`badge badge-${effSt}`}>
+                  <span class="badge-dot"></span>
+                  {statusLabel[effSt] ?? effSt}
+                </span>
+              </td>
+              <td><span class="money">{fmtMoney(inv.totalAmount)} ₺</span></td>
+              <td>
+                {paid > 0 ? <span class="money-paid">{fmtMoney(paid)} ₺</span> : <span style="color:var(--adm-faint)">—</span>}
+                {remain > 0 && paid > 0 && <div class="remaining">Kalan: {fmtMoney(remain)} ₺</div>}
+              </td>
+              <td>
+                <div>{fmt(inv.dueDate)}</div>
+                {effSt === 'overdue' && (
+                  <div style="font-size:0.6875rem;color:var(--adm-red);">⚠ Vadesi geçti</div>
+                )}
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn gold"
+                    onclick={`openPayment(${inv.id}, '${inv.invoiceNumber}', ${fmtMoney(remain).replace(',','.')})`}>
+                    Ödeme Ekle
+                  </button>
+                  {inv.status === 'draft' && (
+                    <form method="POST" action="/api/admin/invoice-status" style="display:inline">
+                      <input type="hidden" name="id" value={inv.id}/>
+                      <input type="hidden" name="status" value="sent"/>
+                      <button type="submit" class="action-btn green">Gönderildi İşaretle</button>
+                    </form>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  )}
+</div>
+
+<!-- Yeni Fatura Dialog -->
+<dialog id="dlg-new">
+  <div class="dlg-head">
+    <div class="dlg-title">Yeni Fatura</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-new').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/invoice-create">
+    <div class="dlg-body">
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Proje *</label>
+          <select name="projectId" id="new-proj" required onchange="setLead(this)">
+            <option value="">Proje seçin…</option>
+            {allProjects.filter(p => ['active','planning'].includes(p.status)).map(p => (
+              <option value={p.id} data-leadid={p.leadId ?? ''}>{p.projectCode} — {p.name}</option>
+            ))}
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Fatura Türü</label>
+          <select name="invoiceType">
+            <option value="time_material">Zaman & Malzeme</option>
+            <option value="milestone">Milestone</option>
+            <option value="advance">Avans</option>
+            <option value="final">Final</option>
+          </select>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Fatura Tarihi *</label>
+          <input name="issueDate" type="date" required id="new-issue"/>
+        </div>
+        <div class="dlg-field">
+          <label>Vade Tarihi *</label>
+          <input name="dueDate" type="date" required id="new-due"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Ara Toplam (₺) *</label>
+          <input name="subtotal" type="number" min="0" step="0.01" required id="new-sub" oninput="calcInvoice()"/>
+        </div>
+        <div class="dlg-field">
+          <label>KDV (%)</label>
+          <input name="taxRate" type="number" min="0" max="100" value="20" id="new-tax" oninput="calcInvoice()"/>
+        </div>
+      </div>
+      <div class="dlg-field" style="background:rgba(217,161,40,0.05);border:1px solid rgba(217,161,40,0.15);border-radius:0.5rem;padding:0.75rem;">
+        <div class="info-row"><span>Ara Toplam</span><span id="calc-sub">0,00 ₺</span></div>
+        <div class="info-row"><span>KDV</span><span id="calc-tax">0,00 ₺</span></div>
+        <div class="info-divider"></div>
+        <div class="info-row"><span style="font-weight:700;color:var(--adm-text)">Toplam</span><span id="calc-total" style="color:var(--adm-gold);font-size:1rem;font-weight:800;">0,00 ₺</span></div>
+      </div>
+      <div class="dlg-field">
+        <label>Notlar</label>
+        <textarea name="notes" placeholder="Fatura notu…"></textarea>
+      </div>
+      <input type="hidden" name="leadId" id="new-leadid"/>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-new').close()">İptal</button>
+      <button type="submit" class="btn-save">Fatura Oluştur</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Ödeme Ekle Dialog -->
+<dialog id="dlg-payment">
+  <div class="dlg-head">
+    <div class="dlg-title">Ödeme Ekle</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-payment').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/payment-create">
+    <input type="hidden" name="invoiceId" id="pay-invoiceId"/>
+    <div class="dlg-body">
+      <div id="pay-info" style="font-size:0.8125rem;color:var(--adm-muted);background:rgba(255,255,255,0.03);border:1px solid var(--adm-border);border-radius:0.5rem;padding:0.75rem;"></div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Tutar (₺) *</label>
+          <input name="amount" type="number" min="0.01" step="0.01" required id="pay-amount"/>
+        </div>
+        <div class="dlg-field">
+          <label>Tarih *</label>
+          <input name="paymentDate" type="date" required id="pay-date"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Ödeme Yöntemi</label>
+          <select name="paymentMethod">
+            <option value="bank_transfer">Banka Havalesi</option>
+            <option value="credit_card">Kredi Kartı</option>
+            <option value="check">Çek</option>
+            <option value="cash">Nakit</option>
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Referans / Dekont</label>
+          <input name="reference" placeholder="EFT/havale referansı"/>
+        </div>
+      </div>
+      <div class="dlg-field">
+        <label>Not</label>
+        <input name="notes" placeholder="Opsiyonel not…"/>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-payment').close()">İptal</button>
+      <button type="submit" class="btn-save">Ödemeyi Kaydet</button>
+    </div>
+  </form>
+</dialog>
+
+<script is:inline>
+  function openNew() {
+    var today = new Date();
+    var due   = new Date(today); due.setDate(due.getDate() + 30);
+    function iso(d) { return d.toISOString().split('T')[0]; }
+    document.getElementById('new-issue').value = iso(today);
+    document.getElementById('new-due').value   = iso(due);
+    calcInvoice();
+    document.getElementById('dlg-new').showModal();
+  }
+
+  function setLead(sel) {
+    var lid = sel.options[sel.selectedIndex].dataset.leadid || '';
+    document.getElementById('new-leadid').value = lid;
+  }
+
+  function calcInvoice() {
+    var sub  = parseFloat(document.getElementById('new-sub')?.value  || 0);
+    var rate = parseFloat(document.getElementById('new-tax')?.value  || 20);
+    var tax  = sub * (rate / 100);
+    var tot  = sub + tax;
+    function fmt(n) { return n.toLocaleString('tr-TR',{minimumFractionDigits:2}) + ' ₺'; }
+    document.getElementById('calc-sub').textContent   = fmt(sub);
+    document.getElementById('calc-tax').textContent   = fmt(tax);
+    document.getElementById('calc-total').textContent = fmt(tot);
+  }
+
+  function openPayment(invoiceId, invoiceNo, remaining) {
+    document.getElementById('pay-invoiceId').value = invoiceId;
+    document.getElementById('pay-amount').value    = remaining > 0 ? remaining : '';
+    document.getElementById('pay-date').value      = new Date().toISOString().split('T')[0];
+    document.getElementById('pay-info').textContent = 'Fatura: ' + invoiceNo + ' — Kalan bakiye: ₺' + remaining.toLocaleString('tr-TR',{minimumFractionDigits:2});
+    document.getElementById('dlg-payment').showModal();
+  }
+</script>
+</AdminLayout>

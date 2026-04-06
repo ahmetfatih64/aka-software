@@ -1,16 +1,19 @@
 ---
-import { db, ContactMessages, ServiceRequests } from 'astro:db';
+import { db, ContactMessages, ServiceRequests, Leads } from 'astro:db';
+import AiAssistant from '../components/AiAssistant.astro';
 
 interface Props {
   title: string;
-  section: 'dashboard' | 'mesajlar' | 'talepler' | 'blog' | 'kullanicilar' | 'ayarlar';
+  section: 'dashboard' | 'mesajlar' | 'talepler' | 'leads' | 'teklifler' | 'sozlesmeler' | 'projeler' | 'zaman-takibi' | 'faturalar' | 'ai-sohbetler' | 'blog' | 'kullanicilar' | 'ayarlar';
 }
 const { title, section } = Astro.props;
 
-const allMsgs = await db.select().from(ContactMessages);
+const allMsgs = (await db.select().from(ContactMessages)) as any[];
 const unreadCount = allMsgs.filter((m: any) => !m.isRead).length;
-const allReqs = await db.select().from(ServiceRequests);
+const allReqs = (await db.select().from(ServiceRequests)) as any[];
 const pendingCount = allReqs.filter((r: any) => r.status === 'beklemede').length;
+const allLeads = (await db.select().from(Leads)) as any[];
+const newLeadsCount = allLeads.filter((l: any) => l.status === 'new').length;
 const adminUser = import.meta.env.ADMIN_USER ?? 'admin';
 ---
 
@@ -313,6 +316,75 @@ const adminUser = import.meta.env.ADMIN_USER ?? 'admin';
         {pendingCount > 0 && <span class="adm-nav-badge">{pendingCount}</span>}
       </a>
 
+      <a href="/admin/ai-sohbetler" class={`adm-nav-link${section === 'ai-sohbetler' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/>
+          <path d="M2 12h3m14 0h3M12 2v3m0 14v3"/>
+        </svg>
+        AI Sohbetler
+      </a>
+
+      <a href="/admin/leads" class={`adm-nav-link${section === 'leads' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Leads
+        {newLeadsCount > 0 && <span class="adm-nav-badge">{newLeadsCount}</span>}
+      </a>
+
+      <div class="adm-nav-label">Satış</div>
+
+      <a href="/admin/teklifler" class={`adm-nav-link${section === 'teklifler' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Teklifler
+      </a>
+
+      <a href="/admin/sozlesmeler" class={`adm-nav-link${section === 'sozlesmeler' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Sözleşmeler
+      </a>
+
+      <div class="adm-nav-label">Operasyon</div>
+
+      <a href="/admin/projeler" class={`adm-nav-link${section === 'projeler' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Projeler
+      </a>
+
+      <a href="/admin/zaman-takibi" class={`adm-nav-link${section === 'zaman-takibi' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Zaman Takibi
+      </a>
+
+      <div class="adm-nav-label">Finans</div>
+
+      <a href="/admin/faturalar" class={`adm-nav-link${section === 'faturalar' ? ' active' : ''}`}>
+        <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Faturalar
+      </a>
+
+      <div class="adm-nav-label">İçerik</div>
+
       <a href="/admin/blog" class={`adm-nav-link${section === 'blog' ? ' active' : ''}`}>
         <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -398,6 +470,8 @@ const adminUser = import.meta.env.ADMIN_USER ?? 'admin';
     hamburger.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
   </script>
+
+  <AiAssistant pageContext={`admin/${section}`} mode="admin" />
 
 </body>
 </html>

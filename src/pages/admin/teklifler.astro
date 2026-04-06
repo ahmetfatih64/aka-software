@@ -1,0 +1,407 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, Proposals, ProposalItems, Leads } from 'astro:db';
+import { desc, eq } from 'astro:db';
+
+const filter = Astro.url.searchParams.get('filter') ?? 'tumu';
+const saved  = Astro.url.searchParams.get('saved');
+
+const allProposals = (await db.select().from(Proposals).orderBy(desc(Proposals.createdAt))) as any[];
+const allLeads     = (await db.select().from(Leads)) as any[];
+
+const leadsMap = Object.fromEntries(allLeads.map(l => [l.id, l]));
+
+const counts = {
+  tumu:     allProposals.length,
+  draft:    allProposals.filter(p => p.status === 'draft').length,
+  sent:     allProposals.filter(p => p.status === 'sent').length,
+  accepted: allProposals.filter(p => p.status === 'accepted').length,
+  rejected: allProposals.filter(p => p.status === 'rejected').length,
+  expired:  allProposals.filter(p => p.status === 'expired').length,
+};
+
+let rows = filter === 'tumu' ? allProposals : allProposals.filter(p => p.status === filter);
+
+const today = new Date();
+
+const statusLabel: Record<string, string> = {
+  draft: 'Taslak', sent: 'Gönderildi', accepted: 'Kabul Edildi',
+  rejected: 'Reddedildi', expired: 'Süresi Doldu',
+};
+
+function fmt(d: Date | null | string) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function isExpired(d: Date | null) {
+  if (!d) return false;
+  return new Date(d) < today;
+}
+function fmtMoney(n: number) {
+  return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+---
+
+<AdminLayout title="Teklifler" section="teklifler">
+<style>
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap; }
+  .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+  .page-sub    { font-size:0.8125rem; color:var(--adm-muted); margin-top:0.2rem; }
+
+  .filter-bar { display:flex; gap:0.375rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .filter-btn {
+    display:inline-flex; align-items:center; gap:0.375rem;
+    padding:0.4375rem 0.875rem; border-radius:0.5rem; border:1px solid var(--adm-border);
+    font-size:0.8125rem; font-weight:500; color:var(--adm-muted);
+    background:transparent; cursor:pointer; text-decoration:none; transition:all 150ms;
+  }
+  .filter-btn:hover { color:var(--adm-text); background:rgba(255,255,255,0.04); }
+  .filter-btn.active { color:var(--adm-gold); border-color:rgba(217,161,40,0.35); background:rgba(217,161,40,0.07); }
+  .filter-count { font-size:0.6875rem; padding:0.125rem 0.375rem; border-radius:9999px; background:rgba(255,255,255,0.07); }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; gap:0.375rem;
+    padding:0.5rem 1rem; border-radius:0.625rem;
+    background:var(--adm-gold); color:#0b0a09; font-size:0.8125rem; font-weight:600;
+    border:none; cursor:pointer; text-decoration:none; transition:background 150ms; white-space:nowrap;
+  }
+  .btn-primary:hover { background:var(--adm-gold-b); }
+
+  .table-wrap {
+    background:var(--adm-card); border:1px solid var(--adm-border);
+    border-radius:1rem; overflow:hidden;
+    box-shadow:0 1px 0 0 rgba(245,214,92,0.08) inset;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--adm-faint);
+    background:rgba(255,255,255,0.02); border-bottom:1px solid var(--adm-border); text-align:left;
+  }
+  tbody tr { border-bottom:1px solid rgba(161,116,24,0.07); transition:background 120ms; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(217,161,40,0.04); }
+  td { padding:0.875rem 1rem; font-size:0.8125rem; color:var(--adm-muted); vertical-align:middle; }
+  td.primary { font-weight:600; color:var(--adm-text); }
+  td.num { font-size:0.75rem; font-family:monospace; color:var(--adm-faint); }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:0.3rem;
+    padding:0.2rem 0.6rem; border-radius:9999px;
+    font-size:0.6875rem; font-weight:600; letter-spacing:0.03em; white-space:nowrap;
+  }
+  .badge-dot { width:5px; height:5px; border-radius:9999px; flex-shrink:0; }
+  .badge-draft    { background:rgba(120,110,90,0.15); color:rgba(178,164,144,0.80); border:1px solid rgba(120,110,90,0.22); }
+  .badge-sent     { background:rgba(99,179,237,0.12); color:rgb(99,179,237); border:1px solid rgba(99,179,237,0.25); }
+  .badge-accepted { background:rgba(74,222,128,0.12); color:rgb(74,222,128); border:1px solid rgba(74,222,128,0.25); }
+  .badge-rejected { background:rgba(248,113,113,0.10); color:rgb(248,113,113); border:1px solid rgba(248,113,113,0.22); }
+  .badge-expired  { background:rgba(251,191,36,0.10); color:rgb(251,191,36); border:1px solid rgba(251,191,36,0.22); }
+
+  .money { font-weight:700; color:var(--adm-gold); }
+  .expired-warn { font-size:0.6875rem; color:var(--adm-red); margin-top:0.125rem; }
+  .actions { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+  .action-btn {
+    padding:0.3125rem 0.625rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500;
+    border:1px solid var(--adm-border); background:transparent; color:var(--adm-muted);
+    cursor:pointer; text-decoration:none; transition:all 150ms; white-space:nowrap;
+  }
+  .action-btn:hover { color:var(--adm-text); border-color:var(--adm-border-h); background:rgba(255,255,255,0.04); }
+  .action-btn.gold { color:var(--adm-gold); border-color:rgba(217,161,40,0.30); }
+  .action-btn.gold:hover { background:rgba(217,161,40,0.08); }
+  .action-btn.green { color:var(--adm-green); border-color:rgba(74,222,128,0.28); }
+  .action-btn.green:hover { background:rgba(74,222,128,0.07); }
+  .action-btn.danger { color:var(--adm-red); border-color:rgba(248,113,113,0.22); }
+  .action-btn.danger:hover { background:rgba(248,113,113,0.07); }
+
+  .empty-state { padding:3rem; text-align:center; color:var(--adm-faint); font-size:0.875rem; }
+
+  .toast {
+    position:fixed; top:1.25rem; right:1.25rem; z-index:9999;
+    background:var(--adm-card); border:1px solid rgba(74,222,128,0.30);
+    border-radius:0.75rem; padding:0.875rem 1.25rem;
+    font-size:0.875rem; color:var(--adm-green);
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    animation:toastIn 300ms ease, toastOut 300ms ease 2.5s forwards;
+  }
+  @keyframes toastIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
+
+  /* ── Dialog ortak ── */
+  dialog {
+    background:var(--adm-card); border:1px solid var(--adm-border);
+    border-radius:1.25rem; padding:0; max-width:640px; width:94vw;
+    color:var(--adm-text); box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  }
+  dialog::backdrop { background:rgba(0,0,0,0.55); }
+  .dlg-head { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid var(--adm-border); }
+  .dlg-title { font-size:1rem; font-weight:700; }
+  .dlg-close { background:none; border:none; color:var(--adm-faint); cursor:pointer; font-size:1.25rem; line-height:1; }
+  .dlg-close:hover { color:var(--adm-text); }
+  .dlg-body  { padding:1.5rem; display:flex; flex-direction:column; gap:1rem; max-height:70vh; overflow-y:auto; }
+  .dlg-row   { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .dlg-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; }
+  .dlg-field label { font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--adm-faint); display:block; margin-bottom:0.375rem; }
+  .dlg-field input, .dlg-field select, .dlg-field textarea {
+    width:100%; padding:0.5625rem 0.75rem;
+    background:rgba(255,255,255,0.04); border:1px solid var(--adm-border);
+    border-radius:0.5rem; color:var(--adm-text); font-size:0.875rem; outline:none;
+    transition:border-color 150ms; font-family:inherit;
+  }
+  .dlg-field input:focus, .dlg-field select:focus, .dlg-field textarea:focus { border-color:var(--adm-border-h); }
+  .dlg-field select option { background:#1a1710; }
+  .dlg-field textarea { resize:vertical; min-height:72px; }
+  .dlg-foot { padding:1rem 1.5rem; border-top:1px solid var(--adm-border); display:flex; gap:0.75rem; justify-content:flex-end; }
+  .btn-ghost { padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; background:transparent; border:1px solid var(--adm-border); color:var(--adm-muted); cursor:pointer; }
+  .btn-ghost:hover { color:var(--adm-text); }
+  .btn-save  { padding:0.5rem 1.25rem; border-radius:0.5rem; font-size:0.875rem; font-weight:600; background:var(--adm-gold); color:#0b0a09; border:none; cursor:pointer; }
+  .btn-save:hover { background:var(--adm-gold-b); }
+  .section-label { font-size:0.6875rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--adm-gold); border-bottom:1px solid var(--adm-border); padding-bottom:0.5rem; }
+  .items-area { display:flex; flex-direction:column; gap:0.5rem; }
+  .item-row { display:grid; grid-template-columns:2fr 80px 80px 110px 32px; gap:0.5rem; align-items:center; }
+  .item-row input, .item-row select {
+    padding:0.4375rem 0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--adm-border);
+    border-radius:0.375rem; color:var(--adm-text); font-size:0.8125rem; outline:none; width:100%;
+    font-family:inherit;
+  }
+  .item-total { font-size:0.8125rem; font-weight:600; color:var(--adm-gold); text-align:right; }
+  .remove-btn { background:none; border:none; color:var(--adm-faint); cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; }
+  .remove-btn:hover { color:var(--adm-red); }
+  .add-item-btn { align-self:flex-start; padding:0.375rem 0.75rem; border-radius:0.375rem; font-size:0.8125rem; background:rgba(217,161,40,0.08); border:1px solid rgba(217,161,40,0.22); color:var(--adm-gold); cursor:pointer; }
+  .add-item-btn:hover { background:rgba(217,161,40,0.14); }
+  .totals-box { background:rgba(217,161,40,0.05); border:1px solid rgba(217,161,40,0.14); border-radius:0.625rem; padding:0.875rem 1rem; display:flex; flex-direction:column; gap:0.375rem; }
+  .totals-row { display:flex; justify-content:space-between; font-size:0.8125rem; color:var(--adm-muted); }
+  .totals-row.total { color:var(--adm-text); font-weight:700; font-size:0.9375rem; border-top:1px solid var(--adm-border); padding-top:0.375rem; margin-top:0.125rem; }
+  .totals-row span:last-child { font-weight:600; color:var(--adm-gold); }
+  .totals-row.total span:last-child { font-size:1.0625rem; }
+</style>
+
+{saved && <div class="toast">✓ Teklif kaydedildi.</div>}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Teklifler</div>
+    <div class="page-sub">Müşteri teklifleri ve fiyatlandırma</div>
+  </div>
+  <button class="btn-primary" onclick="openNewProposal()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Yeni Teklif
+  </button>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  {[
+    { key: 'tumu',     label: 'Tümü' },
+    { key: 'draft',    label: 'Taslak' },
+    { key: 'sent',     label: 'Gönderildi' },
+    { key: 'accepted', label: 'Kabul Edildi' },
+    { key: 'rejected', label: 'Reddedildi' },
+    { key: 'expired',  label: 'Süresi Doldu' },
+  ].map(f => (
+    <a href={`/admin/teklifler?filter=${f.key}`} class={`filter-btn${filter === f.key ? ' active' : ''}`}>
+      {f.label}
+      <span class="filter-count">{counts[f.key as keyof typeof counts]}</span>
+    </a>
+  ))}
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  {rows.length === 0 ? (
+    <div class="empty-state">
+      {filter === 'tumu' ? 'Henüz teklif yok. "Yeni Teklif" ile başlayın.' : 'Bu filtrede kayıt yok.'}
+    </div>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Teklif No</th>
+          <th>Başlık / Lead</th>
+          <th>Durum</th>
+          <th>Toplam</th>
+          <th>Geçerlilik</th>
+          <th>Tarih</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(p => {
+          const lead = leadsMap[p.leadId];
+          const expired = isExpired(p.validUntil) && !['accepted','rejected'].includes(p.status);
+          return (
+            <tr>
+              <td class="num">{p.proposalNumber}</td>
+              <td>
+                <div class="primary">{p.title}</div>
+                <div style="font-size:0.75rem;color:var(--adm-faint);margin-top:0.125rem;">
+                  {lead ? `${lead.contactName}${lead.companyName ? ` — ${lead.companyName}` : ''}` : '—'}
+                </div>
+              </td>
+              <td>
+                <span class={`badge badge-${expired && p.status === 'sent' ? 'expired' : p.status}`}>
+                  <span class="badge-dot"></span>
+                  {expired && p.status === 'sent' ? 'Süresi Doldu' : statusLabel[p.status]}
+                </span>
+              </td>
+              <td>
+                <span class="money">{fmtMoney(p.totalAmount)} ₺</span>
+              </td>
+              <td>
+                <div>{fmt(p.validUntil)}</div>
+                {expired && p.status === 'sent' && <div class="expired-warn">⚠ Geçerlilik doldu</div>}
+              </td>
+              <td>{fmt(p.createdAt)}</td>
+              <td>
+                <div class="actions">
+                  <a href={`/admin/teklifler/${p.id}`} class="action-btn gold">Düzenle</a>
+                  {p.status === 'draft' && (
+                    <form method="POST" action="/api/admin/proposal-status" style="display:inline">
+                      <input type="hidden" name="id" value={p.id}/>
+                      <input type="hidden" name="status" value="sent"/>
+                      <button type="submit" class="action-btn green">Gönderildi İşaretle</button>
+                    </form>
+                  )}
+                  {p.status === 'sent' && (
+                    <form method="POST" action="/api/admin/proposal-status" style="display:inline">
+                      <input type="hidden" name="id" value={p.id}/>
+                      <input type="hidden" name="status" value="accepted"/>
+                      <button type="submit" class="action-btn green"
+                        onclick="return confirm('Teklif kabul edildi olarak işaretlensin mi? Sözleşme taslağı otomatik oluşturulacak.')">
+                        Kabul Et
+                      </button>
+                    </form>
+                  )}
+                  {['draft','sent'].includes(p.status) && (
+                    <form method="POST" action="/api/admin/proposal-delete" style="display:inline"
+                      onsubmit="return confirm('Bu teklif silinsin mi?')">
+                      <input type="hidden" name="id" value={p.id}/>
+                      <button type="submit" class="action-btn danger">Sil</button>
+                    </form>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  )}
+</div>
+
+<!-- ── Yeni Teklif Dialog ── -->
+<dialog id="dlg-new-proposal">
+  <div class="dlg-head">
+    <div class="dlg-title">Yeni Teklif</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-new-proposal').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/proposal-create" id="proposal-form">
+    <div class="dlg-body">
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Lead *</label>
+          <select name="leadId" required>
+            <option value="">Lead seçin…</option>
+            {allLeads.filter(l => !['lost','won'].includes(l.status)).map(l => (
+              <option value={l.id}>{l.contactName}{l.companyName ? ` — ${l.companyName}` : ''}</option>
+            ))}
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Başlık *</label>
+          <input name="title" required placeholder="Web Uygulaması Geliştirme Teklifi"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Geçerlilik Tarihi *</label>
+          <input name="validUntil" type="date" required/>
+        </div>
+        <div class="dlg-field">
+          <label>İndirim (%)</label>
+          <input name="discountRate" type="number" min="0" max="100" step="0.1" value="0" id="inp-discount"/>
+        </div>
+      </div>
+
+      <div class="section-label">Kalemler</div>
+      <div class="items-area" id="items-area">
+        <!-- JS tarafından eklenir -->
+      </div>
+      <button type="button" class="add-item-btn" onclick="addItem()">+ Kalem Ekle</button>
+
+      <div class="totals-box" id="totals-box">
+        <div class="totals-row"><span>Ara Toplam</span><span id="t-sub">0,00 ₺</span></div>
+        <div class="totals-row"><span>İndirim</span><span id="t-disc">0,00 ₺</span></div>
+        <div class="totals-row"><span>KDV (%20)</span><span id="t-tax">0,00 ₺</span></div>
+        <div class="totals-row total"><span>Toplam</span><span id="t-total">0,00 ₺</span></div>
+      </div>
+
+      <div class="dlg-field">
+        <label>Ödeme Koşulları</label>
+        <textarea name="terms" placeholder="Ör: NET30 — Fatura tarihinden itibaren 30 gün içinde ödeme"></textarea>
+      </div>
+      <div class="dlg-field">
+        <label>Notlar</label>
+        <textarea name="notes" placeholder="Müşteriye gösterilecek ek notlar…"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-new-proposal').close()">İptal</button>
+      <button type="submit" class="btn-save">Teklifi Kaydet</button>
+    </div>
+  </form>
+</dialog>
+
+<script is:inline>
+  var itemCount = 0;
+
+  function openNewProposal() {
+    itemCount = 0;
+    document.getElementById('items-area').innerHTML = '';
+    addItem();
+    updateTotals();
+    document.getElementById('dlg-new-proposal').showModal();
+  }
+
+  function addItem() {
+    itemCount++;
+    var idx = itemCount;
+    var area = document.getElementById('items-area');
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.id = 'item-' + idx;
+    row.innerHTML =
+      '<input name="item_desc[]" placeholder="Açıklama" required oninput="updateTotals()"/>' +
+      '<select name="item_unit[]"><option value="saat">Saat</option><option value="gün">Gün</option><option value="adet" selected>Adet</option><option value="aylık">Aylık</option></select>' +
+      '<input name="item_qty[]" type="number" min="0.01" step="0.01" value="1" placeholder="Adet" oninput="updateTotals()"/>' +
+      '<input name="item_price[]" type="number" min="0" step="0.01" value="0" placeholder="Birim Fiyat" oninput="updateTotals()"/>' +
+      '<button type="button" class="remove-btn" onclick="removeItem(' + idx + ')">×</button>';
+    area.appendChild(row);
+  }
+
+  function removeItem(idx) {
+    var el = document.getElementById('item-' + idx);
+    if (el) el.remove();
+    updateTotals();
+  }
+
+  function updateTotals() {
+    var qtys   = document.querySelectorAll('[name="item_qty[]"]');
+    var prices = document.querySelectorAll('[name="item_price[]"]');
+    var sub = 0;
+    for (var i = 0; i < qtys.length; i++) {
+      sub += (parseFloat(qtys[i].value) || 0) * (parseFloat(prices[i].value) || 0);
+    }
+    var disc    = sub * ((parseFloat(document.getElementById('inp-discount').value) || 0) / 100);
+    var taxBase = sub - disc;
+    var tax     = taxBase * 0.20;
+    var total   = taxBase + tax;
+    function fmt(n) { return n.toLocaleString('tr-TR', { minimumFractionDigits:2 }) + ' ₺'; }
+    document.getElementById('t-sub').textContent   = fmt(sub);
+    document.getElementById('t-disc').textContent  = fmt(disc);
+    document.getElementById('t-tax').textContent   = fmt(tax);
+    document.getElementById('t-total').textContent = fmt(total);
+  }
+
+  document.getElementById('inp-discount').addEventListener('input', updateTotals);
+</script>
+</AdminLayout>

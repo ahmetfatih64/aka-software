@@ -1,103 +1,105 @@
 import type { APIRoute } from 'astro';
-import Anthropic from '@anthropic-ai/sdk';
+import { db, ChatSessions, ChatMessages } from 'astro:db';
+import { eq } from 'astro:db';
 
-const SYSTEM_PROMPT = `Sen AKA Software'in resmi yapay zeka asistanısın. Adın "AKA AI Asistan".
-
-## AKA Software Hakkında
-AKA Software, teknik vizyonları çalışan, ölçeklenebilir sistemlere dönüştüren kurumsal bir yazılım şirketidir.
-
-## Hizmetler
-- **Web Uygulaması Geliştirme**: Modern, hızlı ve ölçeklenebilir web uygulamaları (React, Next.js, Astro)
-- **Mobil Uygulama Geliştirme**: iOS ve Android için native ve cross-platform çözümler
-- **API & Backend Sistemleri**: Güvenli, yüksek performanslı API mimarileri ve mikro servisler
-- **Yapay Zeka Entegrasyonu**: LLM, RAG sistemleri, otomasyon ve veri analitiği çözümleri
-- **Danışmanlık**: Teknoloji stratejisi, mimari planlama ve proje yönetimi
-
-## Değerler
-- Şeffaflık: Net iletişim ve gerçekçi beklentiler
-- Mükemmellik: Her satır kodda kalite odağı
-- Hız: Hızlı MVP'den ölçeklenebilir ürüne
-- Güven: Uzun vadeli iş ortaklığı anlayışı
-
-## İletişim
-Ziyaretçiler iletişim formu için /iletisim sayfasına yönlendirilebilir.
-
-## Kurallar
-- Kısa, net ve samimi yanıtlar ver (max 3-4 cümle)
-- Türkçe konuş, teknik terimlerde orijinal İngilizce kullanılabilir
-- AKA Software dışındaki şirketleri önerme
-- Emin olmadığın konularda "iletişim formundan ulaşabilirsiniz" de
-- Asla rakip şirket veya fiyat tahmini verme`;
+const N8N_WEBHOOK = 'https://akasoftware.app.n8n.cloud/webhook/aka-chat';
 
 export const POST: APIRoute = async ({ request }) => {
-  const apiKey = import.meta.env.ANTHROPIC_API_KEY;
-
-  if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: 'AI servisi şu an yapılandırılmamış.' }),
-      { status: 503, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-  let body: { message: string; history?: { role: 'user' | 'assistant'; content: string }[] };
+  let body: { message: string; sessionId?: string; pageContext?: string; mode?: string };
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Geçersiz istek.' }), { status: 400 });
+    return new Response(JSON.stringify({ error: 'Geçersiz istek.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  const { message, history = [] } = body;
+  const { message, sessionId = 'default', pageContext = 'homepage', mode = 'website' } = body;
   if (!message?.trim()) {
-    return new Response(JSON.stringify({ error: 'Mesaj boş olamaz.' }), { status: 400 });
+    return new Response(JSON.stringify({ error: 'Mesaj boş olamaz.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  const client = new Anthropic({ apiKey });
+  // Detect language: only Turkish and English supported
+  const turkishChars = /[çğıöşüÇĞİÖŞÜ]/;
+  const turkishWords = /\b(merhaba|nasıl|hakkında|istiyorum|nedir|bilgi|için|lütfen|teşekkür|evet|hayır|proje|hizmet|fiyat|teklif|selam|ne kadar|kaça)\b/i;
+  const lang = (turkishChars.test(message) || turkishWords.test(message)) ? 'tr' : 'en';
 
-  // Keep last 10 messages for context (max ~5 turns)
-  const trimmedHistory = history.slice(-10);
+  // Ensure session exists
+  const existing = (await db.select().from(ChatSessions).where(eq(ChatSessions.sessionId, sessionId))) as any[];
+  if (existing.length === 0) {
+    await db.insert(ChatSessions).values({
+      sessionId,
+      pageContext,
+      mode,
+    });
+  }
 
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        const stream = client.messages.stream({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 800,
-          system: SYSTEM_PROMPT,
-          messages: [
-            ...trimmedHistory,
-            { role: 'user', content: message.trim() },
-          ],
-        });
-
-        for await (const event of stream) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            const data = JSON.stringify({ text: event.delta.text });
-            controller.enqueue(encoder.encode(`data: ${data}\n\n`));
-          }
-        }
-
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Bilinmeyen hata.';
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`)
-        );
-      } finally {
-        controller.close();
-      }
-    },
+  // Save user message
+  await db.insert(ChatMessages).values({
+    sessionId,
+    role: 'user',
+    message: message.trim(),
+    pageContext,
   });
 
-  return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    },
-  });
+  try {
+    const n8nRes = await fetch(N8N_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chatInput: lang === 'en'
+          ? '[IMPORTANT: Reply entirely in English] ' + message.trim()
+          : message.trim(),
+        message: lang === 'en'
+          ? '[IMPORTANT: Reply entirely in English] ' + message.trim()
+          : message.trim(),
+        sessionId: sessionId || 'default',
+        pageContext,
+        mode,
+        language: lang,
+      }),
+    });
+
+    if (!n8nRes.ok) {
+      return new Response(
+        JSON.stringify({ error: 'AI servisi şu an yanıt vermiyor.' }),
+        { status: 502, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await n8nRes.json();
+
+    const text =
+      data?.output ??
+      data?.text ??
+      data?.message ??
+      data?.response ??
+      (Array.isArray(data) ? (data[0]?.output ?? data[0]?.text ?? data[0]?.message) : null) ??
+      'Yanıt alınamadı.';
+
+    const reply = String(text);
+
+    // Save bot response
+    await db.insert(ChatMessages).values({
+      sessionId,
+      role: 'bot',
+      message: reply,
+      pageContext,
+    });
+
+    return new Response(JSON.stringify({ text: reply }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Bilinmeyen hata.';
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 };

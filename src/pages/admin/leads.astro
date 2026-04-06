@@ -1,0 +1,438 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db, Leads as LeadsTable } from 'astro:db';
+import { desc } from 'astro:db';
+
+const filter = Astro.url.searchParams.get('filter') ?? 'tumu';
+const saved  = Astro.url.searchParams.get('saved');
+
+let rows = (await db.select().from(LeadsTable).orderBy(desc(LeadsTable.createdAt))) as any[];
+
+const counts = {
+  tumu:          rows.length,
+  new:           rows.filter(r => r.status === 'new').length,
+  qualified:     rows.filter(r => r.status === 'qualified').length,
+  proposal_sent: rows.filter(r => r.status === 'proposal_sent').length,
+  won:           rows.filter(r => r.status === 'won').length,
+  lost:          rows.filter(r => r.status === 'lost').length,
+};
+
+if (filter !== 'tumu') rows = rows.filter(r => r.status === filter);
+
+const statusLabel: Record<string, string> = {
+  new:           'Yeni',
+  qualified:     'Niteliklendirildi',
+  proposal_sent: 'Teklif Gönderildi',
+  won:           'Kazanıldı',
+  lost:          'Kaybedildi',
+};
+
+const priorityLabel: Record<string, string> = {
+  low: 'Düşük', medium: 'Orta', high: 'Yüksek',
+};
+
+const sourceLabel: Record<string, string> = {
+  web_form:  'Web Formu',
+  referral:  'Referans',
+  outbound:  'Outbound',
+  event:     'Etkinlik',
+};
+
+function fmt(d: Date | null) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+---
+
+<AdminLayout title="Leads" section="leads">
+<style>
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap; }
+  .page-title  { font-size:1.25rem; font-weight:700; color:var(--adm-text); }
+  .page-sub    { font-size:0.8125rem; color:var(--adm-muted); margin-top:0.2rem; }
+
+  .filter-bar { display:flex; gap:0.375rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .filter-btn {
+    display:inline-flex; align-items:center; gap:0.375rem;
+    padding:0.4375rem 0.875rem; border-radius:0.5rem; border:1px solid var(--adm-border);
+    font-size:0.8125rem; font-weight:500; color:var(--adm-muted);
+    background:transparent; cursor:pointer; text-decoration:none; transition:all 150ms;
+  }
+  .filter-btn:hover { color:var(--adm-text); background:rgba(255,255,255,0.04); }
+  .filter-btn.active { color:var(--adm-gold); border-color:rgba(217,161,40,0.35); background:rgba(217,161,40,0.07); }
+  .filter-count { font-size:0.6875rem; padding:0.125rem 0.375rem; border-radius:9999px; background:rgba(255,255,255,0.07); }
+
+  .toolbar { display:flex; gap:0.75rem; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:180px; }
+  .search-wrap svg { position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); color:var(--adm-faint); pointer-events:none; }
+  .search-input {
+    width:100%; padding:0.5rem 0.875rem 0.5rem 2.25rem;
+    background:var(--adm-card); border:1px solid var(--adm-border); border-radius:0.625rem;
+    color:var(--adm-text); font-size:0.875rem; outline:none; transition:border-color 150ms;
+  }
+  .search-input:focus { border-color:var(--adm-border-h); }
+  .search-input::placeholder { color:var(--adm-faint); }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; gap:0.375rem;
+    padding:0.5rem 1rem; border-radius:0.625rem;
+    background:var(--adm-gold); color:#0b0a09; font-size:0.8125rem; font-weight:600;
+    border:none; cursor:pointer; text-decoration:none; transition:background 150ms;
+    white-space:nowrap;
+  }
+  .btn-primary:hover { background:var(--adm-gold-b); }
+
+  .table-wrap {
+    background:var(--adm-card); border:1px solid var(--adm-border);
+    border-radius:1rem; overflow:hidden;
+    box-shadow:0 1px 0 0 rgba(245,214,92,0.08) inset;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    padding:0.75rem 1rem; font-size:0.6875rem; font-weight:600;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--adm-faint);
+    background:rgba(255,255,255,0.02); border-bottom:1px solid var(--adm-border); text-align:left;
+  }
+  tbody tr { border-bottom:1px solid rgba(161,116,24,0.07); transition:background 120ms; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(217,161,40,0.04); }
+  td { padding:0.875rem 1rem; font-size:0.8125rem; color:var(--adm-muted); vertical-align:middle; }
+  td.primary { font-weight:600; color:var(--adm-text); }
+  td.sub { font-size:0.75rem; color:var(--adm-faint); margin-top:0.125rem; }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:0.3rem;
+    padding:0.2rem 0.6rem; border-radius:9999px;
+    font-size:0.6875rem; font-weight:600; letter-spacing:0.03em; white-space:nowrap;
+  }
+  .badge-dot { width:5px; height:5px; border-radius:9999px; flex-shrink:0; }
+
+  .badge-new           { background:rgba(99,179,237,0.12); color:rgb(99,179,237); border:1px solid rgba(99,179,237,0.25); }
+  .badge-qualified     { background:rgba(251,191,36,0.12); color:rgb(251,191,36); border:1px solid rgba(251,191,36,0.28); }
+  .badge-proposal_sent { background:rgba(167,139,250,0.12); color:rgb(167,139,250); border:1px solid rgba(167,139,250,0.25); }
+  .badge-won           { background:rgba(74,222,128,0.12); color:rgb(74,222,128); border:1px solid rgba(74,222,128,0.25); }
+  .badge-lost          { background:rgba(248,113,113,0.10); color:rgb(248,113,113); border:1px solid rgba(248,113,113,0.22); }
+
+  .prio-high   { color:var(--adm-red);   font-weight:600; }
+  .prio-medium { color:var(--adm-amber); font-weight:600; }
+  .prio-low    { color:var(--adm-faint); font-weight:500; }
+
+  .action-btn {
+    padding:0.3125rem 0.625rem; border-radius:0.375rem; font-size:0.75rem; font-weight:500;
+    border:1px solid var(--adm-border); background:transparent; color:var(--adm-muted);
+    cursor:pointer; text-decoration:none; transition:all 150ms; white-space:nowrap;
+  }
+  .action-btn:hover { color:var(--adm-text); border-color:var(--adm-border-h); background:rgba(255,255,255,0.04); }
+  .action-btn.gold  { color:var(--adm-gold); border-color:rgba(217,161,40,0.30); }
+  .action-btn.gold:hover { background:rgba(217,161,40,0.08); }
+
+  .empty-state { padding:3rem; text-align:center; color:var(--adm-faint); font-size:0.875rem; }
+
+  .toast {
+    position:fixed; top:1.25rem; right:1.25rem; z-index:9999;
+    background:var(--adm-card); border:1px solid rgba(74,222,128,0.30);
+    border-radius:0.75rem; padding:0.875rem 1.25rem;
+    font-size:0.875rem; color:var(--adm-green);
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    animation:toastIn 300ms ease, toastOut 300ms ease 2.5s forwards;
+  }
+  @keyframes toastIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
+
+  /* Detail dialog */
+  dialog {
+    background:var(--adm-card); border:1px solid var(--adm-border);
+    border-radius:1.25rem; padding:0; max-width:560px; width:90vw;
+    color:var(--adm-text); box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  }
+  dialog::backdrop { background:rgba(0,0,0,0.55); }
+  .dlg-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.25rem 1.5rem; border-bottom:1px solid var(--adm-border);
+  }
+  .dlg-title { font-size:1rem; font-weight:700; }
+  .dlg-close { background:none; border:none; color:var(--adm-faint); cursor:pointer; font-size:1.25rem; line-height:1; }
+  .dlg-close:hover { color:var(--adm-text); }
+  .dlg-body  { padding:1.5rem; display:flex; flex-direction:column; gap:1rem; }
+  .dlg-row   { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .dlg-field label { font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--adm-faint); display:block; margin-bottom:0.375rem; }
+  .dlg-field input, .dlg-field select, .dlg-field textarea {
+    width:100%; padding:0.5625rem 0.75rem;
+    background:rgba(255,255,255,0.04); border:1px solid var(--adm-border);
+    border-radius:0.5rem; color:var(--adm-text); font-size:0.875rem; outline:none;
+    transition:border-color 150ms; font-family:inherit;
+  }
+  .dlg-field input:focus, .dlg-field select:focus, .dlg-field textarea:focus { border-color:var(--adm-border-h); }
+  .dlg-field select option { background:#1a1710; }
+  .dlg-field textarea { resize:vertical; min-height:80px; }
+  .dlg-foot { padding:1rem 1.5rem; border-top:1px solid var(--adm-border); display:flex; gap:0.75rem; justify-content:flex-end; }
+  .btn-ghost { padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.875rem; background:transparent; border:1px solid var(--adm-border); color:var(--adm-muted); cursor:pointer; }
+  .btn-ghost:hover { color:var(--adm-text); }
+  .btn-save  { padding:0.5rem 1.25rem; border-radius:0.5rem; font-size:0.875rem; font-weight:600; background:var(--adm-gold); color:#0b0a09; border:none; cursor:pointer; }
+  .btn-save:hover { background:var(--adm-gold-b); }
+
+  .val-tag { display:inline-block; font-size:0.8125rem; font-weight:600; color:var(--adm-gold); }
+</style>
+
+{saved && <div class="toast">✓ Lead güncellendi.</div>}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Leads</div>
+    <div class="page-sub">Niteliklendirilmiş müşteri adayları</div>
+  </div>
+  <button class="btn-primary" onclick="document.getElementById('dlg-new').showModal()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Yeni Lead
+  </button>
+</div>
+
+<!-- Filter tabs -->
+<div class="filter-bar">
+  {[
+    { key: 'tumu',          label: 'Tümü' },
+    { key: 'new',           label: 'Yeni' },
+    { key: 'qualified',     label: 'Niteliklendirildi' },
+    { key: 'proposal_sent', label: 'Teklif Gönderildi' },
+    { key: 'won',           label: 'Kazanıldı' },
+    { key: 'lost',          label: 'Kaybedildi' },
+  ].map(f => (
+    <a href={`/admin/leads?filter=${f.key}`} class={`filter-btn${filter === f.key ? ' active' : ''}`}>
+      {f.label}
+      <span class="filter-count">{counts[f.key as keyof typeof counts]}</span>
+    </a>
+  ))}
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search" class="search-input" placeholder="İsim, şirket veya e-posta ara…" type="search"/>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  {rows.length === 0 ? (
+    <div class="empty-state">
+      {filter === 'tumu' ? 'Henüz lead yok. Talepler sayfasında bir talebi "İnceleniyor" yapınca otomatik oluşur.' : 'Bu filtrede kayıt yok.'}
+    </div>
+  ) : (
+    <table id="leads-table">
+      <thead>
+        <tr>
+          <th>Kişi / Şirket</th>
+          <th>Kaynak</th>
+          <th>Durum</th>
+          <th>Öncelik</th>
+          <th>Tahmini Değer</th>
+          <th>Takip Tarihi</th>
+          <th>Oluşturulma</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(r => (
+          <tr data-search={`${r.contactName} ${r.companyName ?? ''} ${r.contactEmail}`.toLowerCase()}>
+            <td>
+              <div class="primary">{r.contactName}</div>
+              <div class="sub">{r.companyName ?? r.contactEmail}</div>
+            </td>
+            <td>{sourceLabel[r.source] ?? r.source}</td>
+            <td>
+              <span class={`badge badge-${r.status}`}>
+                <span class="badge-dot"></span>
+                {statusLabel[r.status] ?? r.status}
+              </span>
+            </td>
+            <td class={`prio-${r.priority}`}>{priorityLabel[r.priority] ?? r.priority}</td>
+            <td>
+              {r.estimatedValue
+                ? <span class="val-tag">{r.estimatedValue.toLocaleString('tr-TR')} ₺</span>
+                : <span style="color:var(--adm-faint)">—</span>}
+            </td>
+            <td>{fmt(r.nextFollowUp)}</td>
+            <td>{fmt(r.createdAt)}</td>
+            <td>
+              <button
+                class="action-btn gold"
+                onclick={`openEdit(${JSON.stringify(r)})`}
+              >Düzenle</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
+<!-- ── Yeni Lead dialog ── -->
+<dialog id="dlg-new">
+  <div class="dlg-head">
+    <div class="dlg-title">Yeni Lead</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-new').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/leads-create">
+    <div class="dlg-body">
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Ad Soyad *</label>
+          <input name="contactName" required placeholder="Ahmet Yılmaz"/>
+        </div>
+        <div class="dlg-field">
+          <label>E-posta *</label>
+          <input name="contactEmail" type="email" required placeholder="ahmet@firma.com"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Şirket</label>
+          <input name="companyName" placeholder="Firma Adı"/>
+        </div>
+        <div class="dlg-field">
+          <label>Telefon</label>
+          <input name="contactPhone" placeholder="+90 5xx xxx xx xx"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Kaynak</label>
+          <select name="source">
+            <option value="web_form">Web Formu</option>
+            <option value="referral">Referans</option>
+            <option value="outbound">Outbound</option>
+            <option value="event">Etkinlik</option>
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Öncelik</label>
+          <select name="priority">
+            <option value="low">Düşük</option>
+            <option value="medium" selected>Orta</option>
+            <option value="high">Yüksek</option>
+          </select>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Tahmini Değer (₺)</label>
+          <input name="estimatedValue" type="number" min="0" placeholder="50000"/>
+        </div>
+        <div class="dlg-field">
+          <label>Takip Tarihi</label>
+          <input name="nextFollowUp" type="date"/>
+        </div>
+      </div>
+      <div class="dlg-field">
+        <label>Notlar</label>
+        <textarea name="notes" placeholder="Müşteri ihtiyacı, beklentiler…"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-new').close()">İptal</button>
+      <button type="submit" class="btn-save">Kaydet</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Düzenle dialog ── -->
+<dialog id="dlg-edit">
+  <div class="dlg-head">
+    <div class="dlg-title">Lead Düzenle</div>
+    <button class="dlg-close" onclick="document.getElementById('dlg-edit').close()">×</button>
+  </div>
+  <form method="POST" action="/api/admin/leads-update">
+    <input type="hidden" name="id" id="edit-id"/>
+    <input type="hidden" name="back" value={Astro.url.pathname + '?' + Astro.url.searchParams.toString()}/>
+    <div class="dlg-body">
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Ad Soyad *</label>
+          <input id="edit-contactName" name="contactName" required/>
+        </div>
+        <div class="dlg-field">
+          <label>E-posta *</label>
+          <input id="edit-contactEmail" name="contactEmail" type="email" required/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Şirket</label>
+          <input id="edit-companyName" name="companyName"/>
+        </div>
+        <div class="dlg-field">
+          <label>Telefon</label>
+          <input id="edit-contactPhone" name="contactPhone"/>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Durum</label>
+          <select id="edit-status" name="status">
+            <option value="new">Yeni</option>
+            <option value="qualified">Niteliklendirildi</option>
+            <option value="proposal_sent">Teklif Gönderildi</option>
+            <option value="won">Kazanıldı</option>
+            <option value="lost">Kaybedildi</option>
+          </select>
+        </div>
+        <div class="dlg-field">
+          <label>Öncelik</label>
+          <select id="edit-priority" name="priority">
+            <option value="low">Düşük</option>
+            <option value="medium">Orta</option>
+            <option value="high">Yüksek</option>
+          </select>
+        </div>
+      </div>
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Tahmini Değer (₺)</label>
+          <input id="edit-estimatedValue" name="estimatedValue" type="number" min="0"/>
+        </div>
+        <div class="dlg-field">
+          <label>Takip Tarihi</label>
+          <input id="edit-nextFollowUp" name="nextFollowUp" type="date"/>
+        </div>
+      </div>
+      <div class="dlg-field">
+        <label>Notlar</label>
+        <textarea id="edit-notes" name="notes" style="min-height:80px"></textarea>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('dlg-edit').close()">İptal</button>
+      <button type="submit" class="btn-save">Güncelle</button>
+    </div>
+  </form>
+</dialog>
+
+<script is:inline>
+  // Arama
+  document.getElementById('search').addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#leads-table tbody tr').forEach(function(tr) {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Düzenle dialogunu doldur
+  function openEdit(r) {
+    document.getElementById('edit-id').value           = r.id;
+    document.getElementById('edit-contactName').value  = r.contactName  ?? '';
+    document.getElementById('edit-contactEmail').value = r.contactEmail ?? '';
+    document.getElementById('edit-companyName').value  = r.companyName  ?? '';
+    document.getElementById('edit-contactPhone').value = r.contactPhone ?? '';
+    document.getElementById('edit-status').value       = r.status       ?? 'new';
+    document.getElementById('edit-priority').value     = r.priority     ?? 'medium';
+    document.getElementById('edit-estimatedValue').value = r.estimatedValue ?? '';
+    document.getElementById('edit-notes').value        = r.notes        ?? '';
+    if (r.nextFollowUp) {
+      document.getElementById('edit-nextFollowUp').value = new Date(r.nextFollowUp).toISOString().split('T')[0];
+    } else {
+      document.getElementById('edit-nextFollowUp').value = '';
+    }
+    document.getElementById('dlg-edit').showModal();
+  }
+</script>
+</AdminLayout>
