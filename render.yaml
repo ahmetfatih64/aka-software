@@ -3,7 +3,7 @@ services:
     name: aka-software
     runtime: node
     plan: starter
-    buildCommand: npm install && npm run build
+    buildCommand: ASTRO_DATABASE_FILE=./.astro/astro.db npm install && ASTRO_DATABASE_FILE=./.astro/astro.db npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
