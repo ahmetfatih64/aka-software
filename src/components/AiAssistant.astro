@@ -53,7 +53,7 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
 </button>
 
 <!-- ── Chat panel ── -->
-<div id="ai-panel" data-context={pageContext} data-mode={mode}>
+<div id="ai-panel" data-context={pageContext} data-mode={mode} data-api-url={`${import.meta.env.PUBLIC_API_URL || ''}/api/chat`}>
   <header class="ai-head">
     <div class="ai-head-info">
       <div class="ai-head-logo">
@@ -946,7 +946,8 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
 
     var typingRow = makeTyping();
 
-    fetch('/api/chat', {
+    var chatApiUrl = document.getElementById('ai-panel').getAttribute('data-api-url') || '/api/chat';
+    fetch(chatApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

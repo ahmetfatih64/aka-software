@@ -1,6 +1,8 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { db, ContactMessages } from 'astro:db';
 import { createTransport } from 'nodemailer';
+import { corsHeaders } from '../../lib/cors';
 
 // ── In-memory rate limiter ────────────────────────────────────────────────
 // Allows 3 submissions per IP per 10 minutes.
@@ -32,14 +34,16 @@ function isRateLimited(ip: string): boolean {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function json(body: object, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
+export const OPTIONS: APIRoute = ({ request }) => {
+  return new Response(null, { status: 204, headers: corsHeaders(request) });
+};
 
 export const POST: APIRoute = async ({ request }) => {
+  const cors = corsHeaders(request);
+
+  function json(body: object, status = 200) {
+    return new Response(JSON.stringify(body), { status, headers: cors });
+  }
   // ── Rate limit check (temporarily disabled for testing) ───────
   // if (isRateLimited(getIp(request))) {
   //   return json(

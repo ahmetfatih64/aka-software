@@ -21,7 +21,7 @@ if (!process.env.ASTRO_DATABASE_FILE) {
 // https://astro.build/config
 export default defineConfig({
   site: 'https://akasoftware.com',
-  output: 'server',
+  output: 'static',
   adapter: node({ mode: 'standalone', host: true }),
   vite: {
     plugins: [tailwindcss()]

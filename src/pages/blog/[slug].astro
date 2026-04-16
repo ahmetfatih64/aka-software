@@ -1,5 +1,6 @@
 ---
-// SSR dynamic route — getStaticPaths() is NOT used in output:'server' mode.
+export const prerender = false;
+// SSR dynamic route — rendered at request time.
 // Posts are fetched at request time using Astro.params.slug.
 import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';

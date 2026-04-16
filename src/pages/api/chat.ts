@@ -1,17 +1,25 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { db, ChatSessions, ChatMessages } from 'astro:db';
 import { eq } from 'astro:db';
+import { corsHeaders } from '../../lib/cors';
 
 const N8N_WEBHOOK = 'https://akasoftware.app.n8n.cloud/webhook/aka-chat';
 
+export const OPTIONS: APIRoute = ({ request }) => {
+  return new Response(null, { status: 204, headers: corsHeaders(request) });
+};
+
 export const POST: APIRoute = async ({ request }) => {
+  const cors = corsHeaders(request);
+
   let body: { message: string; sessionId?: string; pageContext?: string; mode?: string };
   try {
     body = await request.json();
   } catch {
     return new Response(JSON.stringify({ error: 'Geçersiz istek.' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: cors,
     });
   }
 
@@ -19,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!message?.trim()) {
     return new Response(JSON.stringify({ error: 'Mesaj boş olamaz.' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: cors,
     });
   }
 
@@ -67,7 +75,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!n8nRes.ok) {
       return new Response(
         JSON.stringify({ error: 'AI servisi şu an yanıt vermiyor.' }),
-        { status: 502, headers: { 'Content-Type': 'application/json' } }
+        { status: 502, headers: cors }
       );
     }
 
@@ -93,13 +101,13 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify({ text: reply }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: cors,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Bilinmeyen hata.';
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: cors,
     });
   }
 };

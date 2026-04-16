@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getPost, writePost } from '../../../lib/blogFs';
 import type { BlogFm } from '../../../lib/blogFs';

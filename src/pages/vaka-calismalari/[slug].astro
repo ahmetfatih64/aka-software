@@ -1,5 +1,6 @@
 ---
-// SSR dynamic route — fetch at request time, not via getStaticPaths()
+export const prerender = false;
+// SSR dynamic route — fetch at request time
 import { getEntry } from 'astro:content';
 import BaseLayout      from '../../layouts/BaseLayout.astro';
 import MarkdownContent from '../../components/MarkdownContent.astro';

@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { db, Payments, Invoices, eq } from 'astro:db';
 

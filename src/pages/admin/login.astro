@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 const error = Astro.url.searchParams.get('error');
 const errorMsg = error === '1' ? 'Kullanıcı adı veya şifre hatalı.' :
                  error === 'config' ? 'Sunucu yapılandırma hatası.' : null;
