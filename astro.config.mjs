@@ -22,12 +22,13 @@ if (!process.env.ASTRO_DATABASE_FILE) {
 export default defineConfig({
   site: 'https://akasoftware.com',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: node({ mode: 'standalone', host: true }),
   vite: {
     plugins: [tailwindcss()]
   },
   integrations: [sitemap(), db()],
   server: {
-    port: 1003
+    port: parseInt(process.env.PORT || '1003'),
+    host: true
   }
 });

@@ -6,7 +6,7 @@ export default async function seed() {
 
   await db.insert(SiteSettings).values([
     // İletişim
-    { id: 1,  key: 'contact.email',   value: 'info@akasoftware.com',    label: 'E-posta',          group: 'iletisim' },
+    { id: 1,  key: 'contact.email',   value: 'info@akasoftware.com.tr',    label: 'E-posta',          group: 'iletisim' },
     { id: 2,  key: 'contact.phone',   value: '+90 (555) 000 00 00',     label: 'Telefon',          group: 'iletisim' },
     { id: 3,  key: 'contact.address', value: 'İstanbul, Türkiye',       label: 'Adres',            group: 'iletisim' },
     { id: 4,  key: 'contact.hours',   value: 'Pzt–Cum, 09:00–18:00',    label: 'Çalışma Saatleri', group: 'iletisim' },

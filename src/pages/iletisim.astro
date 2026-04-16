@@ -33,8 +33,8 @@ const data = page?.data || { title: "İletişim" };
           </div>
           <div>
             <p class="contact-method-label">E-posta</p>
-            <a href="mailto:info@akasoftware.com" class="contact-email">
-              info@akasoftware.com
+            <a href="mailto:info@akasoftware.com.tr" class="contact-email">
+              info@akasoftware.com.tr
             </a>
           </div>
         </div>
@@ -454,7 +454,7 @@ const data = page?.data || { title: "İletişim" };
   // ── Validation rules ───────────────────────────────────────────
   var rules = {
     name: {
-      el: form.elements.namedItem('name'),
+      el: document.getElementById('name'),
       errId: 'name-error',
       check: function (v) {
         if (!v)          return 'Ad soyad zorunludur.';
@@ -464,7 +464,7 @@ const data = page?.data || { title: "İletişim" };
       }
     },
     email: {
-      el: form.elements.namedItem('email'),
+      el: document.getElementById('email'),
       errId: 'email-error',
       check: function (v) {
         if (!v) return 'E-posta adresi zorunludur.';
@@ -473,7 +473,7 @@ const data = page?.data || { title: "İletişim" };
       }
     },
     message: {
-      el: form.elements.namedItem('message'),
+      el: document.getElementById('message'),
       errId: 'message-error',
       check: function (v) {
         if (!v)            return 'Mesaj zorunludur.';
@@ -551,10 +551,11 @@ const data = page?.data || { title: "İletişim" };
       return;
     }
 
+    var formData = new FormData(form);
     setLoading(true);
 
     try {
-      var res  = await fetch('/api/contact', { method: 'POST', body: new FormData(form) });
+      var res  = await fetch('/api/contact', { method: 'POST', body: formData });
       var json = await res.json().catch(function () { return {}; });
 
       if (res.ok && json.success) {
