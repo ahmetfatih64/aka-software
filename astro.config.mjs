@@ -26,6 +26,9 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   },
+  security: {
+    checkOrigin: false
+  },
   integrations: [sitemap(), db()],
   server: {
     port: parseInt(process.env.PORT || '1003'),
