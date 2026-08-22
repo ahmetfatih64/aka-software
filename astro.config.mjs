@@ -20,16 +20,22 @@ if (!process.env.ASTRO_DATABASE_FILE) {
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://akasoftware.com',
-  output: 'static',
+  site: 'https://akasoftware.com.tr',
+  // Tek sunucu kurulumu: API rotalari ve admin paneli SSR gerektiriyor.
+  output: 'server',
   adapter: node({ mode: 'standalone', host: true }),
   vite: {
     plugins: [tailwindcss()]
   },
+  // Ters proxy arkasinda Astro istegin genel adresini goremiyor; checkOrigin
+  // acilirsa tum POST istekleri (sohbet, iletisim formu) 403 olur.
   security: {
     checkOrigin: false
   },
-  integrations: [sitemap(), db()],
+  integrations: [
+    sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/admin') }),
+    db()
+  ],
   server: {
     port: parseInt(process.env.PORT || '1003'),
     host: true

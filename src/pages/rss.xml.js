@@ -9,7 +9,7 @@ export async function GET(context) {
     return rss({
         title: 'AKA Software Blog',
         description: 'Yazılım, AI ve Teknoloji Danışmanlığı Üzerine Gelişmeler',
-        site: context.site || 'https://akasoftware.com',
+        site: context.site || 'https://akasoftware.com.tr',
         items: blog.map((post) => ({
             title: post.data.title,
             pubDate: post.data.publishDate,
