@@ -43,14 +43,14 @@ const ogImage = new URL('/ana_logo.png', Astro.site);
     <link rel="canonical" href={canonicalURL} />
 
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDesc} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:image" content={ogImage} />
 
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={metaTitle} />
     <meta property="twitter:description" content={metaDesc} />
     <meta property="twitter:image" content={ogImage} />
