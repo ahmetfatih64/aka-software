@@ -4,7 +4,8 @@ import { db, ChatSessions, ChatMessages } from 'astro:db';
 import { eq } from 'astro:db';
 import { corsHeaders } from '../../lib/cors';
 
-const N8N_WEBHOOK = 'https://akasoftware.app.n8n.cloud/webhook/aka-chat';
+const N8N_WEBHOOK =
+  import.meta.env.N8N_WEBHOOK_URL ?? 'https://62.238.105.156.sslip.io/webhook/aka-chat';
 
 export const OPTIONS: APIRoute = ({ request }) => {
   return new Response(null, { status: 204, headers: corsHeaders(request) });
