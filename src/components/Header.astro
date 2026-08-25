@@ -21,7 +21,7 @@ const currentPath = Astro.url.pathname;
     >
 
       <!-- Logo -->
-      <a href="/" aria-label="AKA Software Ana Sayfa" class="header-logo flex-shrink-0">
+      <a href="/" aria-label="AKA Software Ana Sayfa" data-i18n-aria="nav.homeAria" class="header-logo flex-shrink-0">
         <img
           src="/ana_logo.png"
           alt="AKA Software"
@@ -35,7 +35,7 @@ const currentPath = Astro.url.pathname;
       </a>
 
       <!-- Desktop nav -->
-      <nav class="hidden items-center gap-0.5 md:flex" aria-label="Ana Navigasyon">
+      <nav class="hidden items-center gap-0.5 md:flex" aria-label="Ana Navigasyon" data-i18n-aria="nav.mainAria">
         {navLinks.map(({ href, label, key }) => {
           const isActive = currentPath === href || currentPath.startsWith(href + '/');
           return (
@@ -125,7 +125,7 @@ const currentPath = Astro.url.pathname;
       <div class="mob-sep" aria-hidden="true"></div>
 
       <!-- Links -->
-      <nav class="mob-links" id="mob-panel-title" aria-label="Mobil Navigasyon" data-mobile-nav-links>
+      <nav class="mob-links" id="mob-panel-title" aria-label="Mobil Navigasyon" data-i18n-aria="nav.mobileAria" data-mobile-nav-links>
         {navLinks.map(({ href, label, key }) => {
           const isActive = currentPath === href || currentPath.startsWith(href + '/');
           return (

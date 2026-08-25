@@ -21,19 +21,22 @@ const svcIcons: Record<string, string> = {
 };
 ---
 <BaseLayout title={data.title} seoTitle={(data as any).seoTitle} seoDescription={(data as any).seoDescription}>
-  <PageHeader title={data.title} description={(data as any).description} />
+  <PageHeader title={data.title} description={(data as any).description}
+              titleKey="page.services.title" descriptionKey="page.services.description" />
 
   {services?.items?.length > 0 && (
     <Section>
       <CardGrid columns={3}>
-        {services.items.map((svc: any) => (
+        {services.items.map((svc: any, i: number) => (
           <div class="card card-hover">
             <div class="svc-icon-wrap" set:html={svcIcons[svc.icon] ?? ''}></div>
-            <h3 class="svc-title">{svc.title}</h3>
-            <p class="svc-desc">{svc.description}</p>
+            <h3 class="svc-title" data-i18n={`services.item${i}.title`}>{svc.title}</h3>
+            <p class="svc-desc" data-i18n={`services.item${i}.desc`}>{svc.description}</p>
             {svc.features?.length > 0 && (
               <ul class="svc-features">
-                {svc.features.map((f: string) => <li>{f}</li>)}
+                {svc.features.map((f: string, j: number) => (
+                  <li data-i18n={`services.item${i}.feat${j}`}>{f}</li>
+                ))}
               </ul>
             )}
           </div>
@@ -47,6 +50,9 @@ const svcIcons: Record<string, string> = {
     description={cta?.description ?? "Sizi dinleyelim ve iş hedeflerinize uygun teknoloji yol haritasını birlikte çıkaralım."}
     buttonText={cta?.buttonText}
     buttonLink={cta?.buttonLink}
+    titleKey="services.cta.title"
+    descriptionKey="services.cta.description"
+    buttonKey="services.cta.button"
   />
 </BaseLayout>
 

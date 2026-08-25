@@ -19,7 +19,7 @@ const currentYear = new Date().getFullYear();
 
         <!-- Brand column -->
         <div class="footer-brand">
-          <a href="/" class="footer-logo-link" aria-label="AKA Software Ana Sayfa">
+          <a href="/" class="footer-logo-link" aria-label="AKA Software Ana Sayfa" data-i18n-aria="nav.homeAria">
             <img
               src="/ana_logo.png"
               alt="AKA Software"
@@ -31,7 +31,7 @@ const currentYear = new Date().getFullYear();
               decoding="async"
             />
           </a>
-          <p class="footer-tagline">
+          <p class="footer-tagline" data-i18n="footer.tagline">
             AI ve modern yazılım teknolojileriyle işletmenizin dijital dönüşümüne rehberlik ediyoruz.
           </p>
 
@@ -44,28 +44,28 @@ const currentYear = new Date().getFullYear();
 
           <!-- Hizmetler -->
           <div class="footer-nav-col">
-            <h3 class="footer-nav-heading">Hizmetler</h3>
+            <h3 class="footer-nav-heading" data-i18n="footer.servicesHeading">Hizmetler</h3>
             <ul class="footer-nav-list">
-              <li><a href="/hizmetler"        class="footer-nav-link">Hizmetler</a></li>
-              <li><a href="/vaka-calismalari" class="footer-nav-link">Vaka Çalışmaları</a></li>
-              <li><a href="/blog"             class="footer-nav-link">Blog</a></li>
-              <li><a href="/hakkimizda"       class="footer-nav-link">Hakkımızda</a></li>
+              <li><a href="/hizmetler"        class="footer-nav-link" data-i18n="nav.services">Hizmetler</a></li>
+              <li><a href="/vaka-calismalari" class="footer-nav-link" data-i18n="nav.caseStudies">Vaka Çalışmaları</a></li>
+              <li><a href="/blog"             class="footer-nav-link" data-i18n="nav.blog">Blog</a></li>
+              <li><a href="/hakkimizda"       class="footer-nav-link" data-i18n="nav.about">Hakkımızda</a></li>
             </ul>
           </div>
 
           <!-- Yasal -->
           <div class="footer-nav-col">
-            <h3 class="footer-nav-heading">Yasal</h3>
+            <h3 class="footer-nav-heading" data-i18n="footer.legalHeading">Yasal</h3>
             <ul class="footer-nav-list">
-              <li><a href="/gizlilik"          class="footer-nav-link">Gizlilik Politikası</a></li>
-              <li><a href="/kullanim-sartlari" class="footer-nav-link">Kullanım Şartları</a></li>
-              <li><a href="/sss"               class="footer-nav-link">SSS</a></li>
+              <li><a href="/gizlilik"          class="footer-nav-link" data-i18n="footer.privacy">Gizlilik Politikası</a></li>
+              <li><a href="/kullanim-sartlari" class="footer-nav-link" data-i18n="footer.terms">Kullanım Şartları</a></li>
+              <li><a href="/sss"               class="footer-nav-link" data-i18n="footer.faq">SSS</a></li>
             </ul>
           </div>
 
           <!-- İletişim -->
           <div class="footer-nav-col">
-            <h3 class="footer-nav-heading">İletişim</h3>
+            <h3 class="footer-nav-heading" data-i18n="footer.contactHeading">İletişim</h3>
             <address class="footer-address">
               <span class="footer-address-name">Ahmet Fatih Kahya</span>
               <a href="mailto:info@akasoftware.com.tr" class="footer-email">
@@ -82,9 +82,9 @@ const currentYear = new Date().getFullYear();
       <div class="footer-bottom-rule" aria-hidden="true"></div>
       <div class="footer-bottom">
         <span class="footer-copyright">
-          &copy; {currentYear} AKA Software. Tüm hakları saklıdır.
+          &copy; {currentYear} AKA Software. <span data-i18n="footer.rights">Tüm hakları saklıdır.</span>
         </span>
-        <span class="footer-bottom-tag">AI ve Yazılım Danışmanlığı</span>
+        <span class="footer-bottom-tag" data-i18n="footer.tag">AI ve Yazılım Danışmanlığı</span>
       </div>
 
     </div>

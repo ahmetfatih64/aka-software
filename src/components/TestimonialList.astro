@@ -25,18 +25,18 @@ const { testimonials } = Astro.props;
       </div>
 
       <!-- Quote text -->
-      <blockquote class="tlist-quote">
+      <blockquote class="tlist-quote" data-i18n={`testimonials.item${i}.quote`}>
         "{t.quote}"
       </blockquote>
 
       <!-- Attribution -->
       <figcaption class="tlist-author">
-        <div class="tlist-avatar" aria-hidden="true">
+        <div class="tlist-avatar" aria-hidden="true" data-i18n-initial={`testimonials.item${i}.author`}>
           {t.author.charAt(0).toUpperCase()}
         </div>
         <div class="tlist-author-info">
-          <div class="tlist-name">{t.author}</div>
-          <div class="tlist-role">{t.role}</div>
+          <div class="tlist-name" data-i18n={`testimonials.item${i}.author`}>{t.author}</div>
+          <div class="tlist-role" data-i18n={`testimonials.item${i}.role`}>{t.role}</div>
         </div>
       </figcaption>
 

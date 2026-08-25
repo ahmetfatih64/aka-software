@@ -8,7 +8,8 @@ const page = await getEntry('pages', 'iletisim');
 const data = page?.data || { title: "İletişim" };
 ---
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
-  <PageHeader title={data.title} description={data.description} />
+  <PageHeader title={data.title} description={data.description}
+              titleKey="page.contact.title" descriptionKey="page.contact.description" />
 
   <Section>
     <div class="contact-grid">
@@ -16,8 +17,8 @@ const data = page?.data || { title: "İletişim" };
       <!-- ═══ Left: contact info ═══════════════════════════════ -->
       <div class="contact-info">
 
-        <h2 class="contact-heading">Bize Ulaşın</h2>
-        <p class="contact-body">
+        <h2 class="contact-heading" data-i18n="contact.heading">Bize Ulaşın</h2>
+        <p class="contact-body" data-i18n="contact.body">
           Projeleriniz, danışmanlık talepleriniz veya herhangi bir sorunuz için
           aşağıdaki e-posta adresinden ulaşabilirsiniz.
         </p>
@@ -32,7 +33,7 @@ const data = page?.data || { title: "İletişim" };
             </svg>
           </div>
           <div>
-            <p class="contact-method-label">E-posta</p>
+            <p class="contact-method-label" data-i18n="contact.emailLabel">E-posta</p>
             <a href="mailto:info@akasoftware.com.tr" class="contact-email">
               info@akasoftware.com.tr
             </a>
@@ -47,7 +48,7 @@ const data = page?.data || { title: "İletişim" };
         <!-- Gold top accent line -->
         <div class="contact-card-accent" aria-hidden="true"></div>
 
-        <h3 class="contact-form-heading">Mesaj Gönderin</h3>
+        <h3 class="contact-form-heading" data-i18n="contact.formHeading">Mesaj Gönderin</h3>
 
         <!-- ── Form (hidden after successful submit) ── -->
         <form
@@ -67,7 +68,7 @@ const data = page?.data || { title: "İletişim" };
 
           <!-- Name -->
           <div class="form-row">
-            <label for="name" class="form-label">
+            <label for="name" class="form-label" data-i18n="contact.nameLabel">
               Adınız Soyadınız
               <span class="form-required" aria-hidden="true">*</span>
             </label>
@@ -80,6 +81,7 @@ const data = page?.data || { title: "İletişim" };
               maxlength="100"
               class="input-field"
               placeholder="Ahmet Yılmaz"
+              data-i18n-placeholder="contact.namePlaceholder"
               aria-describedby="name-error"
             />
             <span class="field-error" id="name-error" role="alert"></span>
@@ -87,7 +89,7 @@ const data = page?.data || { title: "İletişim" };
 
           <!-- Email -->
           <div class="form-row">
-            <label for="email" class="form-label">
+            <label for="email" class="form-label" data-i18n="contact.emailFieldLabel">
               E-posta Adresiniz
               <span class="form-required" aria-hidden="true">*</span>
             </label>
@@ -100,6 +102,7 @@ const data = page?.data || { title: "İletişim" };
               maxlength="254"
               class="input-field"
               placeholder="ahmet@ornek.com"
+              data-i18n-placeholder="contact.emailPlaceholder"
               aria-describedby="email-error"
             />
             <span class="field-error" id="email-error" role="alert"></span>
@@ -107,7 +110,7 @@ const data = page?.data || { title: "İletişim" };
 
           <!-- Message -->
           <div class="form-row">
-            <label for="message" class="form-label">
+            <label for="message" class="form-label" data-i18n="contact.messageLabel">
               Mesajınız
               <span class="form-required" aria-hidden="true">*</span>
             </label>
@@ -119,6 +122,7 @@ const data = page?.data || { title: "İletişim" };
               maxlength="2000"
               class="input-field"
               placeholder="Projeniz veya sorunuz hakkında kısaca bilgi verin…"
+              data-i18n-placeholder="contact.messagePlaceholder"
               aria-describedby="message-error"
             ></textarea>
             <span class="field-error" id="message-error" role="alert"></span>
@@ -130,11 +134,16 @@ const data = page?.data || { title: "İletişim" };
           <!-- Submit -->
           <button type="submit" class="btn-primary contact-submit" id="contact-submit">
             <span class="contact-submit-label" id="contact-submit-label">
-              Gönder
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              <span class="cs-text" id="contact-submit-text" data-i18n="contact.submit">Gönder</span>
+              <svg class="cs-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
                    stroke="currentColor" stroke-width="2.2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+              <svg class="cs-spinner spinner" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
               </svg>
             </span>
           </button>
@@ -150,11 +159,11 @@ const data = page?.data || { title: "İletişim" };
               <path d="M20 6L9 17l-5-5"/>
             </svg>
           </div>
-          <h4 class="cs-title">Mesajınız alındı!</h4>
-          <p class="cs-body">
+          <h4 class="cs-title" tabindex="-1" data-i18n="contact.successTitle">Mesajınız alındı!</h4>
+          <p class="cs-body" data-i18n="contact.successBody">
             En kısa sürede size geri dönüş yapacağız. Ortalama yanıt süremiz 24 saattir.
           </p>
-          <button type="button" class="cs-reset" id="contact-reset">
+          <button type="button" class="cs-reset" id="contact-reset" data-i18n="contact.sendAnother">
             Başka bir mesaj gönder
           </button>
         </div>
@@ -365,6 +374,11 @@ const data = page?.data || { title: "İletişim" };
     gap        : 0.4375rem;
   }
 
+  /* Arrow vs. spinner — driven by .is-loading on the button */
+  .contact-submit .cs-spinner { display: none; }
+  .contact-submit.is-loading .cs-arrow   { display: none; }
+  .contact-submit.is-loading .cs-spinner { display: inline-block; }
+
   /* Loading spinner */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { animation: spin 0.75s linear infinite; }
@@ -445,22 +459,30 @@ const data = page?.data || { title: "İletişim" };
 
   var form    = document.getElementById('contact-form');
   var btn     = document.getElementById('contact-submit');
-  var label   = document.getElementById('contact-submit-label');
   var errBox  = document.getElementById('form-error');
   var success = document.getElementById('contact-success');
   var resetBtn = document.getElementById('contact-reset');
+  var textEl   = document.getElementById('contact-submit-text');
 
   if (!form) return;
 
-  // ── Validation rules ───────────────────────────────────────────
+  // ── i18n helper (engine may not have booted yet) ───────────────
+  function T(key, fallback) {
+    return (window.akaI18n && window.akaI18n.t) ? window.akaI18n.t(key, fallback) : fallback;
+  }
+
+  /*
+   * Messages are resolved at validation time, not at load time, so a language
+   * switch mid-form produces errors in the language the visitor is reading.
+   */
   var rules = {
     name: {
       el: document.getElementById('name'),
       errId: 'name-error',
       check: function (v) {
-        if (!v)          return 'Ad soyad zorunludur.';
-        if (v.length < 2) return 'En az 2 karakter girin.';
-        if (v.length > 100) return 'Ad soyad çok uzun (max 100 karakter).';
+        if (!v)             return T('contact.err.nameRequired', 'Ad soyad zorunludur.');
+        if (v.length < 2)   return T('contact.err.nameShort', 'En az 2 karakter girin.');
+        if (v.length > 100) return T('contact.err.nameLong', 'En fazla 100 karakter girin.');
         return null;
       }
     },
@@ -468,8 +490,10 @@ const data = page?.data || { title: "İletişim" };
       el: document.getElementById('email'),
       errId: 'email-error',
       check: function (v) {
-        if (!v) return 'E-posta adresi zorunludur.';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Geçerli bir e-posta adresi girin.';
+        if (!v) return T('contact.err.emailRequired', 'E-posta zorunludur.');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+          return T('contact.err.emailInvalid', 'Geçerli bir e-posta adresi girin.');
+        }
         return null;
       }
     },
@@ -477,9 +501,9 @@ const data = page?.data || { title: "İletişim" };
       el: document.getElementById('message'),
       errId: 'message-error',
       check: function (v) {
-        if (!v)            return 'Mesaj zorunludur.';
-        if (v.length < 10) return 'En az 10 karakter girin.';
-        if (v.length > 2000) return 'Mesaj 2000 karakteri aşamaz.';
+        if (!v)              return T('contact.err.messageRequired', 'Mesaj zorunludur.');
+        if (v.length < 10)   return T('contact.err.messageShort', 'En az 10 karakter girin.');
+        if (v.length > 2000) return T('contact.err.messageLong', 'Mesaj 2000 karakteri aşamaz.');
         return null;
       }
     }
@@ -521,17 +545,19 @@ const data = page?.data || { title: "İletişim" };
   }
 
   // ── Loading state ──────────────────────────────────────────────
-  var LABEL_DEFAULT = label.innerHTML;
-  var LABEL_LOADING =
-    '<svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none"' +
-    ' stroke="currentColor" stroke-width="2.5" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>' +
-    '<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>' +
-    '</svg> Gönderiliyor\u2026';
-
+  /*
+   * Swapping innerHTML here used to freeze the button label in whichever
+   * language was active when the script first ran. Toggling a class keeps the
+   * [data-i18n] node alive so the engine can retranslate it at any time.
+   */
   function setLoading(on) {
-    btn.disabled   = on;
-    label.innerHTML = on ? LABEL_LOADING : LABEL_DEFAULT;
+    btn.disabled = on;
+    btn.classList.toggle('is-loading', on);
+    if (textEl) {
+      textEl.textContent = on
+        ? T('contact.sending', 'Gönderiliyor…')
+        : T('contact.submit', 'Gönder');
+    }
     form.querySelectorAll('.input-field').forEach(function (el) {
       el.disabled = on;
     });
@@ -572,13 +598,13 @@ const data = page?.data || { title: "İletişim" };
           setFieldError(json.field, json.error);
           rules[json.field].el.focus();
         } else {
-          errBox.textContent = json.error || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+          errBox.textContent = json.error || T('contact.err.generic', 'Bir hata oluştu. Lütfen tekrar deneyin.');
           errBox.hidden      = false;
         }
         setLoading(false);
       }
     } catch (_) {
-      errBox.textContent = 'Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin.';
+      errBox.textContent = T('contact.err.network', 'Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin.');
       errBox.hidden      = false;
       setLoading(false);
     }

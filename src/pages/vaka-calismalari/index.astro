@@ -22,7 +22,8 @@ const pageData = await getEntry('pages', 'vaka-calismalari') || {
 };
 ---
 <BaseLayout title={pageData.data.title} seoTitle={pageData.data.seoTitle} seoDescription={pageData.data.seoDescription}>
-  <PageHeader title={pageData.data.title} description={pageData.data.description} />
+  <PageHeader title={pageData.data.title} description={pageData.data.description}
+              titleKey="page.caseStudies.title" descriptionKey="page.caseStudies.description" />
 
   <Section>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -32,7 +33,7 @@ const pageData = await getEntry('pages', 'vaka-calismalari') || {
         ))
       ) : (
         <div class="col-span-full text-center py-12">
-          <p class="text-base" style="color: rgb(var(--color-fg-muted));">Vaka çalışması yakında eklenecektir.</p>
+          <p class="text-base" style="color: rgb(var(--color-fg-muted));" data-i18n="caseStudies.empty">Vaka çalışması yakında eklenecektir.</p>
         </div>
       )}
     </div>

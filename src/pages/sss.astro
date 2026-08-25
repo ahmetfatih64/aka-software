@@ -28,7 +28,8 @@ const faqItems = [
 ];
 ---
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
-  <PageHeader title={data.title} description={data.description} />
+  <PageHeader title={data.title} description={data.description}
+              titleKey="page.faq.title" descriptionKey="page.faq.description" />
 
   <Section>
     <FAQList items={faqItems} />

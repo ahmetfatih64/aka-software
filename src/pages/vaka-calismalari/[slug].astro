@@ -37,17 +37,17 @@ const { Content } = await study.render();
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          Vaka Çalışmaları
+          <span data-i18n="nav.caseStudies">Vaka Çalışmaları</span>
         </a>
         <span class="cs-sep" aria-hidden="true"></span>
-        <span class="cs-industry">{study.data.industry}</span>
+        <span class="cs-industry" data-i18n={`cases.${slug}.industry`}>{study.data.industry}</span>
       </div>
 
       <!-- Title -->
-      <h1 class="cs-title">{study.data.title}</h1>
+      <h1 class="cs-title" data-i18n={`cases.${slug}.title`}>{study.data.title}</h1>
 
       <!-- Description -->
-      <p class="cs-desc">{study.data.description}</p>
+      <p class="cs-desc" data-i18n={`cases.${slug}.description`}>{study.data.description}</p>
 
     </div>
   </header>
@@ -58,10 +58,10 @@ const { Content } = await study.render();
       <div class="cs-meta-grid">
 
         <div class="cs-meta-col">
-          <h3 class="cs-meta-label">Sunulan Hizmetler</h3>
+          <h3 class="cs-meta-label" data-i18n="cases.servicesLabel">Sunulan Hizmetler</h3>
           <div class="cs-tags">
-            {study.data.services.map((s: string) => (
-              <span class="cs-tag cs-tag--service">{s}</span>
+            {study.data.services.map((s: string, i: number) => (
+              <span class="cs-tag cs-tag--service" data-i18n={`cases.${slug}.service${i}`}>{s}</span>
             ))}
           </div>
         </div>
@@ -69,7 +69,7 @@ const { Content } = await study.render();
         <div class="cs-meta-divider" aria-hidden="true"></div>
 
         <div class="cs-meta-col">
-          <h3 class="cs-meta-label">Kullanılan Teknolojiler</h3>
+          <h3 class="cs-meta-label" data-i18n="cases.techLabel">Kullanılan Teknolojiler</h3>
           <div class="cs-tags">
             {study.data.tech.map((t: string) => (
               <span class="cs-tag cs-tag--tech">{t}</span>
@@ -92,19 +92,19 @@ const { Content } = await study.render();
           <div class="cs-hl-rule-t" aria-hidden="true"></div>
           <div class="cs-hl-rule-b" aria-hidden="true"></div>
 
-          <h3 class="cs-hl-title">
+          <h3 class="cs-hl-title" data-i18n="cases.highlightsLabel">
             <span class="cs-hl-title-dot" aria-hidden="true"></span>
             Öne Çıkan Sonuçlar
           </h3>
           <ul class="cs-hl-list" role="list">
-            {study.data.highlights.map((h: string) => (
+            {study.data.highlights.map((h: string, i: number) => (
               <li class="cs-hl-item" role="listitem">
                 <span class="cs-hl-check" aria-hidden="true">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </span>
-                <span>{h}</span>
+                <span data-i18n={`cases.${slug}.highlight${i}`}>{h}</span>
               </li>
             ))}
           </ul>
@@ -113,7 +113,9 @@ const { Content } = await study.render();
 
       <!-- Markdown body -->
       <MarkdownContent>
-        <Content />
+        <div data-i18n-html={`cases.${slug}.body`}>
+          <Content />
+        </div>
       </MarkdownContent>
 
     </div>
@@ -123,6 +125,8 @@ const { Content } = await study.render();
   <FinalCTA
     title="Benzer sonuçlar için konuşalım"
     description="Projenizi anlayalım, uygun teknik yaklaşımı birlikte tasarlayalım."
+    titleKey="cases.ctaTitle"
+    descriptionKey="cases.ctaDescription"
   />
 
 </BaseLayout>

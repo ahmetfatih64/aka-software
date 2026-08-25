@@ -20,24 +20,24 @@ const { title, description, publishDate, tags } = post.data;
     <!-- Tags -->
     {tags.length > 0 && (
       <div class="post-tags">
-        {tags.map((tag: string) => (
-          <span class="badge badge-gold">{tag}</span>
+        {tags.map((tag: string, i: number) => (
+          <span class="badge badge-gold" data-i18n={`blog.${post.slug}.tag${i}`}>{tag}</span>
         ))}
       </div>
     )}
 
     <!-- Title -->
-    <h3 class="post-title">{title}</h3>
+    <h3 class="post-title" data-i18n={`blog.${post.slug}.title`}>{title}</h3>
 
     <!-- Description -->
-    <p class="post-desc">{description}</p>
+    <p class="post-desc" data-i18n={`blog.${post.slug}.description`}>{description}</p>
 
     <!-- Footer: date + read more -->
     <div class="post-footer">
-      <time class="post-date" datetime={publishDate.toISOString()}>
+      <time class="post-date" datetime={publishDate.toISOString()} data-i18n-date>
         {publishDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
       </time>
-      <span class="post-read-more" aria-hidden="true">
+      <span class="post-read-more" aria-hidden="true" data-i18n="insights.readMore">
         Devamı
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2.2"

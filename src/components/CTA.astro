@@ -4,12 +4,19 @@ interface Props {
   description?: string;
   buttonText?: string;
   buttonLink?: string;
+  /** i18n keys — when set, the client engine swaps the copy per language. */
+  titleKey?: string;
+  descriptionKey?: string;
+  buttonKey?: string;
 }
 const {
   title       = "Projeleriniz için AI destekli çözümler",
   description = "İşletmenizi bir adım öteye taşımak için uzman ekibimizle tanışın.",
   buttonText  = "Ücretsiz Keşif Görüşmesi",
-  buttonLink  = "/iletisim"
+  buttonLink  = "/iletisim",
+  titleKey,
+  descriptionKey,
+  buttonKey
 } = Astro.props;
 ---
 
@@ -43,23 +50,23 @@ const {
       <div class="cta-content reveal">
 
         <!-- Eyebrow label -->
-        <p class="cta-eyebrow" aria-hidden="true">
+        <p class="cta-eyebrow" aria-hidden="true" data-i18n="finalCta.eyebrow">
           <span class="cta-eyebrow-dot"></span>
           Birlikte İnşa Edelim
         </p>
 
         <!-- Headline -->
-        <h2 class="cta-title">{title}</h2>
+        <h2 class="cta-title" data-i18n={titleKey}>{title}</h2>
 
         <!-- Supporting copy -->
-        <p class="cta-desc">{description}</p>
+        <p class="cta-desc" data-i18n={descriptionKey}>{description}</p>
 
         <!-- Divider before button -->
         <div class="cta-divider" aria-hidden="true"></div>
 
         <!-- CTA action -->
         <div class="cta-action">
-          <a href={buttonLink} class="cta-btn btn-primary">
+          <a href={buttonLink} class="cta-btn btn-primary" data-i18n={buttonKey}>
             {buttonText}
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2.2"

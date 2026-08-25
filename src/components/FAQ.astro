@@ -10,10 +10,10 @@ const { items } = Astro.props;
 ---
 
 <div class="faq-list">
-  {items.map(item => (
+  {items.map((item, i) => (
     <details class="faq-item reveal">
       <summary class="faq-summary" tabindex="0">
-        <span class="faq-q">{item.q}</span>
+        <span class="faq-q" data-i18n={`faq.q${i}`}>{item.q}</span>
         <span class="faq-chevron" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.75"
@@ -24,7 +24,7 @@ const { items } = Astro.props;
       </summary>
       <div class="faq-body">
         <div class="faq-inner">
-          <p class="faq-answer">{item.a}</p>
+          <p class="faq-answer" data-i18n={`faq.a${i}`}>{item.a}</p>
         </div>
       </div>
     </details>

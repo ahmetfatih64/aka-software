@@ -4,12 +4,21 @@ interface Props {
   description?: string;
   buttonText? : string;
   buttonLink? : string;
+  /**
+   * i18n keys for the headline/description. Callers that pass their own copy
+   * must pass matching keys too, otherwise the engine would translate the
+   * text back to the generic homepage CTA.
+   */
+  titleKey?      : string;
+  descriptionKey?: string;
 }
 const {
   title       = "Güçlü bir teknoloji partneri arıyorsanız doğru yerdesiniz",
   description = "Projenizi anlayalım, teknik yaklaşımı birlikte tasarlayalım. İlk görüşme ücretsiz ve bağlayıcı değil.",
   buttonText  = "Keşif Görüşmesi Ayarlayalım",
-  buttonLink  = "/iletisim"
+  buttonLink  = "/iletisim",
+  titleKey       = "finalCta.title",
+  descriptionKey = "finalCta.description"
 } = Astro.props;
 ---
 
@@ -39,10 +48,10 @@ const {
         </p>
 
         <!-- Headline -->
-        <h2 class="fcta-title" data-i18n="finalCta.title">{title}</h2>
+        <h2 class="fcta-title" data-i18n={titleKey}>{title}</h2>
 
         <!-- Description -->
-        <p class="fcta-desc" data-i18n="finalCta.description">{description}</p>
+        <p class="fcta-desc" data-i18n={descriptionKey}>{description}</p>
 
         <!-- Trust indicators -->
         <div class="fcta-trust" role="list">

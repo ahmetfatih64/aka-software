@@ -33,21 +33,30 @@ const bubbleTexts: Record<string, string> = {
   admin:      'İş akışınızı hızlandırabilirim.',
 };
 const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') ? bubbleTexts['admin'] : bubbleTexts['homepage']);
+
+/*
+ * Only the public pages are bilingual. Admin sub-contexts keep their own
+ * Turkish copy, so they get no key and the i18n engine leaves them alone.
+ */
+const PUBLIC_CONTEXTS = ['homepage', 'hizmetler', 'hakkimizda', 'iletisim', 'sss'];
+const isPublic     = PUBLIC_CONTEXTS.includes(pageContext);
+const greetingKey  = isPublic ? `ai.greeting.${pageContext}` : undefined;
+const bubbleKey    = isPublic ? `ai.bubble.${pageContext}`   : undefined;
 ---
 
 <!-- ── Greeting bubble ── -->
 <div id="ai-bubble">
-  <span id="ai-bubble-close" aria-label="Kapat">×</span>
-  <div class="ai-bubble-label">
+  <span id="ai-bubble-close" aria-label="Kapat" data-i18n-aria="ai.closeAria">×</span>
+  <div class="ai-bubble-label" data-i18n="ai.name">
     <span class="ai-bubble-label-dot"></span>
     AKA AI Asistan
   </div>
-  {bubbleText}
+  <span data-i18n={bubbleKey}>{bubbleText}</span>
   <span class="ai-bubble-tail"></span>
 </div>
 
 <!-- ── Floating toggle button ── -->
-<button id="ai-btn" aria-label="AKA AI Asistan panelini aç">
+<button id="ai-btn" aria-label="AKA AI Asistan panelini aç" data-i18n-aria="ai.openAria">
   <span class="ai-btn-ring"></span>
   <img src="/aka_aiAsistan.png" alt="" class="ai-btn-img" draggable="false"/>
 </button>
@@ -61,11 +70,11 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
         <span class="ai-head-online"></span>
       </div>
       <div>
-        <div class="ai-head-name">AKA AI Asistan</div>
-        <div class="ai-head-status"><span class="ai-dot"></span>Çevrimiçi · Hemen yanıt verir</div>
+        <div class="ai-head-name" data-i18n="ai.name">AKA AI Asistan</div>
+        <div class="ai-head-status" data-i18n="ai.status"><span class="ai-dot"></span>Çevrimiçi · Hemen yanıt verir</div>
       </div>
     </div>
-    <button class="ai-close" id="ai-close" aria-label="Kapat">
+    <button class="ai-close" id="ai-close" aria-label="Kapat" data-i18n-aria="ai.closeAria">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
@@ -74,13 +83,13 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
 
   <div class="ai-messages" id="ai-messages">
     <div class="ai-msg ai-msg--bot ai-msg--visible">
-      <div class="ai-msg-avatar">AI</div>
+      <div class="ai-msg-avatar" data-i18n="ai.botShort">AI</div>
       <div class="ai-msg-col">
-        <div class="ai-msg-label">AKA AI</div>
+        <div class="ai-msg-label" data-i18n="ai.bot">AKA AI</div>
         <div class="ai-msg-bubble">
-          <div class="ai-md">{greeting}</div>
+          <div class="ai-md" id="ai-greeting" data-greeting-key={greetingKey}>{greeting}</div>
         </div>
-        <div class="ai-msg-time">şimdi</div>
+        <div class="ai-msg-time" data-i18n="ai.now">şimdi</div>
       </div>
     </div>
   </div>
@@ -91,10 +100,11 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
       id="ai-input"
       class="ai-input"
       placeholder="Bir şey sorun…"
+      data-i18n-placeholder="ai.inputPlaceholder"
       maxlength="500"
       autocomplete="off"
     />
-    <button type="submit" class="ai-send" id="ai-send" aria-label="Gönder">
+    <button type="submit" class="ai-send" id="ai-send" aria-label="Gönder" data-i18n-aria="ai.sendAria">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/>
       </svg>
@@ -681,6 +691,14 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
   var pageContext = panel ? (panel.dataset.context || 'homepage') : 'homepage';
   var mode        = panel ? (panel.dataset.mode    || 'website')  : 'website';
 
+  /* ── i18n helpers (engine may not have booted yet) ── */
+  function T(key, fallback) {
+    return (window.akaI18n && window.akaI18n.t) ? window.akaI18n.t(key, fallback) : fallback;
+  }
+  function currentLang() {
+    return (window.akaI18n && window.akaI18n.lang) ? window.akaI18n.lang() : 'tr';
+  }
+
   /* ── Greeting bubble ── */
   function hideGreet() {
     greet.classList.add('hiding');
@@ -861,7 +879,8 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
     // Avatar
     var avatar = document.createElement('div');
     avatar.className = 'ai-msg-avatar';
-    avatar.textContent = isUser ? 'Sen' : 'AI';
+    avatar.setAttribute('data-i18n', isUser ? 'ai.youShort' : 'ai.botShort');
+    avatar.textContent = isUser ? T('ai.youShort', 'Sen') : T('ai.botShort', 'AI');
 
     // Column (label + bubble + time)
     var col = document.createElement('div');
@@ -869,7 +888,8 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
 
     var label = document.createElement('div');
     label.className = 'ai-msg-label';
-    label.textContent = isUser ? 'Siz' : 'AKA AI';
+    label.setAttribute('data-i18n', isUser ? 'ai.you' : 'ai.bot');
+    label.textContent = isUser ? T('ai.you', 'Siz') : T('ai.bot', 'AKA AI');
 
     var bub = document.createElement('div');
     bub.className = 'ai-msg-bubble';
@@ -907,12 +927,14 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
     row.className = 'ai-msg ai-msg--bot';
     var avatar = document.createElement('div');
     avatar.className = 'ai-msg-avatar';
-    avatar.textContent = 'AI';
+    avatar.setAttribute('data-i18n', 'ai.botShort');
+    avatar.textContent = T('ai.botShort', 'AI');
     var col = document.createElement('div');
     col.className = 'ai-msg-col';
     var label = document.createElement('div');
     label.className = 'ai-msg-label';
-    label.textContent = 'AKA AI';
+    label.setAttribute('data-i18n', 'ai.bot');
+    label.textContent = T('ai.bot', 'AKA AI');
     var bub = document.createElement('div');
     bub.className = 'ai-msg-bubble';
     bub.innerHTML = '<div class="ai-typing-dots"><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span></div>';
@@ -955,6 +977,8 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
         sessionId: sessionId,
         pageContext: pageContext,
         mode: mode,
+        // The visitor's chosen site language decides the reply language.
+        lang: currentLang(),
       }),
     })
     .then(function (res) {
@@ -965,14 +989,14 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
     })
     .then(function (data) {
       if (typingRow.parentNode) msgs.removeChild(typingRow);
-      var reply = data.text || 'Yanıt alınamadı.';
+      var reply = data.text || T('ai.noReply', 'Yanıt alınamadı.');
       makeMsg('bot', reply);
       setLoading(false);
 
     })
     .catch(function (err) {
       if (typingRow.parentNode) msgs.removeChild(typingRow);
-      var fallback = 'Şu an yanıt veremiyorum. Lütfen birkaç saniye sonra tekrar deneyin.';
+      var fallback = T('ai.errorFallback', 'Şu an yanıt veremiyorum. Lütfen birkaç saniye sonra tekrar deneyin.');
       var errBub = makeMsg('bot', fallback);
       errBub.classList.add('error');
       setLoading(false);
@@ -985,6 +1009,31 @@ const bubbleText = bubbleTexts[pageContext] ?? (pageContext.startsWith('admin') 
       form.dispatchEvent(new Event('submit'));
     }
   });
+
+  /*
+   * The greeting is authored in markdown. Rendering it through renderMd both
+   * turns **bold** into real markup and lets it follow the active language.
+   */
+  function paintGreeting() {
+    var host = document.getElementById('ai-greeting');
+    if (!host) return;
+
+    // Remember the server-rendered Turkish source before we overwrite it.
+    if (!host.dataset.source) host.dataset.source = host.textContent.trim();
+
+    var key = host.getAttribute('data-greeting-key');
+    var raw = key ? T(key, host.dataset.source) : host.dataset.source;
+
+    var rendered = renderMd(raw.trim());
+    host.innerHTML = rendered.innerHTML;
+  }
+
+  paintGreeting();
+
+  if (window.akaI18n && window.akaI18n.ready) {
+    window.akaI18n.ready(paintGreeting);
+  }
+  document.addEventListener('aka:langchange', paintGreeting);
 
 }());
 </script>

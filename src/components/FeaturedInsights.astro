@@ -37,21 +37,21 @@ function formatDate(date: string | Date) {
           <!-- Tags -->
           {post.data.tags && post.data.tags.length > 0 && (
             <div class="fi-tags">
-              {post.data.tags.slice(0, 2).map((tag: string) => (
-                <span class="fi-tag">{tag}</span>
+              {post.data.tags.slice(0, 2).map((tag: string, ti: number) => (
+                <span class="fi-tag" data-i18n={`blog.${post.slug}.tag${ti}`}>{tag}</span>
               ))}
             </div>
           )}
 
           <!-- Title -->
-          <h3 class="fi-title">{post.data.title}</h3>
+          <h3 class="fi-title" data-i18n={`blog.${post.slug}.title`}>{post.data.title}</h3>
 
           <!-- Description -->
-          <p class="fi-desc">{post.data.description}</p>
+          <p class="fi-desc" data-i18n={`blog.${post.slug}.description`}>{post.data.description}</p>
 
           <!-- Footer: date + read link -->
           <div class="fi-foot">
-            <time class="fi-date" datetime={post.data.publishDate instanceof Date ? post.data.publishDate.toISOString() : String(post.data.publishDate)}>
+            <time class="fi-date" data-i18n-date datetime={post.data.publishDate instanceof Date ? post.data.publishDate.toISOString() : String(post.data.publishDate)}>
               {formatDate(post.data.publishDate)}
             </time>
             <span class="fi-read-link" aria-hidden="true" data-i18n="insights.read">

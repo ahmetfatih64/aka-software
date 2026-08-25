@@ -4,6 +4,13 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AiAssistant from '../components/AiAssistant.astro';
 
+/*
+ * Evaluated once when the module loads, i.e. once per server boot — which is
+ * once per deploy. Used to bust the browser cache on /i18n.js and the locale
+ * files so a new build never serves stale translations.
+ */
+const assetVersion = Date.now().toString(36);
+
 interface Props {
   title: string;
   description?: string;
@@ -58,7 +65,7 @@ const ogImage = new URL('/ana_logo.png', Astro.site);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script is:inline src="/i18n.js" defer></script>
+    <script is:inline src={`/i18n.js?v=${assetVersion}`} defer></script>
   </head>
   <body class="flex min-h-screen flex-col">
 

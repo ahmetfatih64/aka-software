@@ -10,13 +10,16 @@ const data = page?.data || { title: "Hakkımızda" };
 const Content = page ? (await page.render()).Content : null;
 ---
 <BaseLayout title={data.title} seoTitle={data.seoTitle} seoDescription={data.seoDescription}>
-  <PageHeader title={data.title} description={data.description} />
+  <PageHeader title={data.title} description={data.description}
+              titleKey="page.about.title" descriptionKey="page.about.description" />
 
   <Section>
     <div class="max-w-3xl mx-auto">
       {Content ? (
         <MarkdownContent>
-          <Content />
+          <div data-i18n-html="about.body">
+            <Content />
+          </div>
         </MarkdownContent>
       ) : (
         <MarkdownContent>

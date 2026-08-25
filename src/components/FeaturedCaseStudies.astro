@@ -31,7 +31,7 @@ const featured = allStudies
 
           <!-- Industry badge -->
           <div class="fcs-meta">
-            <span class="fcs-industry">{study.data.industry}</span>
+            <span class="fcs-industry" data-i18n={`cases.${study.slug}.industry`}>{study.data.industry}</span>
             <span class="fcs-arrow" aria-hidden="true">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -40,18 +40,18 @@ const featured = allStudies
           </div>
 
           <!-- Title -->
-          <h3 class="fcs-title">{study.data.title}</h3>
+          <h3 class="fcs-title" data-i18n={`cases.${study.slug}.title`}>{study.data.title}</h3>
 
           <!-- Description -->
-          <p class="fcs-desc">{study.data.description}</p>
+          <p class="fcs-desc" data-i18n={`cases.${study.slug}.description`}>{study.data.description}</p>
 
           <!-- Highlights / outcome metrics -->
           {study.data.highlights && study.data.highlights.length > 0 && (
             <div class="fcs-outcomes">
-              {study.data.highlights.slice(0, 2).map((h: string) => (
+              {study.data.highlights.slice(0, 2).map((h: string, hi: number) => (
                 <div class="fcs-outcome">
                   <span class="fcs-outcome-dot" aria-hidden="true"></span>
-                  <span>{h}</span>
+                  <span data-i18n={`cases.${study.slug}.highlight${hi}`}>{h}</span>
                 </div>
               ))}
             </div>
@@ -60,8 +60,8 @@ const featured = allStudies
           <!-- Services row -->
           {study.data.services && study.data.services.length > 0 && (
             <div class="fcs-services">
-              {study.data.services.map((s: string) => (
-                <span class="fcs-svc-tag">{s}</span>
+              {study.data.services.map((s: string, si: number) => (
+                <span class="fcs-svc-tag" data-i18n={`cases.${study.slug}.service${si}`}>{s}</span>
               ))}
             </div>
           )}

@@ -24,19 +24,19 @@ const { Content } = await post.render();
     <div class="site-container max-w-3xl">
       <div class="mb-8">
         <div class="flex gap-2 mb-4 flex-wrap">
-          {post.data.tags.map((tag: string) => (
-            <span class="badge">{tag}</span>
+          {post.data.tags.map((tag: string, i: number) => (
+            <span class="badge" data-i18n={`blog.${slug}.tag${i}`}>{tag}</span>
           ))}
         </div>
-        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl leading-tight mb-4" style="color: rgb(var(--color-fg));">
+        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl leading-tight mb-4" style="color: rgb(var(--color-fg));" data-i18n={`blog.${slug}.title`}>
           {post.data.title}
         </h1>
         <div class="flex items-center gap-4 text-sm" style="color: rgb(var(--color-fg-faint));">
-          <time datetime={post.data.publishDate.toISOString()}>
+          <time datetime={post.data.publishDate.toISOString()} data-i18n-date>
             {post.data.publishDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
           </time>
           {post.data.updatedDate && (
-            <span>(Güncellendi: {post.data.updatedDate.toLocaleDateString('tr-TR')})</span>
+            <span><span data-i18n="blog.updated">(Güncellendi:</span> {post.data.updatedDate.toLocaleDateString('tr-TR')})</span>
           )}
         </div>
       </div>
@@ -44,7 +44,9 @@ const { Content } = await post.render();
       <div class="h-px w-full mb-8" style="background: rgb(var(--color-border));"></div>
 
       <MarkdownContent>
-        <Content />
+        <div data-i18n-html={`blog.${slug}.body`}>
+          <Content />
+        </div>
       </MarkdownContent>
     </div>
   </article>
