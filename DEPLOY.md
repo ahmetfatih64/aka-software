@@ -19,8 +19,9 @@ akasoftware.com.tr  ──▶  caddy (container, :80/:443)
 | Reverse proxy config | `/opt/n8n/Caddyfile` |
 | Server secrets | `/opt/aka/app/.env` — untracked, never in git |
 | Database | Docker volume `n8n_aka_data`, mounted at `/data` |
-| DB backups | `/opt/aka/backups/` |
-| Deploy script | `/opt/aka/deploy.sh` |
+| DB backups | `/opt/aka/backups/` (last 10 kept) |
+| Deploy bootstrap | `/opt/aka/deploy.sh` — server-side, pulls `main` then hands off |
+| Deploy logic | `scripts/deploy.sh` in this repo |
 
 The `aka` service builds from `/opt/aka/app` using the `Dockerfile` in this
 repo. The image is not pushed to a registry — it is built on the server.
@@ -28,9 +29,24 @@ repo. The image is not pushed to a registry — it is built on the server.
 ## Automatic deploys
 
 Pushing to `main` triggers `.github/workflows/deploy.yml`, which SSHes to the
-server and runs `/opt/aka/deploy.sh`. That script does a `git fetch` +
-`git reset --hard origin/main`, rebuilds the image, and recreates the
-container.
+server and runs `/opt/aka/deploy.sh`.
+
+That server-side file is deliberately tiny — it pulls `main`, then hands off
+to `scripts/deploy.sh` from the freshly pulled checkout:
+
+```sh
+#!/bin/sh
+set -e
+cd /opt/aka/app
+git fetch --prune origin
+git reset --hard origin/main
+exec sh scripts/deploy.sh
+```
+
+Everything else — backup, build, restart, health check — lives in
+`scripts/deploy.sh` in this repo, so changing the deploy process is an
+ordinary reviewed commit. The bootstrap only needs editing if the paths
+themselves move.
 
 The workflow authenticates with the `SSH_PRIVATE_KEY` repository secret. Its
 public half sits in the server's `authorized_keys` restricted to
@@ -67,13 +83,35 @@ Take a backup before anything unusual:
 docker cp aka:/data/astro.db /opt/aka/backups/astro-$(date +%Y%m%d-%H%M%S).db
 ```
 
-## Environment variables
+## Environment variables are build-time, not runtime
 
-`ASTRO_DATABASE_FILE` is baked into the image (see `Dockerfile`) because
-`@astrojs/db` reads it in the `astro:build:start` hook, before `.env` is
-loaded. Everything else comes from `/opt/aka/app/.env` — see `.env.example`.
+This is the part that surprises people, so read it before changing a secret.
 
-**`N8N_WEBHOOK_URL` is inlined at build time**, not read at runtime. Astro
-statically replaces `import.meta.env.*` when it compiles. Changing the n8n
-address therefore needs a full rebuild; restarting the container is not
-enough.
+The `aka` container is started with **no environment variables of its own** —
+the compose service defines neither `environment:` nor `env_file:`. Every
+value the app uses (`ADMIN_USER`, `ADMIN_PASS`, `ADMIN_SECRET`, the `SMTP_*`
+set, `N8N_WEBHOOK_URL`) reaches it because Astro statically replaces
+`import.meta.env.*` **while compiling**, reading `/opt/aka/app/.env` at build
+time. The values end up compiled into `dist/`.
+
+Two consequences:
+
+1. **`/opt/aka/app/.env` must exist on the server for a build to be correct.**
+   It is untracked, so `git reset --hard` in the deploy script leaves it
+   alone — but nothing recreates it if it is deleted. Keep a copy somewhere
+   safe. `.env.example` lists the keys.
+2. **Changing any secret requires a rebuild**, not a restart. `docker compose
+   restart aka` will keep serving the old baked-in values.
+
+`ASTRO_DATABASE_FILE` is the exception: it is set as a real `ENV` in the
+`Dockerfile`, because `@astrojs/db` reads it in the `astro:build:start` hook,
+which runs before `.env` is loaded at all.
+
+### Worth tightening later
+
+Because the secrets are compiled into `dist/`, they live inside the
+`aka-software:latest` image. The image is built on the server and never
+pushed to a registry, so it is not exposed today — but do not push it
+anywhere without moving the runtime secrets to `environment:`/`env_file:` in
+compose first. Only the values Astro genuinely needs at build time have to
+stay in `.env`.
